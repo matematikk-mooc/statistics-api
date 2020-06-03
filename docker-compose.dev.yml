@@ -1,0 +1,48 @@
+version: '3'
+
+networks:
+  backend_canvas-net:
+    external: true
+  statistics_api-net:
+    driver: bridge
+
+services:
+
+
+### NGINX ################################################
+    nginx:
+      ports:
+        - "8003:443"
+
+### MySQL ################################################
+    api-database:
+      image: mysql:5.7.30
+      environment:
+        - MYSQL_DATABASE=${MYSQL_DATABASE}
+        - MYSQL_USER=${MYSQL_USER}
+        - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+        - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+        - TZ=${WORKSPACE_TIMEZONE}
+      ports:
+        - "${MYSQL_PORT}:3306"
+      networks:
+        statistics_api-net:
+          aliases:
+            - api-database
+
+
+### Statistics API #######################################
+    statistics_api:
+      build:
+        dockerfile: Dockerfile.dev
+      environment:
+        - CA_FILE_NAME=ca.crt
+        - DB_HOST=api-database
+        - DB_DATABASE=${MYSQL_DATABASE}
+        - DB_USERNAME=${MYSQL_USER}
+        - DB_PASSWORD=${MYSQL_PASSWORD}
+      networks:
+        - backend_canvas-net
+        - statistics_api-net
+      depends_on:
+        - api-database

@@ -1,0 +1,6 @@
+FROM nginx:1.19.0
+COPY default.conf /etc/nginx/conf.d/default.conf
+COPY nginx-selfsigned.crt /etc/ssl/certs/nginx-selfsigned.crt
+COPY nginx-selfsigned.key /etc/ssl/private/nginx-selfsigned.key
+#ARG NGINX_SERVER_NAME
+#RUN sed -i "s/NGINX_SERVER_NAME/${NGINX_SERVER_NAME}/g" /etc/nginx/conf.d/default.conf

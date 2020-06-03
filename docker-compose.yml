@@ -2,15 +2,8 @@ version: '3'
 
 services:
 
-### NGINX Server #########################################
-    nginx:
-      build:
-        context: ./nginx
-
-
 ### Statistics API #######################################
     statistics_api:
-      env_file: .env
+      image: udirkpas.azurecr.io/statistics-api
       build:
-        context: .
-        dockerfile: ./Dockerfile
+        env_file: .env

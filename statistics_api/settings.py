@@ -13,7 +13,8 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-from statistics_api.definitions import DB_DATABASE, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT
+from statistics_api.definitions import DB_DATABASE, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT, DJANGO_SECRET_KEY, \
+    DJANGO_DEBUG
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -22,10 +23,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'jasn9a32bu$$52xmncsvu@n(el4zczksb@hc=_ffm4o4ar1nah'
+SECRET_KEY = DJANGO_SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = DJANGO_DEBUG
 
 ALLOWED_HOSTS = []
 
@@ -82,7 +83,8 @@ DATABASES = {
         'NAME': DB_DATABASE,
         'USER': DB_USERNAME,
         'PASSWORD': DB_PASSWORD,
-        'HOST': DB_HOST
+        'HOST': DB_HOST,
+        'PORT': DB_PORT if DB_PORT else 3306
     }
 }
 

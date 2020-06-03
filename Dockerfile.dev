@@ -5,8 +5,8 @@ RUN apt update && apt install iputils-ping net-tools dnsutils mysql-client vim -
 RUN /app/venv/bin/python3 -m pip install -r /requirements.txt
 COPY manage.py entrypoint.sh ca.crt /app/
 COPY statistics_api /app/statistics_api/
-RUN chmod 777 /app/entrypoint.sh && chown appuser:appuser /app/entrypoint.sh
+RUN chmod 700 /app/entrypoint.sh && chown appuser:appuser /app/entrypoint.sh
 USER appuser
 WORKDIR /app/
 ENV PYTHONPATH="/app"
-CMD ["./entrypoint.sh"]
+CMD ["./wait-for-it.sh", "mysql:${MYSQL_PORT}","--", "entrypoint.sh"]

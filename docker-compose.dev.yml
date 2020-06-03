@@ -41,6 +41,8 @@ services:
         - DB_DATABASE=${MYSQL_DATABASE}
         - DB_USERNAME=${MYSQL_USER}
         - DB_PASSWORD=${MYSQL_PASSWORD}
+        - DJANGO_SECRET_KEY="jasn9a32bu$$52xmncsvu@n(el4zczksb@hc=_ffm4o4ar1nah"
+        - DJANGO_DEBUG=True
       networks:
         - backend_canvas-net
         - statistics_api-net

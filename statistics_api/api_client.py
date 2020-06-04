@@ -14,7 +14,7 @@ class ApiClient:
             "Authorization": f"Bearer {CANVAS_ACCESS_KEY}"
         })
 
-        self.web_session.verify = CA_FILE_PATH
+        self.web_session.verify = CA_FILE_PATH if CA_FILE_PATH else self.web_session.verify
 
     def get_group_categories_by_course(self, course_id: int) -> Tuple[Dict]:
         url = f"{CANVAS_API_URL}/courses/{course_id}/group_categories?per_page=100"

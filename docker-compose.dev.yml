@@ -11,6 +11,8 @@ services:
 
 ### NGINX ################################################
     nginx:
+      build:
+        context: ./nginx
       ports:
         - "8003:443"
 
@@ -33,9 +35,9 @@ services:
 
 ### Statistics API #######################################
     statistics_api:
+      env_file: .env
       build:
-	env_file: .env
-	context: .
+        context: .
         dockerfile: Dockerfile.dev
       environment:
         - CA_FILE_NAME=ca.crt

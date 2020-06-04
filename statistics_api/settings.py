@@ -14,7 +14,7 @@ import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 from statistics_api.definitions import DB_DATABASE, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT, DJANGO_SECRET_KEY, \
-    DJANGO_DEBUG
+    DJANGO_DEBUG, DJANGO_ALLOWED_HOSTS
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -28,7 +28,7 @@ SECRET_KEY = DJANGO_SECRET_KEY
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = DJANGO_DEBUG
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = DJANGO_ALLOWED_HOSTS
 
 
 # Application definition

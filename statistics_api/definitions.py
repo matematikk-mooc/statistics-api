@@ -1,3 +1,4 @@
+from distutils import util
 import os
 
 from sqlalchemy.ext.declarative import declarative_base
@@ -30,6 +31,6 @@ Base = declarative_base()
 STRFTIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 DJANGO_SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
-DJANGO_DEBUG = bool(os.getenv("DJANGO_DEBUG")) if os.getenv("DJANGO_DEBUG") is not None else False
+DJANGO_DEBUG = bool(util.strtobool(os.getenv("DJANGO_DEBUG"))) if os.getenv("DJANGO_DEBUG") is not None else False
 DJANGO_ALLOWED_HOSTS = [s.strip() for s in os.getenv("DJANGO_ALLOWED_HOSTS").split(',')] if os.getenv(
     "DJANGO_ALLOWED_HOSTS") else []

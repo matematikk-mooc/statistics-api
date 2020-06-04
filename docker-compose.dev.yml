@@ -13,8 +13,16 @@ services:
     nginx:
       build:
         context: ./nginx
+        dockerfile: Dockerfile.dev
+        args:
+          - STATISTICS_API_PORT=${STATISTICS_API_PORT}
+          - STATISTICS_API_HOST=statistics_api
       ports:
         - "8003:443"
+      networks:
+        - statistics_api-net
+      depends_on:
+        - statistics_api
 
 ### MySQL ################################################
     api-database:
@@ -47,6 +55,7 @@ services:
         - DB_PASSWORD=${MYSQL_PASSWORD}
         - DJANGO_SECRET_KEY="jasn9a32bu$$52xmncsvu@n(el4zczksb@hc=_ffm4o4ar1nah"
         - DJANGO_DEBUG=True
+        - DJANGO_ALLOWED_HOSTS=*
         - CANVAS_API_KEY="oRGcytCEFtGITFDrcfojCuUHwJCSjVvbcUSnHDUHM8oNv3SPz1LWNBboX06tkwt2"
       networks:
         - backend_canvas-net

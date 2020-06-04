@@ -17,11 +17,13 @@ class ApiClient:
 
     def get_group_categories_by_course(self, course_id: int) -> Tuple:
         web_response = self.web_session.get(f"{CANVAS_API_URL}/courses/{course_id}/group_categories")
+        assert web_response.status_code == 200
         return tuple(json.loads(web_response.text))
 
     def get_groups_by_group_category_id(self, group_category_id: int):
         web_response = self.web_session.get(f"{CANVAS_API_URL}/group_categories/{group_category_id}/groups",
                                             params={"include[]": "last_activity_at"})
+        assert web_response.status_code == 200
         return tuple(json.loads(web_response.text))
 
     def get_courses(self):
@@ -31,5 +33,6 @@ class ApiClient:
         """
         web_response = self.web_session.get(f"{CANVAS_API_URL}/users/{CANVAS_ACCOUNT_ID}/courses",
                                             params={'include[]': 'total_students'})
+        assert web_response.status_code == 200
         courses_dicts = json.loads(web_response.text)
         return courses_dicts

@@ -1,5 +1,5 @@
-from distutils import util
 import os
+from distutils import util
 
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -8,10 +8,10 @@ ROOT_DIR = os.path.dirname(os.path.realpath(__file__)) + "/"
 CA_FILE_NAME = os.getenv("CA_FILE_NAME")
 CA_FILE_PATH = ROOT_DIR + f"../{CA_FILE_NAME}" if CA_FILE_NAME else None
 
-CANVAS_DOMAIN = str(os.getenv("CANVAS_DOMAIN")).strip("'\"")
+CANVAS_DOMAIN = str(os.getenv("CANVAS_DOMAIN", "bibsys.test.instructure.com")).strip("'\"")
 CANVAS_API_URL = f"https://{CANVAS_DOMAIN}/api/v1"
-CANVAS_ACCESS_KEY = str(os.getenv("CANVAS_ACCESS_KEY")).strip("'\"")
-CANVAS_ACCOUNT_ID = str(os.getenv("CANVAS_ACCOUNT_ID")).strip("'\"")
+CANVAS_ACCESS_KEY = str(os.getenv("CANVAS_ACCESS_KEY", "")).strip("'\"")
+CANVAS_ACCOUNT_ID = str(os.getenv("CANVAS_ACCOUNT_ID", "147")).strip("'\"")
 
 DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT")
@@ -32,5 +32,5 @@ STRFTIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 DJANGO_SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 DJANGO_DEBUG = bool(util.strtobool(os.getenv("DJANGO_DEBUG"))) if os.getenv("DJANGO_DEBUG") is not None else False
-DJANGO_ALLOWED_HOSTS = [s.strip() for s in os.getenv("DJANGO_ALLOWED_HOSTS").split(',')] if os.getenv(
-    "DJANGO_ALLOWED_HOSTS") else []
+# DJANGO_ALLOWED_HOSTS = [s.strip() for s in os.getenv("DJANGO_ALLOWED_HOSTS").split(',')] if os.getenv(
+#    "DJANGO_ALLOWED_HOSTS") else []

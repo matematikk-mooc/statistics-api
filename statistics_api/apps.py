@@ -1,9 +1,10 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 from django.apps import AppConfig
 from django.db.models.signals import post_migrate
+
 from statistics_api.course_enrollment_activity import EnrollmentActivity
 from statistics_api.definitions import DATABASE_REFRESH_MINUTE, DATABASE_REFRESH_HOUR, CANVAS_ACCESS_KEY, CANVAS_DOMAIN
-from statistics_api.settings import GRAPHQL_URL, COURSE_FOR_GRAPHQL
+from statistics_api.settings import COURSE_FOR_GRAPHQL
 
 
 class StatisticsApiConfig(AppConfig):
@@ -31,8 +32,4 @@ class StatisticsApiConfig(AppConfig):
             scheduler.start()
 
         start_scheduler()
-        course_enrollment = EnrollmentActivity(graphql_api_url="https://{}/api/graphql".format(CANVAS_DOMAIN),
-                                               course_id=COURSE_FOR_GRAPHQL,
-                                               access_token=CANVAS_ACCESS_KEY)
-        course_enrollment.fetch_enrollment_activity()
         post_migrate.connect(self.post_migration_callback, sender=self)

@@ -13,10 +13,11 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-from statistics_api.definitions import DJANGO_SECRET_KEY, \
+from statistics_api.definitions import DB_DATABASE, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT, DJANGO_SECRET_KEY, \
     DJANGO_DEBUG, DJANGO_ALLOWED_HOSTS
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
@@ -28,6 +29,7 @@ SECRET_KEY = DJANGO_SECRET_KEY
 DEBUG = DJANGO_DEBUG
 
 ALLOWED_HOSTS = DJANGO_ALLOWED_HOSTS
+
 
 # Application definition
 
@@ -71,19 +73,21 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'statistics_api.wsgi.application'
 
+
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.contrib.gis.db.backends.mysql",
-        "NAME": os.environ.get("DB_DATABASE", "canvas_api"),
-        "USER": os.environ.get("DB_USERNAME", "root"),
-        "PASSWORD": os.environ.get("DB_PASSWORD", "root"),
-        "HOST": os.environ.get("DB_HOST", "127.0.0.1"),
-        "PORT": os.environ.get("DB_PORT", "3306"),
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': DB_DATABASE,
+        'USER': DB_USERNAME,
+        'PASSWORD': DB_PASSWORD,
+        'HOST': DB_HOST,
+        'PORT': DB_PORT if DB_PORT else 3306
     }
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
@@ -103,6 +107,7 @@ AUTH_PASSWORD_VALIDATORS = [
     # },
 ]
 
+
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
@@ -116,10 +121,12 @@ USE_L10N = True
 
 USE_TZ = True
 
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+
 
 GRAPHQL_URL = os.environ.get("GRAPHQL_URL", "https://bibsys.test.instructure.com/api/graphql")
 COURSE_FOR_GRAPHQL = os.environ.get("COURSE_FOR_GRAPHQL", 360)

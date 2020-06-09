@@ -6,6 +6,7 @@ import requests
 from python_graphql_client import GraphqlClient
 
 from statistics_api.definitions import CANVAS_ACCESS_KEY, CA_FILE_PATH
+from statistics_api.settings import KPAS_URL
 
 
 def compare_date(node):
@@ -129,7 +130,7 @@ class EnrollmentActivity(object):
         :return:
         """
         try:
-            r = self.web_session.post('https://kpaslocal.example.com/api/user_activity/', data=data)
+            r = self.web_session.post(KPAS_URL, data=data)
         except Exception as err:
             print("EnrollmentActivity error while ingesting into kpas : {0}".format(err))
             raise

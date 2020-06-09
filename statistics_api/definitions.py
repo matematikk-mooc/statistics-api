@@ -30,7 +30,7 @@ MYSQL_CASCADE = "CASCADE"
 Base = declarative_base()
 STRFTIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
-DJANGO_SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
+DJANGO_SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "jasn9a32bu$$52xmncsvu@n(el4zczksb@hc=_ffm4o4ar1nah")
 DJANGO_DEBUG = bool(util.strtobool(os.getenv("DJANGO_DEBUG"))) if os.getenv("DJANGO_DEBUG") is not None else False
-# DJANGO_ALLOWED_HOSTS = [s.strip() for s in os.getenv("DJANGO_ALLOWED_HOSTS").split(',')] if os.getenv(
-#    "DJANGO_ALLOWED_HOSTS") else []
+DJANGO_ALLOWED_HOSTS = [s.strip() for s in os.getenv("DJANGO_ALLOWED_HOSTS").split(',')] if os.getenv(
+    "DJANGO_ALLOWED_HOSTS") else ["*"]

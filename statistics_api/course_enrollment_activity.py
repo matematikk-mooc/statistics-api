@@ -16,10 +16,9 @@ def compare_date(node):
     """
     if not node["node"]['lastActivityAt']:
         return False
-    last_activity_at = arrow.get(node["node"]['lastActivityAt'])
-
     yesterday = arrow.utcnow().shift(days=-1)
-    return last_activity_at > yesterday
+    last_activity_at = arrow.get(node["node"]['lastActivityAt'])
+    return last_activity_at >= yesterday
 
 
 def filter_enrollment_activity_by_date(data):
@@ -30,7 +29,6 @@ def filter_enrollment_activity_by_date(data):
     """
     edges = data["data"]["course"]["enrollmentsConnection"]["edges"]
     active_users_yesterday = list(filter(compare_date, edges))
-    print(active_users_yesterday)
     return len(active_users_yesterday)
 
 
@@ -38,8 +36,9 @@ class EnrollmentActivity(object):
     def __init__(self, access_token: str, graphql_api_url: str, course_id: str) -> None:
         self.access_token = access_token
         self.course_id = course_id
-        self.headers = {'Authorization': 'Bearer ' + self.access_token}
-        self.variables = {"courseId": self.course_id, "first": 100}
+        self.headers = {'Authorization': 'Bearer ' + self.access_token,
+                        "Content-Type": "application/json"}
+        self.variables = {"courseId": self.course_id, "first": 500}
         self.query = """
                     query courseEnrollment($courseId: ID!, $first: Int) {
                       course(id: $courseId) {
@@ -113,7 +112,7 @@ class EnrollmentActivity(object):
             except Exception as err:
                 print("EnrollmentActivity error : {0}".format(err))
                 raise
-            break
+
         yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
 
         enrollment_activity['activity_date'] = yesterday

@@ -17,12 +17,23 @@ class StatisticsApiConfig(AppConfig):
 
     def ready(self):
         from statistics_api.refresh_database import refresh_database
+        course_enrollment = EnrollmentActivity(graphql_api_url="https://{}/api/graphql".format(CANVAS_DOMAIN),
+                                               course_id=COURSE_FOR_GRAPHQL,
+                                               access_token=CANVAS_ACCESS_KEY)
 
         def start_scheduler():
             """ run refresh_database at preset hour  """
             scheduler = BackgroundScheduler()
             scheduler.add_job(
                 refresh_database,
+                max_instances=1,
+                replace_existing=False,
+                trigger="cron",
+                minute=DATABASE_REFRESH_MINUTE,
+                hour=DATABASE_REFRESH_HOUR,
+            )
+            scheduler.add_job(
+                course_enrollment.fetch_enrollment_activity(),
                 max_instances=1,
                 replace_existing=False,
                 trigger="cron",

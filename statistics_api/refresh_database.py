@@ -1,13 +1,16 @@
 import logging
 import sys
 
-from django.db import transaction
-
 from statistics_api.api_client import ApiClient
+from statistics_api.course_enrollment_activity import EnrollmentActivity
 from statistics_api.db_client import DatabaseClient
+from statistics_api.definitions import CANVAS_ACCESS_KEY, CANVAS_DOMAIN
 from statistics_api.models.course import Course
 from statistics_api.models.group import Group
 from statistics_api.models.group_category import GroupCategory
+from django.db import transaction
+
+from statistics_api.settings import COURSE_FOR_GRAPHQL
 
 
 @transaction.atomic
@@ -50,3 +53,8 @@ def refresh_database():
 
     db_client.insert_groups(all_groups)
     logger.info(f"Inserted {len(all_groups)} groups")
+
+    course_enrollment = EnrollmentActivity(graphql_api_url="https://{}/api/graphql".format(CANVAS_DOMAIN),
+                                           course_id=COURSE_FOR_GRAPHQL,
+                                           access_token=CANVAS_ACCESS_KEY)
+    course_enrollment.fetch_enrollment_activity()

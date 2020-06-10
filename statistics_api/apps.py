@@ -7,6 +7,13 @@ from statistics_api.definitions import DATABASE_REFRESH_MINUTE, DATABASE_REFRESH
 from statistics_api.settings import COURSE_FOR_GRAPHQL
 
 
+def fetch_course_enrollment():
+    course_enrollment = EnrollmentActivity(graphql_api_url="https://{}/api/graphql".format(CANVAS_DOMAIN),
+                                           course_id=COURSE_FOR_GRAPHQL,
+                                           access_token=CANVAS_ACCESS_KEY)
+    course_enrollment.fetch_enrollment_activity()
+
+
 class StatisticsApiConfig(AppConfig):
     name = 'statistics_api'
     verbose_name = "Statistics API for enrollment at Canvas courses"
@@ -29,11 +36,15 @@ class StatisticsApiConfig(AppConfig):
                 minute=DATABASE_REFRESH_MINUTE,
                 hour=DATABASE_REFRESH_HOUR,
             )
+            scheduler.add_job(
+                fetch_course_enrollment,
+                max_instances=1,
+                replace_existing=False,
+                trigger="cron",
+                minute=DATABASE_REFRESH_MINUTE,
+                hour=DATABASE_REFRESH_HOUR,
+            )
             scheduler.start()
 
         start_scheduler()
-        course_enrollment = EnrollmentActivity(graphql_api_url="https://{}/api/graphql".format(CANVAS_DOMAIN),
-                                               course_id=COURSE_FOR_GRAPHQL,
-                                               access_token=CANVAS_ACCESS_KEY)
-        course_enrollment.fetch_enrollment_activity()
         post_migrate.connect(self.post_migration_callback, sender=self)

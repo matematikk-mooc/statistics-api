@@ -105,8 +105,9 @@ class EnrollmentActivity(object):
         while result['data']['course']['enrollmentsConnection']['pageInfo']['hasNextPage']:
             after_cursor = result['data']['course']['enrollmentsConnection']['pageInfo']['endCursor']
             self.variables["after"] = after_cursor
-            loop = asyncio.get_event_loop()
             try:
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
                 result = loop.run_until_complete(
                     self.client.execute_async(query=second_query, variables=self.variables))
                 active_users_count += filter_enrollment_activity_by_date(result)

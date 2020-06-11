@@ -131,7 +131,7 @@ class EnrollmentActivity(object):
         :return:
         """
         try:
-            r = self.web_session.post(KPAS_URL, data=data)
+            r = self.web_session.post(KPAS_URL + "/user_activity", data=data)
         except Exception as err:
             print("EnrollmentActivity error while ingesting into kpas : {0}".format(err))
             raise

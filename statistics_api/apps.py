@@ -4,6 +4,7 @@ from django.db.models.signals import post_migrate
 
 from statistics_api.course_enrollment_activity import EnrollmentActivity
 from statistics_api.definitions import DATABASE_REFRESH_MINUTE, DATABASE_REFRESH_HOUR, CANVAS_ACCESS_KEY, CANVAS_DOMAIN
+from statistics_api.fetch_school_data_from_nsr import FetchSchools
 from statistics_api.settings import COURSE_FOR_GRAPHQL
 
 
@@ -12,6 +13,13 @@ def fetch_course_enrollment():
                                            course_id=COURSE_FOR_GRAPHQL,
                                            access_token=CANVAS_ACCESS_KEY)
     course_enrollment.fetch_enrollment_activity()
+
+
+def fetch_school_data():
+    fetch = FetchSchools()
+    fetch.fetch_fylkes()
+    fetch.fetch_kommunes()
+    fetch.fetch_skoles()
 
 
 class StatisticsApiConfig(AppConfig):
@@ -38,6 +46,14 @@ class StatisticsApiConfig(AppConfig):
             )
             scheduler.add_job(
                 fetch_course_enrollment,
+                max_instances=1,
+                replace_existing=False,
+                trigger="cron",
+                minute=DATABASE_REFRESH_MINUTE,
+                hour=DATABASE_REFRESH_HOUR,
+            )
+            scheduler.add_job(
+                fetch_school_data,
                 max_instances=1,
                 replace_existing=False,
                 trigger="cron",

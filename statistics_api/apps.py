@@ -56,11 +56,9 @@ class StatisticsApiConfig(AppConfig):
                 fetch_school_data,
                 max_instances=1,
                 replace_existing=False,
-                trigger="interval",
-                seconds=20
-                # trigger="cron",
-                # minute=DATABASE_REFRESH_MINUTE,
-                # hour=DATABASE_REFRESH_HOUR,
+                trigger="cron",
+                minute=DATABASE_REFRESH_MINUTE,
+                hour=DATABASE_REFRESH_HOUR,
             )
             scheduler.start()
 

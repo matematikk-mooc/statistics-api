@@ -2,17 +2,20 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from django.apps import AppConfig
 from django.db.models.signals import post_migrate
 
+from statistics_api.api_client import ApiClient
 from statistics_api.course_enrollment_activity import EnrollmentActivity
 from statistics_api.definitions import DATABASE_REFRESH_MINUTE, DATABASE_REFRESH_HOUR, CANVAS_ACCESS_KEY, CANVAS_DOMAIN
 from statistics_api.fetch_school_data_from_nsr import FetchSchools
-from statistics_api.settings import COURSE_FOR_GRAPHQL
 
 
 def fetch_course_enrollment():
-    course_enrollment = EnrollmentActivity(graphql_api_url="https://{}/api/graphql".format(CANVAS_DOMAIN),
-                                           course_id=COURSE_FOR_GRAPHQL,
-                                           access_token=CANVAS_ACCESS_KEY)
-    course_enrollment.fetch_enrollment_activity()
+    api_client = ApiClient()
+    courses = api_client.get_courses()
+    for course in courses:
+        course_enrollment = EnrollmentActivity(graphql_api_url="https://{}/api/graphql".format(CANVAS_DOMAIN),
+                                               course_id=course['id'],
+                                               access_token=CANVAS_ACCESS_KEY)
+        course_enrollment.fetch_enrollment_activity()
 
 
 def fetch_school_data():

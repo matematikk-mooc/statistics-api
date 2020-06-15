@@ -90,7 +90,34 @@ class FetchSchools:
             data['ErPrivatSkole'] = enhet['ErPrivatSkole']
             data['ErOffentligSkole'] = enhet['ErOffentligSkole']
             data['ErVideregaaendeSkole'] = enhet['ErVideregaaendeSkole']
-            if enhet['ErSkole'] or enhet['ErSkoleEier'] or enhet['ErGrunnSkole'] or enhet['ErPrivatSkole'] or enhet['ErOffentligSkole'] or enhet['ErVideregaaendeSkole']:
+            if enhet['ErSkole'] or enhet['ErSkoleEier'] or enhet['ErGrunnSkole'] or enhet['ErPrivatSkole'] or enhet[
+                'ErOffentligSkole'] or enhet['ErVideregaaendeSkole']:
                 path = "/schools"
                 headers = {"Content-Type": "application/json", }
                 post_to_kpas(path=path, headers=headers, data=data)
+
+    def fetch_barnehages(self):
+        """
+        fetches all barnehages and post to kpas
+        curl -X GET --header 'Accept: application/json'
+        'https://data-nbr.udir.no/enheter'
+        :return:
+        """
+        path = "/enheter"
+        url = "https://data-nbr.udir.no"
+        enheter = get_requests(url=url, path=path)
+        data = {}
+        for enhet in enheter.json():
+            data['NSRId'] = enhet['NSRId']
+            data['Navn'] = enhet['Navn']
+            data['OrgNr'] = enhet['OrgNr']
+            data['KommuneNr'] = enhet['KommuneNr']
+            data['FylkeNr'] = enhet['FylkeNr']
+            data['ErBarnehage'] = enhet['ErBarnehage']
+            data['ErBarnehageEier'] = enhet['ErBarnehageEier']
+            data['ErOffentligBarnehage'] = enhet['ErOffentligBarnehage']
+            data['ErPrivatBarnehage'] = enhet['ErPrivatBarnehage']
+
+            path = "/kindergartens"
+            headers = {"Content-Type": "application/json", }
+            post_to_kpas(path=path, headers=headers, data=data)

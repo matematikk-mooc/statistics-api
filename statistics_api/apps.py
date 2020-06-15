@@ -23,6 +23,7 @@ def fetch_school_data():
     fetch.fetch_fylkes()
     fetch.fetch_kommunes()
     fetch.fetch_skoles()
+    fetch.fetch_barnehages()
 
 
 class StatisticsApiConfig(AppConfig):

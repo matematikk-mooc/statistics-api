@@ -16,10 +16,6 @@ def get_requests(url, path):
 
 def post_to_kpas(path, data, headers):
     web_session = requests.Session()
-    web_session.headers.update({
-        "Authorization": f"Bearer {CANVAS_ACCESS_KEY}"
-    })
-
     web_session.verify = CA_FILE_PATH
     try:
         post_response = web_session.post(KPAS_URL + path, data=json.dumps(data), headers=headers)

@@ -5,7 +5,8 @@ from django.db.models.signals import post_migrate
 from statistics_api.api_client import ApiClient
 from statistics_api.course_enrollment_activity import EnrollmentActivity
 from statistics_api.definitions import DATABASE_REFRESH_MINUTE, DATABASE_REFRESH_HOUR, CANVAS_ACCESS_KEY, CANVAS_DOMAIN
-from statistics_api.fetch_school_data_from_nsr import FetchSchools
+from statistics_api.fetch_school_data_from_nsr import FetchSchools, get_requests
+from statistics_api.settings import KPAS_URL
 
 
 def fetch_course_enrollment():
@@ -19,10 +20,11 @@ def fetch_course_enrollment():
 
 
 def fetch_school_data():
-    fetch = FetchSchools()
-    fetch.fetch_fylkes()
-    fetch.fetch_kommunes()
-    fetch.fetch_skoles()
+    get_requests(url=KPAS_URL, path="/run_scheduler")
+    # fetch = FetchSchools()
+    # fetch.fetch_fylkes()
+    # fetch.fetch_kommunes()
+    # fetch.fetch_skoles()
 
 
 class StatisticsApiConfig(AppConfig):

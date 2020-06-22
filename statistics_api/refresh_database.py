@@ -1,12 +1,13 @@
 import logging
 import sys
 
+from django.db import transaction
+
 from statistics_api.api_client import ApiClient
 from statistics_api.db_client import DatabaseClient
 from statistics_api.models.course import Course
 from statistics_api.models.group import Group
 from statistics_api.models.group_category import GroupCategory
-from django.db import transaction
 
 
 @transaction.atomic

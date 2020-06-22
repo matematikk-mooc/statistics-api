@@ -2,7 +2,29 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from django.apps import AppConfig
 from django.db.models.signals import post_migrate
 
-from statistics_api.definitions import DATABASE_REFRESH_MINUTE, DATABASE_REFRESH_HOUR
+from statistics_api.api_client import ApiClient
+from statistics_api.course_enrollment_activity import EnrollmentActivity
+from statistics_api.definitions import DATABASE_REFRESH_MINUTE, DATABASE_REFRESH_HOUR, CANVAS_ACCESS_KEY, CANVAS_DOMAIN
+from statistics_api.fetch_school_data_from_nsr import FetchSchools, get_requests
+from statistics_api.settings import KPAS_URL
+
+
+def fetch_course_enrollment():
+    api_client = ApiClient()
+    courses = api_client.get_courses()
+    for course in courses:
+        course_enrollment = EnrollmentActivity(graphql_api_url="https://{}/api/graphql".format(CANVAS_DOMAIN),
+                                               course_id=course['id'],
+                                               access_token=CANVAS_ACCESS_KEY)
+        course_enrollment.fetch_enrollment_activity()
+
+
+def fetch_school_data():
+    get_requests(url=KPAS_URL, path="/run_scheduler")
+    # fetch = FetchSchools()
+    # fetch.fetch_fylkes()
+    # fetch.fetch_kommunes()
+    # fetch.fetch_skoles()
 
 
 class StatisticsApiConfig(AppConfig):
@@ -27,8 +49,23 @@ class StatisticsApiConfig(AppConfig):
                 minute=DATABASE_REFRESH_MINUTE,
                 hour=DATABASE_REFRESH_HOUR,
             )
+            scheduler.add_job(
+                fetch_course_enrollment,
+                max_instances=1,
+                replace_existing=False,
+                trigger="cron",
+                minute=DATABASE_REFRESH_MINUTE,
+                hour=DATABASE_REFRESH_HOUR,
+            )
+            scheduler.add_job(
+                fetch_school_data,
+                max_instances=1,
+                replace_existing=False,
+                trigger="cron",
+                minute=DATABASE_REFRESH_MINUTE,
+                hour=DATABASE_REFRESH_HOUR,
+            )
             scheduler.start()
 
         start_scheduler()
-
         post_migrate.connect(self.post_migration_callback, sender=self)

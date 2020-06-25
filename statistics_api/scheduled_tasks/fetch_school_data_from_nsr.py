@@ -14,7 +14,9 @@ def get_requests(url, path):
         print("FetchSchools error while fetching from nsr: {0}".format(err))
 
 
-def post_to_kpas(path, data, headers):
+def post_to_kpas(path, headers, data=None):
+    if data is None:
+        data = {}
     web_session = requests.Session()
     web_session.verify = CA_FILE_PATH
     try:

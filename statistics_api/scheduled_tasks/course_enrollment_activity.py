@@ -5,7 +5,7 @@ import arrow
 import requests
 from python_graphql_client import GraphqlClient
 
-from statistics_api.definitions import CANVAS_ACCESS_KEY, CA_FILE_PATH
+from statistics_api.definitions import CANVAS_ACCESS_KEY, CA_FILE_PATH, KPAS_API_ACCESS_TOKEN
 from statistics_api.settings import KPAS_URL
 
 
@@ -130,8 +130,9 @@ class EnrollmentActivity(object):
         :param data:
         :return:
         """
+        headers = {"Authorization": "Bearer " + KPAS_API_ACCESS_TOKEN}
         try:
-            r = self.web_session.post(KPAS_URL + "/user_activity", data=data)
+            r = self.web_session.post(KPAS_URL + "/user_activity", data=data, headers=headers)
         except Exception as err:
             print("EnrollmentActivity error while ingesting into kpas : {0}".format(err))
             raise

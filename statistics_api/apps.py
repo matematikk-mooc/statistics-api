@@ -3,12 +3,10 @@ from django.apps import AppConfig
 from django.db.models.signals import post_migrate
 
 from statistics_api.clients.canvas_api_client import CanvasApiClient
-
-from statistics_api.definitions import DATABASE_REFRESH_MINUTE, DATABASE_REFRESH_HOUR, CANVAS_ACCESS_KEY, CANVAS_DOMAIN
+from statistics_api.definitions import DATABASE_REFRESH_MINUTE, DATABASE_REFRESH_HOUR, CANVAS_ACCESS_KEY, CANVAS_DOMAIN, \
+    KPAS_API_ACCESS_TOKEN
 from statistics_api.scheduled_tasks.course_enrollment_activity import EnrollmentActivity
-from statistics_api.scheduled_tasks.fetch_school_data_from_nsr import get_requests
-
-from statistics_api.settings import KPAS_URL
+from statistics_api.scheduled_tasks.fetch_school_data_from_nsr import post_to_kpas
 
 
 def fetch_course_enrollment():
@@ -22,11 +20,9 @@ def fetch_course_enrollment():
 
 
 def fetch_school_data():
-    get_requests(url=KPAS_URL, path="/run_scheduler")
-    # fetch = FetchSchools()
-    # fetch.fetch_fylkes()
-    # fetch.fetch_kommunes()
-    # fetch.fetch_skoles()
+    headers = {"Authorization": "Bearer " + KPAS_API_ACCESS_TOKEN}
+    response = post_to_kpas(path="/run_scheduler", headers=headers)
+    print(response)
 
 
 class StatisticsApiConfig(AppConfig):

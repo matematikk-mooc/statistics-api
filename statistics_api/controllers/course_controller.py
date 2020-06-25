@@ -1,49 +1,66 @@
+from django.core.handlers.wsgi import WSGIRequest
 from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
 
-from statistics_api.models.course import Course
+from statistics_api.models.course_observation import CourseObservation
 from statistics_api.models.group import Group
 from statistics_api.models.group_category import GroupCategory
 
 
-def course(_, course_canvas_id: int):
-    course = Course.objects.get(canvas_id=course_canvas_id)
-    child_group_categories = GroupCategory.objects.filter(course_id=course.id)
-    child_groups = []
-    for group_category in child_group_categories:
-        child_groups += Group.objects.filter(group_category_id=group_category.id)
+@require_http_methods(["GET"])
+def course(request: WSGIRequest, course_canvas_id: int):
+    nr_of_most_recent_dates: int = int(request.GET.get('nr_of_dates', 1))
+    course_observations = CourseObservation.objects.filter(canvas_id=course_canvas_id).order_by(
+        f"-{CourseObservation.date_retrieved.field.name}")[:nr_of_most_recent_dates]
 
-    total_students = sum([group.members_count for group in child_groups])
+    json_response = []
 
-    group_category_names = [group_category.name for group_category in child_group_categories]
-    group_category_member_counts = []
-    for group_category in child_group_categories:
-        group_category_member_counts.append(len([group for group in child_groups if group.group_category_id == group_category.id]))
+    for course_observation in course_observations:
+        child_group_categories = GroupCategory.objects.filter(course_id=course_observation.id)
+        child_groups = []
+        for group_category in child_group_categories:
+            child_groups += Group.objects.filter(group_category_id=group_category.id)
 
-    groups_dict = dict(zip(group_category_names, group_category_member_counts))
+        total_students = sum([group.members_count for group in child_groups])
 
-    response = {
-        "result": {
+        group_category_names = [group_category.name for group_category in child_group_categories]
+        group_category_member_counts = []
+        for group_category in child_group_categories:
+            group_category_member_counts.append(len([group for group in child_groups if group.group_category_id == group_category.id]))
+
+        groups_dict = dict(zip(group_category_names, group_category_member_counts))
+
+        course_observation_json = {
+            "date": course_observation.date_retrieved,
             "antallBrukere": total_students,
             "groups": groups_dict
         }
-    }
 
-    return JsonResponse(response)
+        json_response.append(course_observation_json)
+
+    return JsonResponse({"Result": json_response})
 
 
-def course_count(_, course_canvas_id: int):
-    course = Course.objects.get(canvas_id=course_canvas_id)
-    child_group_categories = GroupCategory.objects.filter(course_id=course.id)
-    child_groups = []
-    for group_category in child_group_categories:
-        child_groups += Group.objects.filter(group_category_id=group_category.id)
+@require_http_methods(["GET"])
+def course_count(request: WSGIRequest, course_canvas_id: int):
+    nr_of_most_recent_dates: int = int(request.GET.get('nr_of_dates', 1))
+    course_observations = CourseObservation.objects.filter(canvas_id=course_canvas_id).order_by(f"-{CourseObservation.date_retrieved.field.name}")[:nr_of_most_recent_dates]
 
-    total_students = sum([group.members_count for group in child_groups])
+    json_response = []
 
-    response = {
-        "result": {
+    for course_observation in course_observations:
+        child_group_categories = GroupCategory.objects.filter(course_id=course_observation.id)
+        child_groups = []
+        for group_category in child_group_categories:
+            child_groups += Group.objects.filter(group_category_id=group_category.id)
+
+        total_students = sum([group.members_count for group in child_groups])
+
+        course_observation_count = {
+            "date": course_observation.date_retrieved,
             "antallBrukere": total_students
         }
-    }
 
-    return JsonResponse(response)
+        json_response.append(course_observation_count)
+
+    return JsonResponse({"Result": json_response})

@@ -18,10 +18,12 @@ from django.conf.urls import url
 
 from statistics_api.controllers.course_controller import course, course_count
 from statistics_api.controllers.group_category_controller import group_category, group_category_count
+from statistics_api.controllers.municipality_controller import municipality_statistics
 
 urlpatterns = [
     url(r'^api/statistics/(\d+)/$', course),
     url(r'^api/statistics/(\d+)/count$', course_count),
     url(r'^api/statistics/groupCategory/(\d+)$', group_category),
     url(r'^api/statistics/groupCategory/(\d+)/count$', group_category_count),
+    url(r'^api/statistics/municipality/(\d+)/course/(\d+)$', municipality_statistics)
 ]

@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Course',
+            name='CourseObservation',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('canvas_id', models.IntegerField()),
@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=255)),
-                ('course', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='statistics_api.Course')),
+                ('course', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='statistics_api.CourseObservation')),
             ],
             options={
                 'db_table': 'group_category',

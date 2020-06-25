@@ -43,7 +43,7 @@ services:
 
 ### Statistics API #######################################
     statistics_api:
-      env_file: .env
+      #env_file: .env
       build:
         context: .
         dockerfile: Dockerfile.dev

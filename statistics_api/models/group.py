@@ -22,7 +22,6 @@ class Group(BaseModel):
             "category_id": instance.group_category.pk,
             "name": instance.name,
             "description": instance.description,
-            "courseId": instance.description,
             "created_at": instance.created_at.strftime(STRFTIME_FORMAT),
             "updated_at": instance.updated_date.strftime(STRFTIME_FORMAT),
             "members_count": instance.members_count

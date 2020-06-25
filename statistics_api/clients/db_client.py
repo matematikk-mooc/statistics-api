@@ -1,16 +1,16 @@
 from typing import List, Dict, Tuple
 
-from statistics_api.models.course import Course
+from statistics_api.models.course_observation import CourseObservation
 from statistics_api.models.group import Group
 from statistics_api.models.group_category import GroupCategory
 
 
 class DatabaseClient:
 
-    def insert_courses(self, courses: List[Dict]) -> Tuple[Dict]:
+    def insert_courses(self, courses: Tuple[Dict]) -> Tuple[Dict]:
         for course in courses:
-            db_course = Course(canvas_id=course['id'], name=course['name'],
-                               total_nr_of_students=course['total_students'])
+            db_course = CourseObservation(canvas_id=course['id'], name=course['name'],
+                                          total_nr_of_students=course['total_students'])
             db_course.save()
             course['db_id'] = db_course.pk
         return tuple(courses)
@@ -23,7 +23,12 @@ class DatabaseClient:
             group_category['db_id'] = db_group_category.pk
         return tuple(group_categories)
 
-    def insert_groups(self, groups: Tuple[Dict]) -> None:
-        db_groups = [Group(canvas_id=group['id'], group_category_id=group['group_category_id'], name=group['name'],
-                           description=group['description'], members_count=group['members_count']) for group in groups]
-        Group.objects.bulk_create(db_groups)
+    def insert_groups(self, groups: Tuple[Dict]) -> Tuple[Group]:
+        db_groups: List[Group] = []
+
+        for group in groups:
+            db_group = Group(canvas_id=group['id'], group_category_id=group['group_category_id'], name=group['name'],
+                               description=group['description'], members_count=group['members_count'])
+            db_group.save()
+            db_groups.append(db_group)
+        return tuple(db_groups)

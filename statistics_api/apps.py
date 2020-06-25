@@ -2,15 +2,17 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from django.apps import AppConfig
 from django.db.models.signals import post_migrate
 
-from statistics_api.api_client import ApiClient
-from statistics_api.course_enrollment_activity import EnrollmentActivity
+from statistics_api.clients.canvas_api_client import CanvasApiClient
+
 from statistics_api.definitions import DATABASE_REFRESH_MINUTE, DATABASE_REFRESH_HOUR, CANVAS_ACCESS_KEY, CANVAS_DOMAIN
-from statistics_api.fetch_school_data_from_nsr import FetchSchools, get_requests
+from statistics_api.scheduled_tasks.course_enrollment_activity import EnrollmentActivity
+from statistics_api.scheduled_tasks.fetch_school_data_from_nsr import get_requests
+
 from statistics_api.settings import KPAS_URL
 
 
 def fetch_course_enrollment():
-    api_client = ApiClient()
+    api_client = CanvasApiClient()
     courses = api_client.get_courses()
     for course in courses:
         course_enrollment = EnrollmentActivity(graphql_api_url="https://{}/api/graphql".format(CANVAS_DOMAIN),
@@ -32,11 +34,11 @@ class StatisticsApiConfig(AppConfig):
     verbose_name = "Statistics API for enrollment at Canvas courses"
 
     def post_migration_callback(self, sender, **kwargs):
-        from statistics_api.refresh_database import refresh_database
+        from statistics_api.scheduled_tasks.refresh_database import refresh_database
         refresh_database()
 
     def ready(self):
-        from statistics_api.refresh_database import refresh_database
+        from statistics_api.scheduled_tasks.refresh_database import refresh_database
 
         def start_scheduler():
             """ run refresh_database at preset hour  """

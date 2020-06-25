@@ -6,7 +6,7 @@ import requests
 from statistics_api.definitions import CANVAS_ACCESS_KEY, CANVAS_API_URL, CANVAS_ACCOUNT_ID, CA_FILE_PATH
 
 
-class ApiClient:
+class CanvasApiClient:
 
     def __init__(self):
         self.web_session = requests.Session()

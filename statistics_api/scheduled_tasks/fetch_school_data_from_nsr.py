@@ -2,7 +2,7 @@ import json
 
 import requests
 
-from statistics_api.definitions import CANVAS_ACCESS_KEY, CA_FILE_PATH
+from statistics_api.definitions import CA_FILE_PATH
 from statistics_api.settings import KPAS_URL
 
 

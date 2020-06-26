@@ -1,40 +1,48 @@
 import asyncio
 import datetime
+import logging
+import sys
+from logging import Logger
 
 import arrow
 import requests
+from django.core.management import BaseCommand
 from python_graphql_client import GraphqlClient
 
-from statistics_api.definitions import CANVAS_ACCESS_KEY, CA_FILE_PATH, KPAS_URL, KPAS_API_ACCESS_TOKEN
+from statistics_api.clients.canvas_api_client import CanvasApiClient
+from statistics_api.clients.kpas_client import KpasClient
+from statistics_api.definitions import CANVAS_DOMAIN, CANVAS_ACCESS_KEY, CA_FILE_PATH
+from statistics_api.services.course_service import get_n_most_recent_course_observations, \
+    compute_total_nr_of_students_for_course_observation
 
 
-def compare_date(node):
-    """
-    If lastActivityAt time is in last 24 , then return true
-    :param node: Enrollment object
-    :return: boolean
-    """
-    if not node["node"]['lastActivityAt']:
-        return False
-    yesterday = arrow.utcnow().shift(days=-1)
-    last_activity_at = arrow.get(node["node"]['lastActivityAt'])
-    return last_activity_at >= yesterday
+class Command(BaseCommand):
+    help = """Retrieves per-course enrollment activity for all courses administrated by the Canvas account ID
+            set in environment settings."""
 
-
-def filter_enrollment_activity_by_date(data):
-    """
-    Filter enrollment activity
-    :param data: Dict
-    :return:
-    """
-    edges = data["data"]["course"]["enrollmentsConnection"]["edges"]
-    active_users_yesterday = list(filter(compare_date, edges))
-    return len(active_users_yesterday)
+    def handle(self, *args, **options):
+        logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
+        logger = logging.getLogger()
+        api_client = CanvasApiClient()
+        courses = api_client.get_courses()
+        for course in courses:
+            course_enrollment = EnrollmentActivity(graphql_api_url="https://{}/api/graphql".format(CANVAS_DOMAIN),
+                                                   course_id=int(course['id']),
+                                                   access_token=CANVAS_ACCESS_KEY, logger=logger)
+            course_enrollment.fetch_enrollment_activity()
 
 
 class EnrollmentActivity(object):
-    def __init__(self, access_token: str, graphql_api_url: str, course_id: str) -> None:
+    def __init__(self, access_token: str, graphql_api_url: str, course_id: int, logger: Logger) -> None:
+        self.logger = logger
+        most_recent_course_observations = get_n_most_recent_course_observations(course_canvas_id=course_id, n=1)
+        if not most_recent_course_observations:
+            raise AssertionError(f"Could not find observation of course with Canvas LMS ID {course_id}.")
+        most_recent_course_observation = most_recent_course_observations[0]
+        self.total_nr_of_students_for_course = compute_total_nr_of_students_for_course_observation(
+            most_recent_course_observation.pk)
         self.access_token = access_token
+        self.kpas_client = KpasClient()
         self.course_id = course_id
         self.headers = {'Authorization': 'Bearer ' + self.access_token,
                         "Content-Type": "application/json"}
@@ -101,7 +109,11 @@ class EnrollmentActivity(object):
             }
         """
         # loop while pagination has next page
+        checked_nodes: int = 0
+
         while result['data']['course']['enrollmentsConnection']['pageInfo']['hasNextPage']:
+            checked_nodes += len(result['data']['course']['enrollmentsConnection']['edges'])
+            self.logger.debug(f"Checked activity for {checked_nodes} out of {self.total_nr_of_students_for_course}")
             after_cursor = result['data']['course']['enrollmentsConnection']['pageInfo']['endCursor']
             self.variables["after"] = after_cursor
             try:
@@ -121,18 +133,34 @@ class EnrollmentActivity(object):
         enrollment_activity['course_id'] = self.course_id
         enrollment_activity['course_name'] = result['data']['course']['name']
 
-        self.ingest_to_kpas(enrollment_activity)
-
-    def ingest_to_kpas(self, data):
-        """
-        Ingest enrollment activity date to kpas
-        :param data:
-        :return:
-        """
-        headers = {"Authorization": "Bearer " + KPAS_API_ACCESS_TOKEN}
+        self.logger.debug(f"Posting {enrollment_activity} to KPAS...")
         try:
-            r = self.web_session.post(KPAS_URL + "/user_activity", data=data, headers=headers)
+            web_response = self.kpas_client.post_enrollment_activity_to_kpas(enrollment_activity)
         except Exception as err:
-            print("EnrollmentActivity error while ingesting into kpas : {0}".format(err))
-            raise
-        print(r.text)
+            self.logger.debug("EnrollmentActivity error while ingesting into kpas : {0}".format(err))
+            raise err
+        self.logger.debug(web_response.text)
+
+
+def filter_enrollment_activity_by_date(data):
+    """
+    Filter enrollment activity
+    :param data: Dict
+    :return:
+    """
+    edges = data["data"]["course"]["enrollmentsConnection"]["edges"]
+    active_users_yesterday = list(filter(compare_date, edges))
+    return len(active_users_yesterday)
+
+
+def compare_date(node):
+    """
+    If lastActivityAt time is in last 24 , then return true
+    :param node: Enrollment object
+    :return: boolean
+    """
+    if not node["node"]['lastActivityAt']:
+        return False
+    yesterday = arrow.utcnow().shift(days=-1)
+    last_activity_at = arrow.get(node["node"]['lastActivityAt'])
+    return last_activity_at >= yesterday

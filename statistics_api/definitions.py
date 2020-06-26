@@ -13,9 +13,10 @@ CANVAS_API_URL = f"https://{CANVAS_DOMAIN}/api/v1"
 CANVAS_ACCESS_KEY = str(os.getenv("CANVAS_ACCESS_KEY")).strip("'\'").strip('\"')
 
 KPAS_DOMAIN = str(os.getenv("KPAS_DOMAIN")).strip("'\"") if os.getenv("KPAS_DOMAIN") else None
-KPAS_API_URL = f"https://{KPAS_DOMAIN}/api/nsr" if KPAS_DOMAIN else None
+KPAS_API_URL = f"https://{KPAS_DOMAIN}/api" if KPAS_DOMAIN else None
+KPAS_NSR_API_URL = f"{KPAS_API_URL}/nsr" if KPAS_API_URL else None
 KPAS_API_ACCESS_TOKEN = os.getenv("KPAS_API_ACCESS_TOKEN")
-KPAS_URL = f"https://{KPAS_DOMAIN}/api"
+
 
 DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT")

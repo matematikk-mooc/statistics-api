@@ -14,13 +14,11 @@ class CanvasApiClient:
             "Authorization": f"Bearer {CANVAS_ACCESS_KEY}"
         })
 
-        self.web_session.verify = CA_FILE_PATH if CA_FILE_PATH else self.web_session.verify
-
         try:
             self.web_session.get(CANVAS_API_URL)
         except requests.exceptions.SSLError:
-            # If current CA triggers SSL error, fall back to default CAs
-            self.web_session.verify = True
+            # If current CA triggers SSL error, try custom CA
+            self.web_session.verify = CA_FILE_PATH if CA_FILE_PATH else self.web_session.verify
 
     def get_group_categories_by_course(self, course_id: int) -> Tuple[Dict]:
         url = f"{CANVAS_API_URL}/courses/{course_id}/group_categories?per_page=100"

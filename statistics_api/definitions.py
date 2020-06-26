@@ -13,7 +13,7 @@ CANVAS_API_URL = f"https://{CANVAS_DOMAIN}/api/v1"
 CANVAS_ACCESS_KEY = str(os.getenv("CANVAS_ACCESS_KEY")).strip("'\'").strip('\"')
 
 KPAS_DOMAIN = str(os.getenv("KPAS_DOMAIN")).strip("'\"") if os.getenv("KPAS_DOMAIN") else None
-KPAS_API_URL = f"https://{KPAS_DOMAIN}/api" if KPAS_DOMAIN else None
+KPAS_API_URL = f"https://{KPAS_DOMAIN}/api/nsr" if KPAS_DOMAIN else None
 
 DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT")
@@ -36,3 +36,7 @@ DJANGO_SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 DJANGO_DEBUG = bool(util.strtobool(os.getenv("DJANGO_DEBUG"))) if os.getenv("DJANGO_DEBUG") is not None else False
 DJANGO_ALLOWED_HOSTS = [s.strip() for s in os.getenv("DJANGO_ALLOWED_HOSTS").split(',')] if os.getenv(
     "DJANGO_ALLOWED_HOSTS") else ["*"]
+
+GRAPHQL_URL = os.environ.get("GRAPHQL_URL", "https://bibsys.test.instructure.com/api/graphql")
+COURSE_FOR_GRAPHQL = os.environ.get("COURSE_FOR_GRAPHQL", 360)
+KPAS_URL = os.environ.get("KPAS_URL", "http://kpas-lti-staging-kpas.azurewebsites.net/api/user_activity/")

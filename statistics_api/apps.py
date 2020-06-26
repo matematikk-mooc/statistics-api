@@ -3,10 +3,10 @@ from django.apps import AppConfig
 from django.core import management
 
 from statistics_api.clients.canvas_api_client import CanvasApiClient
-from statistics_api.definitions import DATABASE_REFRESH_MINUTE, DATABASE_REFRESH_HOUR, CANVAS_ACCESS_KEY, CANVAS_DOMAIN
+from statistics_api.definitions import DATABASE_REFRESH_MINUTE, DATABASE_REFRESH_HOUR, CANVAS_ACCESS_KEY, CANVAS_DOMAIN, \
+    KPAS_URL
 from statistics_api.scheduled_tasks.course_enrollment_activity import EnrollmentActivity
 from statistics_api.scheduled_tasks.fetch_school_data_from_nsr import get_requests
-from statistics_api.settings import KPAS_URL
 
 
 def fetch_course_enrollment():

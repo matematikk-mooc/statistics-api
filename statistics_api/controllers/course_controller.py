@@ -1,5 +1,5 @@
 from django.core.handlers.wsgi import WSGIRequest
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseNotFound
 from django.views.decorators.http import require_http_methods
 
 from statistics_api.models.course_observation import CourseObservation
@@ -12,6 +12,9 @@ def course(request: WSGIRequest, course_canvas_id: int):
     nr_of_most_recent_dates: int = int(request.GET.get('nr_of_dates', 1))
     course_observations = CourseObservation.objects.filter(canvas_id=course_canvas_id).order_by(
         f"-{CourseObservation.date_retrieved.field.name}")[:nr_of_most_recent_dates]
+
+    if not course_observations:
+        return HttpResponseNotFound("Could not find course with requested ID.")
 
     json_response = []
 

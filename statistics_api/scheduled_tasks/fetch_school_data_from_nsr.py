@@ -2,8 +2,7 @@ import json
 
 import requests
 
-from statistics_api.definitions import CA_FILE_PATH
-from statistics_api.settings import KPAS_URL
+from statistics_api.definitions import CA_FILE_PATH, KPAS_URL
 
 
 def get_requests(url, path):

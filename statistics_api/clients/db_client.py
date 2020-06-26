@@ -9,8 +9,7 @@ class DatabaseClient:
 
     def insert_courses(self, courses: Tuple[Dict]) -> Tuple[Dict]:
         for course in courses:
-            db_course = CourseObservation(canvas_id=course['id'], name=course['name'],
-                                          total_nr_of_students=course['total_students'])
+            db_course = CourseObservation(canvas_id=course['id'], name=course['name'])
             db_course.save()
             course['db_id'] = db_course.pk
         return tuple(courses)

@@ -18,7 +18,7 @@ services:
           - STATISTICS_API_PORT=${STATISTICS_API_PORT}
           - STATISTICS_API_HOST=statistics_api
       ports:
-        - "8003:443"
+        - "${STATISTICS_API_PORT}:443"
       networks:
         - statistics_api-net
       depends_on:
@@ -43,7 +43,7 @@ services:
 
 ### Statistics API #######################################
     statistics_api:
-      #env_file: .env
+      env_file: .env
       build:
         context: .
         dockerfile: Dockerfile.dev
@@ -56,7 +56,8 @@ services:
         - DJANGO_SECRET_KEY="jasn9a32bu$$52xmncsvu@n(el4zczksb@hc=_ffm4o4ar1nah"
         - DJANGO_DEBUG=True
         - DJANGO_ALLOWED_HOSTS=*
-        - CANVAS_API_KEY="oRGcytCEFtGITFDrcfojCuUHwJCSjVvbcUSnHDUHM8oNv3SPz1LWNBboX06tkwt2"
+        - CANVAS_ACCESS_KEY=${CANVAS_ACCESS_KEY}
+        - CANVAS_DOMAIN=${CANVAS_DOMAIN}
       networks:
         - backend_canvas-net
         - statistics_api-net

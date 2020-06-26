@@ -12,6 +12,12 @@ class KpasClient:
         self.web_session = requests.Session()
         self.web_session.verify = CA_FILE_PATH if CA_FILE_PATH else self.web_session.verify
 
+        try:
+            self.web_session.get(KPAS_API_URL)
+        except requests.exceptions.SSLError:
+            # If current CA triggers SSL error, fall back to default CAs
+            self.web_session.verify = True
+
     def get_schools_by_municipality_id(self, municipality_id: int) -> Dict:
         web_response = self.web_session.get(f"{KPAS_API_URL}/schools/{municipality_id}")
         return json.loads(web_response.text).get("result")

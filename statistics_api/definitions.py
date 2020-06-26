@@ -10,11 +10,10 @@ CA_FILE_PATH = ROOT_DIR + f"../{CA_FILE_NAME}" if CA_FILE_NAME else None
 
 CANVAS_DOMAIN = str(os.getenv("CANVAS_DOMAIN")).strip("'\"")
 CANVAS_API_URL = f"https://{CANVAS_DOMAIN}/api/v1"
-CANVAS_ACCESS_KEY = str(os.getenv("CANVAS_ACCESS_KEY")).strip("'\"")
-CANVAS_ACCOUNT_ID = str(os.getenv("CANVAS_ACCOUNT_ID", "147")).strip("'\"")
+CANVAS_ACCESS_KEY = str(os.getenv("CANVAS_ACCESS_KEY")).strip("'\'").strip('\"')
 
 KPAS_DOMAIN = str(os.getenv("KPAS_DOMAIN")).strip("'\"") if os.getenv("KPAS_DOMAIN") else None
-KPAS_API_URL = f"https://{KPAS_DOMAIN}/api" if KPAS_DOMAIN else None
+KPAS_API_URL = f"https://{KPAS_DOMAIN}/api/nsr" if KPAS_DOMAIN else None
 
 DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT")
@@ -40,3 +39,7 @@ DJANGO_ALLOWED_HOSTS = [s.strip() for s in os.getenv("DJANGO_ALLOWED_HOSTS").spl
 
 # kpas-ap access token
 KPAS_API_ACCESS_TOKEN = os.getenv("KPAS_API_ACCESS_TOKEN")
+
+GRAPHQL_URL = os.environ.get("GRAPHQL_URL", "https://bibsys.test.instructure.com/api/graphql")
+COURSE_FOR_GRAPHQL = os.environ.get("COURSE_FOR_GRAPHQL", 360)
+KPAS_URL = os.environ.get("KPAS_URL", "http://kpas-lti-staging-kpas.azurewebsites.net/api/user_activity/")

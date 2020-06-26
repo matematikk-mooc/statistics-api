@@ -5,8 +5,7 @@ import arrow
 import requests
 from python_graphql_client import GraphqlClient
 
-from statistics_api.definitions import CANVAS_ACCESS_KEY, CA_FILE_PATH, KPAS_API_ACCESS_TOKEN
-from statistics_api.settings import KPAS_URL
+from statistics_api.definitions import CANVAS_ACCESS_KEY, CA_FILE_PATH, KPAS_URL, KPAS_API_ACCESS_TOKEN
 
 
 def compare_date(node):

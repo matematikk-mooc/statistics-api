@@ -126,8 +126,3 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
-
-
-GRAPHQL_URL = os.environ.get("GRAPHQL_URL", "https://bibsys.test.instructure.com/api/graphql")
-COURSE_FOR_GRAPHQL = os.environ.get("COURSE_FOR_GRAPHQL", 360)
-KPAS_URL = os.environ.get("KPAS_URL", "http://kpas-lti-staging-kpas.azurewebsites.net/api/user_activity/")

@@ -10,7 +10,9 @@ class KpasClient:
 
     def __init__(self):
         self.web_session = requests.Session()
-        self.web_session.verify = CA_FILE_PATH if CA_FILE_PATH else self.web_session.verify
+
+        if CA_FILE_PATH:
+            self.web_session.verify = CA_FILE_PATH
 
     def get_schools_by_municipality_id(self, municipality_id: int) -> Dict:
         web_response = self.web_session.get(f"{KPAS_API_URL}/schools/{municipality_id}")

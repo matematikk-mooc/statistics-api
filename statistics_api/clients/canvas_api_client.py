@@ -3,7 +3,7 @@ from typing import Tuple, List, Dict
 
 import requests
 
-from statistics_api.definitions import CANVAS_ACCESS_KEY, CANVAS_API_URL, CANVAS_ACCOUNT_ID, CA_FILE_PATH
+from statistics_api.definitions import CANVAS_ACCESS_KEY, CANVAS_API_URL, CA_FILE_PATH
 
 
 class CanvasApiClient:
@@ -14,7 +14,11 @@ class CanvasApiClient:
             "Authorization": f"Bearer {CANVAS_ACCESS_KEY}"
         })
 
-        self.web_session.verify = CA_FILE_PATH if CA_FILE_PATH else self.web_session.verify
+        try:
+            self.web_session.get(CANVAS_API_URL)
+        except requests.exceptions.SSLError:
+            # If current CA triggers SSL error, try custom CA
+            self.web_session.verify = CA_FILE_PATH if CA_FILE_PATH else self.web_session.verify
 
     def get_group_categories_by_course(self, course_id: int) -> Tuple[Dict]:
         url = f"{CANVAS_API_URL}/courses/{course_id}/group_categories?per_page=100"
@@ -29,7 +33,7 @@ class CanvasApiClient:
             Fetching all courses to which the configured account is root account of.
         :return:
         """
-        url = f"{CANVAS_API_URL}/users/{CANVAS_ACCOUNT_ID}/courses?include[]=total_students&per_page=100"
+        url = f"{CANVAS_API_URL}/users/self/courses?include[]=total_students&per_page=100"
         return self.paginate_through_url(url)
 
     def paginate_through_url(self, target_url: str, current_items: List = None) -> Tuple[Dict]:
@@ -37,7 +41,8 @@ class CanvasApiClient:
             current_items = []
 
         web_response = self.web_session.get(target_url)
-        assert web_response.status_code == 200
+        if web_response.status_code != 200:
+            raise AssertionError(f"Could not retrieve data from Canvas LMS instance at {CANVAS_API_URL}")
         new_items = json.loads(web_response.text)
         current_items += new_items
         if web_response.links.get('next'):

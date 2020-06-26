@@ -1,11 +1,13 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 from django.apps import AppConfig
-from django.db.models.signals import post_migrate
+from django.core import management
 
 from statistics_api.clients.canvas_api_client import CanvasApiClient
 from statistics_api.definitions import DATABASE_REFRESH_MINUTE, DATABASE_REFRESH_HOUR, CANVAS_ACCESS_KEY, CANVAS_DOMAIN, \
     KPAS_API_ACCESS_TOKEN
+from statistics_api.definitions import KPAS_URL
 from statistics_api.scheduled_tasks.course_enrollment_activity import EnrollmentActivity
+from statistics_api.scheduled_tasks.fetch_school_data_from_nsr import get_requests
 from statistics_api.scheduled_tasks.fetch_school_data_from_nsr import post_to_kpas
 
 
@@ -20,27 +22,24 @@ def fetch_course_enrollment():
 
 
 def fetch_school_data():
+    # TODO: Move this task to Azure Functions etc.
     headers = {"Authorization": "Bearer " + KPAS_API_ACCESS_TOKEN}
-    response = post_to_kpas(path="/run_scheduler", headers=headers)
-    print(response)
+    post_to_kpas(path="/run_scheduler", headers=headers)
+    get_requests(url=KPAS_URL, path="/run_scheduler")
 
 
 class StatisticsApiConfig(AppConfig):
     name = 'statistics_api'
     verbose_name = "Statistics API for enrollment at Canvas courses"
 
-    def post_migration_callback(self, sender, **kwargs):
-        from statistics_api.scheduled_tasks.refresh_database import refresh_database
-        refresh_database()
-
     def ready(self):
-        from statistics_api.scheduled_tasks.refresh_database import refresh_database
 
         def start_scheduler():
             """ run refresh_database at preset hour  """
             scheduler = BackgroundScheduler()
             scheduler.add_job(
-                refresh_database,
+                management.call_command,
+                args=("pull_course_member_counts_from_canvas",),
                 max_instances=1,
                 replace_existing=False,
                 trigger="cron",
@@ -66,4 +65,3 @@ class StatisticsApiConfig(AppConfig):
             scheduler.start()
 
         start_scheduler()
-        post_migrate.connect(self.post_migration_callback, sender=self)

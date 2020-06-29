@@ -21,7 +21,7 @@ from statistics_api.controllers.group_category_controller import group_category,
 from statistics_api.controllers.municipality_controller import municipality_statistics
 
 urlpatterns = [
-    url(r'^api/statistics/(\d+)/$', course),
+    url(r'^api/statistics/(\d+)/?$', course),
     url(r'^api/statistics/(\d+)/count$', course_count),
     url(r'^api/statistics/groupCategory/(\d+)$', group_category),
     url(r'^api/statistics/groupCategory/(\d+)/count$', group_category_count),

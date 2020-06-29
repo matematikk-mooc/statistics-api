@@ -7,6 +7,7 @@ from django.db import transaction
 
 from statistics_api.clients.canvas_api_client import CanvasApiClient
 from statistics_api.clients.db_client import DatabaseClient
+from statistics_api.definitions import CANVAS_ACCOUNT_ID
 from statistics_api.models.group_to_school_relationship import GroupToSchoolRelationship
 from statistics_api.models.school import School
 
@@ -23,7 +24,8 @@ class Command(BaseCommand):
         api_client = CanvasApiClient()
         db_client = DatabaseClient()
 
-        courses = api_client.get_courses()
+        canvas_account_id: int = CANVAS_ACCOUNT_ID if CANVAS_ACCOUNT_ID else api_client.get_canvas_account_id_of_current_user()
+        courses = api_client.get_courses(canvas_account_id=canvas_account_id)
         courses = db_client.insert_courses(courses)
         logger.info(f"Inserted {len(courses)} courses")
 

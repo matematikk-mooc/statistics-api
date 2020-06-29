@@ -11,6 +11,7 @@ CA_FILE_PATH = ROOT_DIR + f"../{CA_FILE_NAME}" if CA_FILE_NAME else None
 CANVAS_DOMAIN = str(os.getenv("CANVAS_DOMAIN")).strip("'\"")
 CANVAS_API_URL = f"https://{CANVAS_DOMAIN}/api/v1"
 CANVAS_ACCESS_KEY = str(os.getenv("CANVAS_ACCESS_KEY")).strip("'\'").strip('\"')
+CANVAS_ACCOUNT_ID = os.getenv("CANVAS_ACCOUNT_ID")
 
 KPAS_DOMAIN = str(os.getenv("KPAS_DOMAIN")).strip("'\"") if os.getenv("KPAS_DOMAIN") else None
 KPAS_API_URL = f"https://{KPAS_DOMAIN}/api" if KPAS_DOMAIN else None

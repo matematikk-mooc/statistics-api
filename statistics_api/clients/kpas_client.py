@@ -16,7 +16,7 @@ class KpasClient:
             self.web_session.verify = CA_FILE_PATH
 
     def get_schools_by_municipality_id(self, municipality_id: int) -> Dict:
-        web_response = self.web_session.get(f"{KPAS_NSR_API_URL}/schools/{municipality_id}")
+        web_response = self.web_session.get(f"{KPAS_NSR_API_URL}/communities/{municipality_id}/schools/")
         return json.loads(web_response.text).get("result")
 
     def post_trigger_to_activate_schedule_of_job(self) -> None:

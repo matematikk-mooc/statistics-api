@@ -7,11 +7,11 @@ from statistics_api.models.group_category import GroupCategory
 
 
 class Group(BaseModel):
-    canvas_id = models.IntegerField()
+    canvas_id = models.IntegerField(db_index=True)
     name = models.CharField(max_length=MYSQL_VARCHAR_DEFAULT_LENGTH)
     group_category = models.ForeignKey(GroupCategory, on_delete=models.CASCADE)  # group_category id
     description = models.CharField(max_length=MYSQL_VARCHAR_DEFAULT_LENGTH, blank=True, null=True, default=None)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField()
     updated_date = models.DateTimeField(auto_now=True)
     members_count = models.IntegerField()
 

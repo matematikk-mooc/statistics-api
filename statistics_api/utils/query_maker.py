@@ -22,7 +22,10 @@ GROUP_TO_SCHOOL_RELATIONSHIP_TBL_NAME = GroupToSchoolRelationship._meta.db_table
 GROUP_TO_SCHOOL_RELATIONSHIP_GROUP_FK = GroupToSchoolRelationship.group.field.attname
 GROUP_TO_SCHOOL_RELATIONSHIP_SCHOOL_FK = GroupToSchoolRelationship.school.field.attname
 GROUP_CATEGORY_COURSE_FK = GroupCategory.course.field.attname
+GROUP_CATEGORY_CANVAS_ID = f"{GroupCategory._meta.db_table}.{GroupCategory.canvas_id.field.name}"
+DATE_RETRIEVED = str(CourseObservation.date_retrieved.field.name)
 
+QUERY_FOR_EMPTY_RESULT = "SELECT NULL LIMIT 0"
 
 def get_org_nrs_enrollment_counts_and_teacher_counts_query(organization_numbers: Tuple[int]) -> str:
     """
@@ -40,7 +43,12 @@ def get_org_nrs_enrollment_counts_and_teacher_counts_query(organization_numbers:
     AND organization_number IN ('987654321', '987654320', '987654319', '987654318');
     """
 
-    org_nrs_str = ', '.join(['\'' + str(i) + '\'' for i in organization_numbers]) if organization_numbers else "''"
+    if len(organization_numbers) == 0:
+        org_nrs_str = "NULL"
+    elif len(organization_numbers) == 1:
+        org_nrs_str = str(organization_numbers[0])
+    else:
+        org_nrs_str = ', '.join(['\'' + str(i) + '\'' for i in organization_numbers])
 
     return f"""SELECT {ORGANIZATION_NUMBER}, {MEMBERS_COUNT}, {NUMBER_OF_TEACHERS} FROM `{GROUP_TBL_NAME}`
     LEFT JOIN {GROUP_CATEGORY_TBL_NAME} ON `{GROUP_TBL_NAME}`.{GROUP_GROUP_CATEGORY_FK} = {GROUP_CATEGORY_ID}
@@ -50,3 +58,25 @@ def get_org_nrs_enrollment_counts_and_teacher_counts_query(organization_numbers:
     WHERE {COURSE_OBSERVATION_ID} = %s
     AND {ORGANIZATION_NUMBER} IN ({org_nrs_str});
     """
+
+
+def get_n_most_recent_group_category_observations_query() -> str:
+    return f"""SELECT {GROUP_CATEGORY_ID}, {DATE_RETRIEVED} FROM {GroupCategory._meta.db_table}
+        LEFT JOIN {CourseObservation._meta.db_table} ON {GROUP_CATEGORY_COURSE_FK} = {COURSE_OBSERVATION_ID}
+        WHERE {GROUP_CATEGORY_CANVAS_ID} = %s
+        ORDER BY {DATE_RETRIEVED} DESC LIMIT %s"""
+
+
+def get_groups_by_group_category_ids_query(group_category_ids: Tuple[int]) -> str:
+
+    if len(group_category_ids) == 0:
+        group_category_ids_str = "NULL"
+    elif len(group_category_ids) == 1:
+        group_category_ids_str = str(group_category_ids[0])
+    else:
+        group_category_ids_str = ", ".join([str(i) for i in group_category_ids])
+
+    return f"""SELECT `{Group._meta.db_table}`.*, {DATE_RETRIEVED} FROM `{Group._meta.db_table}`
+                LEFT JOIN {GroupCategory._meta.db_table} ON {GROUP_GROUP_CATEGORY_FK} = {GROUP_CATEGORY_ID}
+                LEFT JOIN {CourseObservation._meta.db_table} ON {GROUP_CATEGORY_COURSE_FK} = {COURSE_OBSERVATION_ID}
+                WHERE {GROUP_CATEGORY_ID} IN ({group_category_ids_str})"""

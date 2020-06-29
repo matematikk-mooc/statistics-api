@@ -1,5 +1,5 @@
 from django.core.handlers.wsgi import WSGIRequest
-from django.http import JsonResponse, HttpResponseNotFound
+from django.http import JsonResponse, HttpResponseNotFound, HttpResponseBadRequest
 from django.views.decorators.http import require_http_methods
 
 from statistics_api.models.course_observation import CourseObservation
@@ -10,16 +10,21 @@ from statistics_api.services.course_service import get_n_most_recent_course_obse
 
 @require_http_methods(["GET"])
 def course(request: WSGIRequest, course_canvas_id: int):
-    nr_of_most_recent_dates: int = int(request.GET.get('nr_of_dates', 1))
+    try:
+        nr_of_dates: int = int(request.GET.get('nr_of_dates', 1))
+        nr_of_dates_offset: int = int(request.GET.get('nr_of_dates_offset', 0))
+    except ValueError:
+        return HttpResponseBadRequest(f"Invalid parameter value.")
+
     n_most_recent_course_observations = get_n_most_recent_course_observations(course_canvas_id,
-                                                                              n=nr_of_most_recent_dates)
+                                                                              n=nr_of_dates+nr_of_dates_offset)
 
     if not n_most_recent_course_observations:
         return HttpResponseNotFound("Could not find course with requested ID.")
 
     json_response = []
 
-    for course_observation in n_most_recent_course_observations:
+    for course_observation in n_most_recent_course_observations[nr_of_dates_offset:]:
         child_group_categories = GroupCategory.objects.filter(course_id=course_observation.id)
         child_groups = []
         for group_category in child_group_categories:
@@ -48,13 +53,18 @@ def course(request: WSGIRequest, course_canvas_id: int):
 
 @require_http_methods(["GET"])
 def course_count(request: WSGIRequest, course_canvas_id: int):
-    nr_of_most_recent_dates: int = int(request.GET.get('nr_of_dates', 1))
+    try:
+        nr_of_dates: int = int(request.GET.get('nr_of_dates', 1))
+        nr_of_dates_offset: int = int(request.GET.get('nr_of_dates_offset', 0))
+    except ValueError:
+        return HttpResponseBadRequest(f"Invalid parameter value.")
+
     course_observations = CourseObservation.objects.filter(canvas_id=course_canvas_id).order_by(
-        f"-{CourseObservation.date_retrieved.field.name}")[:nr_of_most_recent_dates]
+        f"-{CourseObservation.date_retrieved.field.name}")[:nr_of_dates+nr_of_dates_offset]
 
     json_response = []
 
-    for course_observation in course_observations:
+    for course_observation in course_observations[nr_of_dates_offset:]:
         child_group_categories = GroupCategory.objects.filter(course_id=course_observation.id)
         child_groups = []
         for group_category in child_group_categories:

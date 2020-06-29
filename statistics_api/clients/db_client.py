@@ -27,7 +27,8 @@ class DatabaseClient:
 
         for group in groups:
             db_group = Group(canvas_id=group['id'], group_category_id=group['group_category_id'], name=group['name'],
-                               description=group['description'], members_count=group['members_count'])
+                             description=group['description'], members_count=group['members_count'],
+                             created_at=group['created_at'])
             db_group.save()
             db_groups.append(db_group)
         return tuple(db_groups)

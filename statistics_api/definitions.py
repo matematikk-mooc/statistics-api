@@ -18,7 +18,6 @@ KPAS_API_URL = f"https://{KPAS_DOMAIN}/api" if KPAS_DOMAIN else None
 KPAS_NSR_API_URL = f"{KPAS_API_URL}/nsr" if KPAS_API_URL else None
 KPAS_API_ACCESS_TOKEN = os.getenv("KPAS_API_ACCESS_TOKEN")
 
-
 DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT")
 DB_DATABASE = os.getenv("DB_DATABASE")
@@ -40,3 +39,8 @@ DJANGO_SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 DJANGO_DEBUG = bool(util.strtobool(os.getenv("DJANGO_DEBUG"))) if os.getenv("DJANGO_DEBUG") is not None else False
 DJANGO_ALLOWED_HOSTS = [s.strip() for s in os.getenv("DJANGO_ALLOWED_HOSTS").split(',')] if os.getenv(
     "DJANGO_ALLOWED_HOSTS") else ["*"]
+
+# this setting is only required for running test suite
+SELF_PORT = int(os.getenv('SELF_PORT')) if os.getenv('SELF_PORT') else None
+SELF_BASE_URL = f"https://{os.getenv('HOSTED_DOMAIN')}:{SELF_PORT}" if os.getenv(
+    "HOSTED_DOMAIN") else f"{DJANGO_ALLOWED_HOSTS[0]}:{SELF_PORT}"

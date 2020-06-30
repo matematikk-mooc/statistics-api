@@ -11,7 +11,7 @@ from python_graphql_client import GraphqlClient
 
 from statistics_api.clients.canvas_api_client import CanvasApiClient
 from statistics_api.clients.kpas_client import KpasClient
-from statistics_api.definitions import CANVAS_DOMAIN, CANVAS_ACCESS_KEY, CA_FILE_PATH
+from statistics_api.definitions import CANVAS_DOMAIN, CANVAS_ACCESS_KEY, CA_FILE_PATH, CANVAS_ACCOUNT_ID
 from statistics_api.services.course_service import get_n_most_recent_course_observations, \
     compute_total_nr_of_students_for_course_observation
 
@@ -24,7 +24,8 @@ class Command(BaseCommand):
         logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
         logger = logging.getLogger()
         api_client = CanvasApiClient()
-        courses = api_client.get_courses()
+        canvas_account_id: int = CANVAS_ACCOUNT_ID if CANVAS_ACCOUNT_ID else api_client.get_canvas_account_id_of_current_user()
+        courses = api_client.get_courses(canvas_account_id=canvas_account_id)
         for course in courses:
             course_enrollment = EnrollmentActivity(graphql_api_url="https://{}/api/graphql".format(CANVAS_DOMAIN),
                                                    course_id=int(course['id']),

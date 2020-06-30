@@ -2,6 +2,7 @@ import json
 import time
 from datetime import date, datetime
 
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 from rest_framework.test import APIClient
 
@@ -48,7 +49,7 @@ class Test(TestCase):
 
     def test_county_statistics_for_individual_schools_at_future_date(self):
         """
-            Trying to fetch data from the future. Should return 404.
+            Trying to fetch data from the future. Should return empty result set.
         """
         client = APIClient()
         from_date = str(datetime.fromtimestamp(int(time.time())).date())
@@ -58,6 +59,18 @@ class Test(TestCase):
 
         json_response = json.loads(web_response.content)
         self.assertEqual(0, len(json_response["Result"]))
+
+    def test_county_statistics_with_invalid_URL_parameter(self):
+        """
+            Trying to pass illegal values as URL parameters. Should get ValidationError.
+        """
+        client = APIClient()
+        try:
+            client.get(
+                path=f"/api/statistics/county/{self.COUNTY_ID}/course/{self.CANVAS_COURSE_ID}?show_schools=foo&from=bar")
+            self.fail()
+        except ValidationError:
+            pass
 
     def test_county_statistics_by_municipalities(self):
         client = APIClient()

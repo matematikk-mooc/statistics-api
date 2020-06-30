@@ -1,5 +1,5 @@
 import json
-from typing import Dict
+from typing import Dict, Tuple
 
 import requests
 
@@ -15,8 +15,20 @@ class KpasClient:
         if CA_FILE_PATH:
             self.web_session.verify = CA_FILE_PATH
 
-    def get_schools_by_municipality_id(self, municipality_id: int) -> Dict:
-        web_response = self.web_session.get(f"{KPAS_NSR_API_URL}/schools/{municipality_id}")
+    def get_schools_by_municipality_id(self, municipality_id: int) -> Tuple[Dict]:
+        web_response = self.web_session.get(f"{KPAS_NSR_API_URL}/communities/{municipality_id}/schools/")
+        return tuple(json.loads(web_response.text).get("result"))
+
+    def get_schools_by_county_id(self, county_id: int) -> Tuple[Dict]:
+        web_response = self.web_session.get(f"{KPAS_NSR_API_URL}/counties/{county_id}/schools/")
+        return tuple(json.loads(web_response.text).get("result"))
+
+    def get_municipalities_by_county_id(self, county_id):
+        web_response = self.web_session.get(f"{KPAS_NSR_API_URL}/counties/{county_id}/communities/")
+        return tuple(json.loads(web_response.text).get("result"))
+
+    def get_schools_by_county_id(self, county_id: int) -> Dict:
+        web_response = self.web_session.get(f"{KPAS_NSR_API_URL}/counties/{county_id}/schools/")
         return json.loads(web_response.text).get("result")
 
     def post_trigger_to_activate_schedule_of_job(self) -> None:
@@ -32,3 +44,4 @@ class KpasClient:
 
         web_response = self.web_session.post(f"{KPAS_API_URL}/user_activity", data=data)
         return web_response
+

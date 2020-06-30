@@ -1,36 +1,45 @@
+from collections import defaultdict
+
 from django.core.handlers.wsgi import WSGIRequest
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseBadRequest
 from django.views.decorators.http import require_http_methods
 
-from statistics_api.models.course_observation import CourseObservation
 from statistics_api.models.group import Group
 from statistics_api.models.group_category import GroupCategory
-
-GROUP_CATEGORY_ID = f"{GroupCategory._meta.db_table}.{GroupCategory._meta.pk.attname}"
-GROUP_CATEGORY_CANVAS_ID = f"{GroupCategory._meta.db_table}.{GroupCategory.canvas_id.field.name}"
-COURSE_OBSERVATION_ID = f"{CourseObservation._meta.db_table}.{CourseObservation._meta.pk.attname}"
-DATE_RETRIEVED = str(CourseObservation.date_retrieved.field.name)
-GROUP_CATEGORY_COURSE_FK = str(GroupCategory.course.field.attname)
+from statistics_api.utils.query_maker import get_n_most_recent_group_category_observations_query, \
+    get_groups_by_group_category_ids_query
 
 
 @require_http_methods(["GET"])
 def group_category(request: WSGIRequest, group_category_canvas_id: int):
-    nr_of_most_recent_dates: int = int(request.GET.get('nr_of_dates', 1))
+    try:
+        nr_of_dates: int = int(request.GET.get('nr_of_dates', 1))
+        nr_of_dates_offset: int = int(request.GET.get('nr_of_dates_offset', 0))
+    except ValueError:
+        return HttpResponseBadRequest(f"Invalid parameter value.")
 
-    group_categories = GroupCategory.objects.raw(
-        f"""SELECT {GROUP_CATEGORY_ID}, {DATE_RETRIEVED} FROM {GroupCategory._meta.db_table}
-        LEFT JOIN {CourseObservation._meta.db_table} ON {GROUP_CATEGORY_COURSE_FK} = {COURSE_OBSERVATION_ID}
-        WHERE {GROUP_CATEGORY_CANVAS_ID} = %s
-        ORDER BY {DATE_RETRIEVED} DESC LIMIT %s""",
-        [group_category_canvas_id, nr_of_most_recent_dates])
+    n_most_recent_group_category_observations_query: str = get_n_most_recent_group_category_observations_query()
+    n_most_recent_group_category_observations = GroupCategory.objects.raw(
+        n_most_recent_group_category_observations_query,
+        [group_category_canvas_id, nr_of_dates+nr_of_dates_offset])[nr_of_dates_offset:]
 
     json_response = []
 
-    for group_category in group_categories:
-        groups = Group.objects.filter(group_category=group_category.pk)
+    groups_by_group_category_ids_query = get_groups_by_group_category_ids_query(
+        tuple([int(g_cat.pk) for g_cat in n_most_recent_group_category_observations]))
+
+    groups = Group.objects.raw(groups_by_group_category_ids_query)
+
+    date_to_groups_mapping = defaultdict(list)
+
+    for group in groups:
+        date_to_groups_mapping[group.date_retrieved].append(group)
+
+    for date in date_to_groups_mapping.keys():
+        groups = date_to_groups_mapping.get(date)
         group_dicts = [group.to_dict() for group in groups]
         group_category_json = {
-            "date": group_category.date_retrieved,
+            "date": date,
             "groups": group_dicts
         }
 
@@ -41,18 +50,21 @@ def group_category(request: WSGIRequest, group_category_canvas_id: int):
 
 @require_http_methods(["GET"])
 def group_category_count(request: WSGIRequest, group_category_canvas_id: int):
+    try:
+        nr_of_dates: int = int(request.GET.get('nr_of_dates', 1))
+        nr_of_dates_offset: int = int(request.GET.get('nr_of_dates_offset', 0))
+    except ValueError:
+        return HttpResponseBadRequest(f"Invalid parameter value.")
 
-    nr_of_most_recent_dates: int = int(request.GET.get('nr_of_dates', 1))
-    group_categories = GroupCategory.objects.raw(
-        f"""SELECT {GROUP_CATEGORY_ID}, {DATE_RETRIEVED} FROM {GroupCategory._meta.db_table}
-            LEFT JOIN {CourseObservation._meta.db_table} ON {GROUP_CATEGORY_COURSE_FK} = {COURSE_OBSERVATION_ID}
-            WHERE {GROUP_CATEGORY_CANVAS_ID} = %s
-            ORDER BY {DATE_RETRIEVED} DESC LIMIT %s""",
-        [group_category_canvas_id, nr_of_most_recent_dates])
+
+    n_most_recent_group_category_observations_query: str = get_n_most_recent_group_category_observations_query()
+    n_most_recent_group_category_observations = GroupCategory.objects.raw(
+        n_most_recent_group_category_observations_query,
+        [group_category_canvas_id, nr_of_dates+nr_of_dates_offset])[nr_of_dates_offset:]
 
     json_response = []
 
-    for group_category in group_categories:
+    for group_category in n_most_recent_group_category_observations:
         groups = Group.objects.filter(group_category=group_category.pk)
         group_category_json = {
             "date": group_category.date_retrieved,

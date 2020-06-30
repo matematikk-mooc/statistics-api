@@ -10,7 +10,8 @@ from statistics_api.utils.query_maker import get_org_nrs_enrollment_counts_and_t
 @require_http_methods(["GET"])
 def municipality_statistics(request: WSGIRequest, municipality_id: int, canvas_course_id: int):
     try:
-        nr_of_most_recent_dates: int = int(request.GET.get('nr_of_dates', 1))
+        nr_of_dates: int = int(request.GET.get('nr_of_dates', 1))
+        nr_of_dates_offset: int = int(request.GET.get('nr_of_dates_offset', 0))
     except ValueError:
         return HttpResponseBadRequest(f"Invalid parameter value.")
 
@@ -26,14 +27,14 @@ def municipality_statistics(request: WSGIRequest, municipality_id: int, canvas_c
     # Retrieving the {nr_of_most_recent_dates} most recent observations of Canvas LMS course with
     # canvas ID {canvas_course_id} ordered by date descending.
     course_observations = CourseObservation.objects.filter(canvas_id=canvas_course_id).order_by(
-        f"-{CourseObservation.date_retrieved.field.name}")[:nr_of_most_recent_dates]
+        f"-{CourseObservation.date_retrieved.field.name}")[:nr_of_dates+nr_of_dates_offset]
 
     if not course_observations:
         return HttpResponseNotFound(f"Could not find course with specified canvas ID.")
 
     json_response = []
 
-    for course_observation in course_observations:
+    for course_observation in course_observations[nr_of_dates_offset:]:
         course_observation: CourseObservation
 
         org_nrs_enrollment_counts_and_teacher_counts_query = get_org_nrs_enrollment_counts_and_teacher_counts_query(

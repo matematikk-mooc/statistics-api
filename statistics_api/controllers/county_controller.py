@@ -10,27 +10,21 @@ from django.views.decorators.http import require_http_methods
 from statistics_api.clients.kpas_client import KpasClient
 from statistics_api.models.course_observation import CourseObservation
 from statistics_api.utils.query_maker import get_org_nrs_enrollment_counts_and_teacher_counts_query
+from statistics_api.utils.url_parameter_parser import get_url_parameters
 
 
 @require_http_methods(["GET"])
 def county_statistics(request: WSGIRequest, county_id: int, canvas_course_id: int) -> HttpResponse:
-    try:
-        nr_of_dates: int = int(request.GET.get('nr_of_dates', 1))
-        nr_of_dates_offset: int = int(request.GET.get('nr_of_dates_offset', 0))
-        show_schools: bool = bool(util.strtobool(request.GET.get('show_schools', "False")))
-    except ValueError:
-        return HttpResponseBadRequest(f"Invalid parameter value.")
+    start_date, end_date, show_schools = get_url_parameters(request)
 
     kpas_client = KpasClient()
     schools_in_county = kpas_client.get_schools_by_county_id(county_id)
 
     # Retrieving the {nr_of_most_recent_dates} most recent observations of Canvas LMS course with
     # canvas ID {canvas_course_id} ordered by date descending.
-    course_observations = CourseObservation.objects.filter(canvas_id=canvas_course_id).order_by(
-        f"-{CourseObservation.date_retrieved.field.name}")[:nr_of_dates + nr_of_dates_offset][nr_of_dates_offset:]
-
-    if not course_observations:
-        return HttpResponseNotFound(f"Could not find course with specified canvas ID.")
+    course_observations = CourseObservation.objects.filter(canvas_id=canvas_course_id, date_retrieved__gte=start_date,
+                                                           date_retrieved__lte=end_date).order_by(
+        f"-{CourseObservation.date_retrieved.field.name}")
 
     if show_schools:
         return get_individual_school_data_for_county(course_observations, schools_in_county)
@@ -38,7 +32,8 @@ def county_statistics(request: WSGIRequest, county_id: int, canvas_course_id: in
         return get_municipality_aggregated_school_data_for_county(course_observations, county_id, schools_in_county)
 
 
-def get_individual_school_data_for_county(course_observations: Tuple[CourseObservation], schools_in_county: Tuple[Dict]) -> JsonResponse:
+def get_individual_school_data_for_county(course_observations: Tuple[CourseObservation],
+                                          schools_in_county: Tuple[Dict]) -> JsonResponse:
     organization_number_to_school_name_mapping = {}
 
     for school in schools_in_county:
@@ -129,7 +124,7 @@ def get_municipality_aggregated_school_data_for_county(course_observations: Tupl
             municipality_teacher_count = sum(
                 [school_org_nr_to_enrollment_and_teacher_count_mapping[org_nr][1] if
                  school_org_nr_to_enrollment_and_teacher_count_mapping.get(org_nr) else 0 for org_nr in
-                municipality_school_org_nrs])
+                 municipality_school_org_nrs])
 
             municipality_dict = {
                 "name": municipality_number_to_name_mapping[municipality_nr],

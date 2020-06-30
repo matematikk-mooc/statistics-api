@@ -60,11 +60,12 @@ def get_org_nrs_enrollment_counts_and_teacher_counts_query(organization_numbers:
     """
 
 
-def get_n_most_recent_group_category_observations_query() -> str:
+def get_group_category_observations_between_dates_query() -> str:
     return f"""SELECT {GROUP_CATEGORY_ID}, {DATE_RETRIEVED} FROM {GroupCategory._meta.db_table}
         LEFT JOIN {CourseObservation._meta.db_table} ON {GROUP_CATEGORY_COURSE_FK} = {COURSE_OBSERVATION_ID}
         WHERE {GROUP_CATEGORY_CANVAS_ID} = %s
-        ORDER BY {DATE_RETRIEVED} DESC LIMIT %s"""
+        AND {DATE_RETRIEVED} >= %s
+        AND {DATE_RETRIEVED} <= %s"""
 
 
 def get_groups_by_group_category_ids_query(group_category_ids: Tuple[int]) -> str:

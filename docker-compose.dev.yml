@@ -58,6 +58,7 @@ services:
         - DJANGO_ALLOWED_HOSTS=*
         - CANVAS_ACCESS_KEY=${CANVAS_ACCESS_KEY}
         - CANVAS_DOMAIN=${CANVAS_DOMAIN}
+        - PULL_MEMBER_COUNTS_FROM_CANVAS_ON_STARTUP=${PULL_MEMBER_COUNTS_FROM_CANVAS_ON_STARTUP}
       networks:
         - backend_canvas-net
         - statistics_api-net

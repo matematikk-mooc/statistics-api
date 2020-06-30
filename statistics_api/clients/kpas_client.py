@@ -27,10 +27,6 @@ class KpasClient:
         web_response = self.web_session.get(f"{KPAS_NSR_API_URL}/counties/{county_id}/communities/")
         return tuple(json.loads(web_response.text).get("result"))
 
-    def get_schools_by_county_id(self, county_id: int) -> Dict:
-        web_response = self.web_session.get(f"{KPAS_NSR_API_URL}/counties/{county_id}/schools/")
-        return json.loads(web_response.text).get("result")
-
     def post_trigger_to_activate_schedule_of_job(self) -> None:
         web_response = self.web_session.get(f"{KPAS_API_URL}/run_scheduler")
         return json.loads(web_response.text).get("result")

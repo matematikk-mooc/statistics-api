@@ -15,7 +15,7 @@ from statistics_api.utils.url_parameter_parser import get_url_parameters
 
 @require_http_methods(["GET"])
 def county_statistics(request: WSGIRequest, county_id: int, canvas_course_id: int) -> HttpResponse:
-    start_date, end_date, show_schools = get_url_parameters(request)
+    start_date, end_date, show_schools, nr_of_dates_limit = get_url_parameters(request)
 
     kpas_client = KpasClient()
     schools_in_county = kpas_client.get_schools_by_county_id(county_id)
@@ -24,7 +24,7 @@ def county_statistics(request: WSGIRequest, county_id: int, canvas_course_id: in
     # canvas ID {canvas_course_id} ordered by date descending.
     course_observations = CourseObservation.objects.filter(canvas_id=canvas_course_id, date_retrieved__gte=start_date,
                                                            date_retrieved__lte=end_date).order_by(
-        f"-{CourseObservation.date_retrieved.field.name}")
+        f"-{CourseObservation.date_retrieved.field.name}")[:nr_of_dates_limit]
 
     if show_schools:
         return get_individual_school_data_for_county(course_observations, schools_in_county)

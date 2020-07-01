@@ -65,7 +65,9 @@ def get_group_category_observations_between_dates_query() -> str:
         LEFT JOIN {CourseObservation._meta.db_table} ON {GROUP_CATEGORY_COURSE_FK} = {COURSE_OBSERVATION_ID}
         WHERE {GROUP_CATEGORY_CANVAS_ID} = %s
         AND {DATE_RETRIEVED} >= %s
-        AND {DATE_RETRIEVED} <= %s"""
+        AND {DATE_RETRIEVED} <= %s
+        ORDER BY {DATE_RETRIEVED} DESC
+        LIMIT %s"""
 
 
 def get_groups_by_group_category_ids_query(group_category_ids: Tuple[int]) -> str:

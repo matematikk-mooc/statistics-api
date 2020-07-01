@@ -13,12 +13,12 @@ from statistics_api.utils.url_parameter_parser import get_url_parameters
 
 @require_http_methods(["GET"])
 def group_category(request: WSGIRequest, group_category_canvas_id: int):
-    start_date, end_date, _ = get_url_parameters(request)
+    start_date, end_date, _, nr_of_dates_limit = get_url_parameters(request)
 
     group_category_observations_between_dates_query: str = get_group_category_observations_between_dates_query()
     group_categories = GroupCategory.objects.raw(
         group_category_observations_between_dates_query,
-        [group_category_canvas_id, start_date, end_date])
+        [group_category_canvas_id, start_date, end_date, nr_of_dates_limit])
 
     json_response = []
 
@@ -48,12 +48,12 @@ def group_category(request: WSGIRequest, group_category_canvas_id: int):
 @require_http_methods(["GET"])
 def group_category_count(request: WSGIRequest, group_category_canvas_id: int):
 
-    start_date, end_date, _ = get_url_parameters(request)
+    start_date, end_date, _, nr_of_dates_limit = get_url_parameters(request)
 
     group_category_observations_between_dates_query: str = get_group_category_observations_between_dates_query()
     group_categories = GroupCategory.objects.raw(
         group_category_observations_between_dates_query,
-        [group_category_canvas_id, start_date, end_date])
+        [group_category_canvas_id, start_date, end_date, nr_of_dates_limit])
 
     json_response = []
 

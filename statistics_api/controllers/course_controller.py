@@ -11,11 +11,11 @@ from statistics_api.utils.url_parameter_parser import get_url_parameters
 
 @require_http_methods(["GET"])
 def course(request: WSGIRequest, course_canvas_id: int):
-    start_date, end_date, _ = get_url_parameters(request)
+    start_date, end_date, _, nr_of_dates_limit = get_url_parameters(request)
 
     course_observations = CourseObservation.objects.filter(canvas_id=course_canvas_id, date_retrieved__gte=start_date,
                                                            date_retrieved__lte=end_date).order_by(
-        f"-{CourseObservation.date_retrieved.field.name}")
+        f"-{CourseObservation.date_retrieved.field.name}")[:nr_of_dates_limit]
 
     if not course_observations:
         return HttpResponseNotFound("Could not find course with requested ID.")
@@ -51,11 +51,11 @@ def course(request: WSGIRequest, course_canvas_id: int):
 
 @require_http_methods(["GET"])
 def course_count(request: WSGIRequest, course_canvas_id: int):
-    start_date, end_date, _ = get_url_parameters(request)
+    start_date, end_date, _, nr_of_dates_limit = get_url_parameters(request)
 
     course_observations = CourseObservation.objects.filter(canvas_id=course_canvas_id, date_retrieved__gte=start_date,
                                                            date_retrieved__lte=end_date).order_by(
-        f"-{CourseObservation.date_retrieved.field.name}")
+        f"-{CourseObservation.date_retrieved.field.name}")[:nr_of_dates_limit]
 
     if not course_observations:
         return HttpResponseNotFound("Could not find course with requested ID.")

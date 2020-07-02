@@ -1,18 +1,31 @@
 from datetime import date, datetime
 from distutils import util
 from time import time
-from typing import Tuple
+from typing import Tuple, Dict, Set
 
 from django.core.exceptions import ValidationError
 from django.core.handlers.wsgi import WSGIRequest
 
+from statistics_api.definitions import CATEGORY_CODES
 
-def get_url_parameters(request: WSGIRequest) -> Tuple[date, date, bool, int]:
+START_DATE_KEY = "from"
+END_DATE_KEY = "to"
+SHOW_SCHOOLS_KEY = "show_schools"
+NR_OF_DATES_LIMIT_KEY = "nr_of_dates_limit"
+ENROLLMENT_PERCENTAGE_CATEGORIES_KEY = "enrollment_percentage_categories"
+
+
+def get_url_parameters_dict(request: WSGIRequest) -> Dict:
     try:
         STRFTIME_FORMAT = "%Y-%m-%d"
 
         start_date_str: str = request.GET.get('from')
         end_date_str: str = request.GET.get('to')
+        if request.GET.get('enrollment_percentage_categories'):
+            enrollment_percentage_categories: Set[int] = set(
+            [int(i.strip()) for i in request.GET.get('enrollment_percentage_categories').split(",")])
+        else:
+            enrollment_percentage_categories: Set[int] = set(CATEGORY_CODES)
 
         if not start_date_str and not end_date_str:
             nr_of_dates_limit = 1
@@ -27,6 +40,10 @@ def get_url_parameters(request: WSGIRequest) -> Tuple[date, date, bool, int]:
 
         show_schools: bool = bool(util.strtobool(request.GET.get('show_schools', "False")))
 
-        return start_date, end_date, show_schools, nr_of_dates_limit
+        return {START_DATE_KEY: start_date,
+                END_DATE_KEY: end_date,
+                SHOW_SCHOOLS_KEY: show_schools,
+                NR_OF_DATES_LIMIT_KEY: nr_of_dates_limit,
+                ENROLLMENT_PERCENTAGE_CATEGORIES_KEY: enrollment_percentage_categories}
     except ValueError:
         raise ValidationError("Invalid parameter value.")

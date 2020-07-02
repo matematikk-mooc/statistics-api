@@ -4,14 +4,22 @@ from django.http import JsonResponse, HttpResponseNotFound, HttpResponseBadReque
 from django.views.decorators.http import require_http_methods
 from statistics_api.clients.kpas_client import KpasClient
 from statistics_api.models.course_observation import CourseObservation
+from statistics_api.utils.calculate_enrollment_percentage_category import calculate_enrollment_percentage_category
 from statistics_api.utils.query_maker import get_org_nrs_enrollment_counts_and_teacher_counts_query
-from statistics_api.utils.url_parameter_parser import get_url_parameters
+from statistics_api.utils.url_parameter_parser import get_url_parameters_dict, START_DATE_KEY, END_DATE_KEY, \
+    NR_OF_DATES_LIMIT_KEY, ENROLLMENT_PERCENTAGE_CATEGORIES_KEY
 
 
 @require_http_methods(["GET"])
 def municipality_statistics(request: WSGIRequest, municipality_id: int, canvas_course_id: int):
-
-    start_date, end_date, _, nr_of_dates_limit = get_url_parameters(request)
+    url_parameters_dict = get_url_parameters_dict(request)
+    start_date, end_date, nr_of_dates_limit, enrollment_percentage_categories = (url_parameters_dict[
+                                                   START_DATE_KEY],
+                                               url_parameters_dict[
+                                                   END_DATE_KEY],
+                                               url_parameters_dict[
+                                                   NR_OF_DATES_LIMIT_KEY],
+                                                url_parameters_dict[ENROLLMENT_PERCENTAGE_CATEGORIES_KEY])
 
     kpas_client = KpasClient()
     schools_in_municipality = kpas_client.get_schools_by_municipality_id(municipality_id)
@@ -34,7 +42,7 @@ def municipality_statistics(request: WSGIRequest, municipality_id: int, canvas_c
         course_observation: CourseObservation
 
         org_nrs_enrollment_counts_and_teacher_counts_query = get_org_nrs_enrollment_counts_and_teacher_counts_query(
-            tuple([int(i) for i in organization_number_to_school_name_mapping.keys()]))
+            tuple([str(i) for i in organization_number_to_school_name_mapping.keys()]))
 
         # Retrieving tuples like (organization_number, members_count, teacher_count) for all matching
         # rows.
@@ -45,13 +53,15 @@ def municipality_statistics(request: WSGIRequest, municipality_id: int, canvas_c
         names_org_nrs_enrollment_counts_and_teacher_counts = []
 
         for org_nr, enrollment_count, teacher_count in org_nrs_enrollment_counts_and_teacher_counts:
-            school_dict = {
-                "name": organization_number_to_school_name_mapping[org_nr],
-                "organization_number": org_nr,
-                "members_count": enrollment_count,
-                "total_teachers_count": teacher_count
-            }
-            names_org_nrs_enrollment_counts_and_teacher_counts.append(school_dict)
+            enrollment_percentage_category = calculate_enrollment_percentage_category(enrollment_count, teacher_count)
+
+            if enrollment_percentage_category in enrollment_percentage_categories:
+                school_dict = {
+                    "name": organization_number_to_school_name_mapping[org_nr],
+                    "organization_number": org_nr,
+                    "enrollment_percentage_category": enrollment_percentage_category
+                }
+                names_org_nrs_enrollment_counts_and_teacher_counts.append(school_dict)
 
         course_observation_for_municipality_json = {
             "date": course_observation.date_retrieved,

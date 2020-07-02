@@ -48,7 +48,7 @@ services:
         context: .
         dockerfile: Dockerfile.dev
       environment:
-        - CA_FILE_NAME=ca.crt
+        - CA_FILE_NAME=${CA_FILE_NAME}
         - DB_HOST=api-database
         - DB_DATABASE=${MYSQL_DATABASE}
         - DB_USERNAME=${MYSQL_USER}
@@ -59,6 +59,7 @@ services:
         - CANVAS_ACCESS_KEY=${CANVAS_ACCESS_KEY}
         - CANVAS_DOMAIN=${CANVAS_DOMAIN}
         - PULL_MEMBER_COUNTS_FROM_CANVAS_ON_STARTUP=${PULL_MEMBER_COUNTS_FROM_CANVAS_ON_STARTUP}
+        - KPAS_DOMAIN=${KPAS_DOMAIN}
       networks:
         - backend_canvas-net
         - statistics_api-net

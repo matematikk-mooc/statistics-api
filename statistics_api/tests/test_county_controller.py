@@ -1,6 +1,6 @@
 import json
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.core.exceptions import ValidationError
 from django.test import TestCase
@@ -94,7 +94,7 @@ class Test(TestCase):
             Trying to fetch data from the future. Should return empty result set.
         """
         client = APIClient()
-        from_date = str(datetime.fromtimestamp(int(time.time())).date())
+        from_date = str(datetime.fromtimestamp(int(time.time())).date() + timedelta(days=1))
         web_response = client.get(
             path=f"/api/statistics/county/{self.COUNTY_ID}/course/{self.CANVAS_COURSE_ID}?show_schools=True&from={from_date}")
         self.assertEqual(200, web_response.status_code)
@@ -127,3 +127,26 @@ class Test(TestCase):
         municipality_names_list = [municipality["name"] for municipality in json_response["Result"][0]["municipalities"]]
         self.assertEqual(len(municipality_names_list), len(set(municipality_names_list)))
         self.assertNotEqual(json_response["info"]['category_codes'], None)
+
+    def test_county_statistics_by_municipalities_should_not_return_newer_entries_than_end_date(self):
+        client = APIClient()
+        web_response = client.get(
+            path=f"/api/statistics/county/{self.COUNTY_ID}/course/{self.CANVAS_COURSE_ID}?from=1970-01-01")
+        self.assertEqual(200, web_response.status_code)
+
+        json_response = json.loads(web_response.content)
+        self.assertTrue("municipalities" in json_response["Result"][0].keys())
+
+        # "%Y-%m-%dT%H:%M:%S.%fZ"
+        oldest_date_in_result = datetime.strptime(json_response["Result"][-1]["date"], "%Y-%m-%dT%H:%M:%S.%fZ").date()
+        oldest_date_in_result_str = oldest_date_in_result + timedelta(days=1)
+
+        second_web_response = client.get(
+            path=f"/api/statistics/county/{self.COUNTY_ID}/course/{self.CANVAS_COURSE_ID}?to={oldest_date_in_result_str}")
+        self.assertEqual(200, web_response.status_code)
+
+        second_json_response = json.loads(second_web_response.content)
+
+        for date_str in [res["date"] for res in second_json_response["Result"]]:
+            date = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S.%fZ").date()
+            self.assertTrue(oldest_date_in_result >= date)

@@ -13,7 +13,7 @@ class Test(TestCase):
         factory = APIRequestFactory()
         request = factory.get(path="/foo?from=2020-01-02&to=2020-01-05&show_schools=True")
         url_param_dict = get_url_parameters_dict(request)
-        self.assertTupleEqual((date(year=2020, month=1, day=2), date(year=2020, month=1, day=5), True, 10000),
+        self.assertTupleEqual((date(year=2020, month=1, day=2), date(year=2020, month=1, day=6), True, 10000),
                               (url_param_dict[START_DATE_KEY], url_param_dict[END_DATE_KEY], url_param_dict[SHOW_SCHOOLS_KEY], url_param_dict[NR_OF_DATES_LIMIT_KEY]))
 
     def test_get_url_parameters_without_date_intervals(self):

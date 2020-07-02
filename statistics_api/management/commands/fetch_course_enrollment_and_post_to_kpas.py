@@ -133,6 +133,15 @@ class EnrollmentActivity(object):
         enrollment_activity['active_users_count'] = active_users_count
         enrollment_activity['course_id'] = self.course_id
         enrollment_activity['course_name'] = result['data']['course']['name']
+        self.logger.debug(f"saving {enrollment_activity} to DB")
+
+        created_enrollment_object = EnrollmentActivity.objects.create(
+            course_id=enrollment_activity['course_id'],
+            course_name=enrollment_activity['course_name'],
+            active_users_count=enrollment_activity['active_users_count'],
+            activity_date=enrollment_activity['activity_date']
+        )
+        self.logger.debug(f"{created_enrollment_object} created in DB")
 
         self.logger.debug(f"Posting {enrollment_activity} to KPAS...")
         try:

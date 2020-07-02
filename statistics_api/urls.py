@@ -15,11 +15,19 @@ Including another URLconf
 """
 
 from django.conf.urls import url
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+
+from statistics_api.enrollment_activity.views import EnrollmentActivityViewSet
 
 from statistics_api.controllers.county_controller import county_statistics
 from statistics_api.controllers.course_controller import course, course_count
 from statistics_api.controllers.group_category_controller import group_category, group_category_count
 from statistics_api.controllers.municipality_controller import municipality_statistics
+
+
+user_activity = DefaultRouter()
+user_activity.register(r"user_activity", EnrollmentActivityViewSet, basename="enrollment_activity")
 
 urlpatterns = [
     url(r'^api/statistics/(\d+)/?$', course),
@@ -27,5 +35,8 @@ urlpatterns = [
     url(r'^api/statistics/groupCategory/(\d+)$', group_category),
     url(r'^api/statistics/groupCategory/(\d+)/count$', group_category_count),
     url(r'^api/statistics/municipality/(\d+)/course/(\d+)$', municipality_statistics),
-    url(r'^api/statistics/county/(\d+)/course/(\d+)$', county_statistics)
+    url(r'^api/statistics/county/(\d+)/course/(\d+)$', county_statistics),
+
+    path("api/statistics/", include(user_activity.urls)),
+
 ]

@@ -1,4 +1,7 @@
+import re
 from typing import Tuple
+
+from django.core.exceptions import ValidationError
 
 from statistics_api.models.course_observation import CourseObservation
 from statistics_api.models.group import Group
@@ -27,7 +30,7 @@ DATE_RETRIEVED = str(CourseObservation.date_retrieved.field.name)
 
 QUERY_FOR_EMPTY_RESULT = "SELECT NULL LIMIT 0"
 
-def get_org_nrs_enrollment_counts_and_teacher_counts_query(organization_numbers: Tuple[int]) -> str:
+def get_org_nrs_enrollment_counts_and_teacher_counts_query(organization_numbers: Tuple[str]) -> str:
     """
     Returns a prepared SQL statement to retrieve all organization numbers, Canvas enrollment counts (member counts) and
     number of teachers at all primary schools within a municipality specified by a municipality ID and a course_observation ID.
@@ -48,7 +51,11 @@ def get_org_nrs_enrollment_counts_and_teacher_counts_query(organization_numbers:
     elif len(organization_numbers) == 1:
         org_nrs_str = str(organization_numbers[0])
     else:
+        for nr in organization_numbers:
+            if not re.match(r"[0-9U][0-9]{8}", str(nr)):
+                raise ValidationError("Unexpected format on organization number.")
         org_nrs_str = ', '.join(['\'' + str(i) + '\'' for i in organization_numbers])
+
 
     return f"""SELECT {ORGANIZATION_NUMBER}, {MEMBERS_COUNT}, {NUMBER_OF_TEACHERS} FROM `{GROUP_TBL_NAME}`
     LEFT JOIN {GROUP_CATEGORY_TBL_NAME} ON `{GROUP_TBL_NAME}`.{GROUP_GROUP_CATEGORY_FK} = {GROUP_CATEGORY_ID}

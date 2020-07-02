@@ -1,10 +1,9 @@
 from collections import defaultdict
-from distutils import util
 from typing import Tuple, Dict, List
 
 from django.core.handlers.wsgi import WSGIRequest
 from django.db import connection
-from django.http import HttpResponseBadRequest, HttpResponseNotFound, JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_http_methods
 
 from statistics_api.clients.kpas_client import KpasClient
@@ -91,8 +90,7 @@ def get_municipality_aggregated_school_data_for_county(course_observations: Tupl
     municipalities_in_county = kpas_client.get_municipalities_by_county_id(county_id)
 
     for municipality in municipalities_in_county:
-        if municipality["ErNedlagt"] == False:
-            municipality_number_to_name_mapping[municipality['Kommunenr']] = municipality['Navn']
+        municipality_number_to_name_mapping[municipality['Kommunenr']] = municipality['Navn']
 
     json_response: List = []
 
@@ -100,7 +98,7 @@ def get_municipality_aggregated_school_data_for_county(course_observations: Tupl
         course_observation: CourseObservation
 
         org_nrs_enrollment_counts_and_teacher_counts_query = get_org_nrs_enrollment_counts_and_teacher_counts_query(
-            tuple([int(i) for i in all_schools_in_county_org_nrs]))
+            tuple([i for i in all_schools_in_county_org_nrs]))
 
         # Retrieving tuples like (organization_number, members_count, teacher_count) for all matching
         # rows.

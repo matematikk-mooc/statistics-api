@@ -94,3 +94,6 @@ class Test(TestCase):
 
         json_response = json.loads(web_response.content)
         self.assertTrue("municipalities" in json_response["Result"][0].keys())
+
+        municipality_names_list = [municipality["name"] for municipality in json_response["Result"][0]["municipalities"]]
+        self.assertEqual(len(municipality_names_list), len(set(municipality_names_list)))

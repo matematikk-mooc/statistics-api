@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from django.test import TestCase
 from rest_framework.test import APIClient
 from statistics_api.clients.canvas_api_client import CanvasApiClient
+from statistics_api.definitions import CANVAS_ACCOUNT_ID
 
 
 class Test(TestCase):
@@ -13,8 +14,7 @@ class Test(TestCase):
     def test_course(self):
 
         canvas_api_client = CanvasApiClient()
-        canvas_account_id = canvas_api_client.get_canvas_account_id_of_current_user()
-        courses = canvas_api_client.get_courses(canvas_account_id)
+        courses = canvas_api_client.get_courses(CANVAS_ACCOUNT_ID)
         from_date = str(datetime.fromtimestamp(int(time.time())).date() - timedelta(days=30))
 
         for course in courses:

@@ -33,7 +33,7 @@ class CanvasApiClient:
             Fetching all courses to which the configured account is root account of.
         :return:
         """
-        url = f"{CANVAS_API_URL}/users/{canvas_account_id}/courses?include[]=total_students&per_page=100"
+        url = f"{CANVAS_API_URL}/accounts/{canvas_account_id}/courses?include[]=total_students&per_page=100"
         return self.paginate_through_url(url)
 
     def paginate_through_url(self, target_url: str, current_items: List = None) -> Tuple[Dict]:

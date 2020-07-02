@@ -10,7 +10,10 @@ from statistics_api.clients.kpas_client import KpasClient
 from statistics_api.definitions import CATEGORY_CODE_INFORMATION_DICT
 from statistics_api.models.course_observation import CourseObservation
 from statistics_api.utils.calculate_enrollment_percentage_category import calculate_enrollment_percentage_category
-from statistics_api.utils.query_maker import get_org_nrs_enrollment_counts_and_teacher_counts_query
+from statistics_api.utils.get_org_nrs_enrollment_counts_and_teacher_counts import \
+    get_org_nrs_enrollment_counts_and_teacher_counts
+from statistics_api.utils.query_maker import get_org_nrs_enrollment_counts_and_teacher_counts_query, \
+    get_org_nrs_enrollment_counts_and_teacher_counts_for_unregistered_schools_query
 from statistics_api.utils.url_parameter_parser import get_url_parameters_dict, ENROLLMENT_PERCENTAGE_CATEGORIES_KEY, \
     NR_OF_DATES_LIMIT_KEY, SHOW_SCHOOLS_KEY, END_DATE_KEY, START_DATE_KEY
 
@@ -57,18 +60,16 @@ def get_individual_school_data_for_county(course_observations: Tuple[CourseObser
             organization_number_to_school_name_mapping[school['OrgNr']] = school['Navn']
 
     json_response: List = []
+    county_schools_org_nrs = tuple([str(k) for k in organization_number_to_school_name_mapping.keys()])
 
     for course_observation in course_observations:
         course_observation: CourseObservation
 
-        org_nrs_enrollment_counts_and_teacher_counts_query = get_org_nrs_enrollment_counts_and_teacher_counts_query(
-            tuple([str(i) for i in organization_number_to_school_name_mapping.keys()]))
-
         # Retrieving tuples like (organization_number, members_count, teacher_count) for all matching
         # rows.
-        with connection.cursor() as cursor:
-            cursor.execute(org_nrs_enrollment_counts_and_teacher_counts_query, [course_observation.pk])
-            org_nrs_enrollment_counts_and_teacher_counts = cursor.fetchall()
+
+        org_nrs_enrollment_counts_and_teacher_counts = get_org_nrs_enrollment_counts_and_teacher_counts(
+            county_schools_org_nrs, course_observation.pk)
 
         names_org_nrs_enrollment_counts_and_teacher_counts = []
 
@@ -82,6 +83,8 @@ def get_individual_school_data_for_county(course_observations: Tuple[CourseObser
                     "enrollment_percentage_category": enrollment_percentage_category
                 }
                 names_org_nrs_enrollment_counts_and_teacher_counts.append(school_dict)
+
+        names_org_nrs_enrollment_counts_and_teacher_counts.sort(key=lambda d: d["name"])
 
         course_observation_for_municipality_json = {
             "date": course_observation.date_retrieved,
@@ -117,14 +120,10 @@ def get_municipality_aggregated_school_data_for_county(course_observations: Tupl
     for course_observation in course_observations:
         course_observation: CourseObservation
 
-        org_nrs_enrollment_counts_and_teacher_counts_query = get_org_nrs_enrollment_counts_and_teacher_counts_query(
-            tuple([i for i in all_schools_in_county_org_nrs]))
-
         # Retrieving tuples like (organization_number, members_count, teacher_count) for all matching
-        # rows.
-        with connection.cursor() as cursor:
-            cursor.execute(org_nrs_enrollment_counts_and_teacher_counts_query, [course_observation.pk])
-            org_nrs_enrollment_counts_and_teacher_counts = cursor.fetchall()
+        # schools.
+        org_nrs_enrollment_counts_and_teacher_counts = get_org_nrs_enrollment_counts_and_teacher_counts(
+            tuple(all_schools_in_county_org_nrs), course_observation.pk)
 
         school_org_nr_to_enrollment_and_teacher_count_mapping: Dict[str, Tuple[int, int]] = {}
         municipality_dicts: List = []
@@ -154,6 +153,8 @@ def get_municipality_aggregated_school_data_for_county(course_observations: Tupl
                 }
 
                 municipality_dicts.append(municipality_dict)
+
+        municipality_dicts.sort(key=lambda d: d["name"])
 
         course_observation_for_municipality_json = {
             "date": course_observation.date_retrieved,

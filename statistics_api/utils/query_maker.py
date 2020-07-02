@@ -67,6 +67,28 @@ def get_org_nrs_enrollment_counts_and_teacher_counts_query(organization_numbers:
     """
 
 
+def get_org_nrs_enrollment_counts_and_teacher_counts_for_unregistered_schools_query(organization_numbers: Tuple[str]) -> str:
+    """
+    Returns a prepared SQL statement to retrieve all organization numbers, Canvas enrollment counts (member counts) and
+    number of teachers at all primary schools within a municipality specified by a municipality ID and a
+    course_observation ID. This query will only return schools that are not registered at Canvas, so the Cnavas
+    enrollment count will always be 0.
+    """
+
+    if len(organization_numbers) == 0:
+        org_nrs_str = "NULL"
+    elif len(organization_numbers) == 1:
+        org_nrs_str = str(organization_numbers[0])
+    else:
+        for nr in organization_numbers:
+            if not re.match(r"[0-9U][0-9]{8}", str(nr)):
+                raise ValidationError("Unexpected format on organization number.")
+        org_nrs_str = ', '.join(['\'' + str(i) + '\'' for i in organization_numbers])
+
+    return f"""SELECT {ORGANIZATION_NUMBER}, {0}, {NUMBER_OF_TEACHERS} FROM `{SCHOOL_TBL_NAME}`
+        WHERE {ORGANIZATION_NUMBER} IN ({org_nrs_str});
+        """
+
 def get_group_category_observations_between_dates_query() -> str:
     return f"""SELECT {GROUP_CATEGORY_ID}, {DATE_RETRIEVED} FROM {GroupCategory._meta.db_table}
         LEFT JOIN {CourseObservation._meta.db_table} ON {GROUP_CATEGORY_COURSE_FK} = {COURSE_OBSERVATION_ID}

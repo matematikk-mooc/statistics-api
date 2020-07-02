@@ -59,6 +59,7 @@ services:
         - CANVAS_ACCESS_KEY=${CANVAS_ACCESS_KEY}
         - CANVAS_DOMAIN=${CANVAS_DOMAIN}
         - PULL_MEMBER_COUNTS_FROM_CANVAS_ON_STARTUP=${PULL_MEMBER_COUNTS_FROM_CANVAS_ON_STARTUP}
+        - KPAS_DOMAIN=${KPAS_DOMAIN}
       networks:
         - backend_canvas-net
         - statistics_api-net

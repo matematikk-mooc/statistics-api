@@ -7,7 +7,9 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_http_methods
 
 from statistics_api.clients.kpas_client import KpasClient
+from statistics_api.definitions import CATEGORY_CODE_INFORMATION_DICT
 from statistics_api.models.course_observation import CourseObservation
+from statistics_api.utils.calculate_enrollment_percentage_category import calculate_enrollment_percentage_category
 from statistics_api.utils.query_maker import get_org_nrs_enrollment_counts_and_teacher_counts_query
 from statistics_api.utils.url_parameter_parser import get_url_parameters
 
@@ -45,7 +47,7 @@ def get_individual_school_data_for_county(course_observations: Tuple[CourseObser
         course_observation: CourseObservation
 
         org_nrs_enrollment_counts_and_teacher_counts_query = get_org_nrs_enrollment_counts_and_teacher_counts_query(
-            tuple([int(i) for i in organization_number_to_school_name_mapping.keys()]))
+            tuple([str(i) for i in organization_number_to_school_name_mapping.keys()]))
 
         # Retrieving tuples like (organization_number, members_count, teacher_count) for all matching
         # rows.
@@ -56,11 +58,12 @@ def get_individual_school_data_for_county(course_observations: Tuple[CourseObser
         names_org_nrs_enrollment_counts_and_teacher_counts = []
 
         for org_nr, enrollment_count, teacher_count in org_nrs_enrollment_counts_and_teacher_counts:
+            enrollment_percentage_category = calculate_enrollment_percentage_category(enrollment_count, teacher_count)
+
             school_dict = {
                 "name": organization_number_to_school_name_mapping[org_nr],
                 "organization_number": org_nr,
-                "members_count": enrollment_count,
-                "total_teachers_count": teacher_count
+                "enrollment_percentage_category": enrollment_percentage_category
             }
             names_org_nrs_enrollment_counts_and_teacher_counts.append(school_dict)
 
@@ -71,7 +74,7 @@ def get_individual_school_data_for_county(course_observations: Tuple[CourseObser
 
         json_response.append(course_observation_for_municipality_json)
 
-    return JsonResponse({"Result": json_response})
+    return JsonResponse({**CATEGORY_CODE_INFORMATION_DICT, **{"Result": json_response}})
 
 
 def get_municipality_aggregated_school_data_for_county(course_observations: Tuple[CourseObservation],
@@ -124,11 +127,13 @@ def get_municipality_aggregated_school_data_for_county(course_observations: Tupl
                  school_org_nr_to_enrollment_and_teacher_count_mapping.get(org_nr) else 0 for org_nr in
                  municipality_school_org_nrs])
 
+            enrollment_percentage_category = calculate_enrollment_percentage_category(municipality_enrollment_count,
+                                                                                      municipality_teacher_count)
+
             municipality_dict = {
                 "name": municipality_number_to_name_mapping[municipality_nr],
                 "municipality_nr": municipality_nr,
-                "members_count": municipality_enrollment_count,
-                "total_teachers_count": municipality_teacher_count
+                "enrollment_percentage_category": enrollment_percentage_category
             }
 
             municipality_dicts.append(municipality_dict)
@@ -140,4 +145,4 @@ def get_municipality_aggregated_school_data_for_county(course_observations: Tupl
 
         json_response.append(course_observation_for_municipality_json)
 
-    return JsonResponse({"Result": json_response})
+    return JsonResponse({**CATEGORY_CODE_INFORMATION_DICT, **{"Result": json_response}})

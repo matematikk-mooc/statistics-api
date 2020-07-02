@@ -4,6 +4,7 @@ from django.http import JsonResponse, HttpResponseNotFound, HttpResponseBadReque
 from django.views.decorators.http import require_http_methods
 from statistics_api.clients.kpas_client import KpasClient
 from statistics_api.models.course_observation import CourseObservation
+from statistics_api.utils.calculate_enrollment_percentage_category import calculate_enrollment_percentage_category
 from statistics_api.utils.query_maker import get_org_nrs_enrollment_counts_and_teacher_counts_query
 from statistics_api.utils.url_parameter_parser import get_url_parameters
 
@@ -34,7 +35,7 @@ def municipality_statistics(request: WSGIRequest, municipality_id: int, canvas_c
         course_observation: CourseObservation
 
         org_nrs_enrollment_counts_and_teacher_counts_query = get_org_nrs_enrollment_counts_and_teacher_counts_query(
-            tuple([int(i) for i in organization_number_to_school_name_mapping.keys()]))
+            tuple([str(i) for i in organization_number_to_school_name_mapping.keys()]))
 
         # Retrieving tuples like (organization_number, members_count, teacher_count) for all matching
         # rows.
@@ -45,11 +46,12 @@ def municipality_statistics(request: WSGIRequest, municipality_id: int, canvas_c
         names_org_nrs_enrollment_counts_and_teacher_counts = []
 
         for org_nr, enrollment_count, teacher_count in org_nrs_enrollment_counts_and_teacher_counts:
+            enrollment_percentage_category = calculate_enrollment_percentage_category(enrollment_count, teacher_count)
+
             school_dict = {
                 "name": organization_number_to_school_name_mapping[org_nr],
                 "organization_number": org_nr,
-                "members_count": enrollment_count,
-                "total_teachers_count": teacher_count
+                "enrollment_percentage_category": enrollment_percentage_category
             }
             names_org_nrs_enrollment_counts_and_teacher_counts.append(school_dict)
 

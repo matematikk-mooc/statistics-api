@@ -45,6 +45,7 @@ class Test(TestCase):
 
         json_response = json.loads(web_response.content)
         self.assertTrue("schools" in json_response["Result"][0].keys())
+        self.assertNotEqual(json_response["info"]['category_codes'], None)
 
     def test_county_statistics_for_individual_schools_without_date_intervals(self):
         """
@@ -60,6 +61,7 @@ class Test(TestCase):
         json_response = json.loads(web_response.content)
         self.assertTrue("schools" in json_response["Result"][0].keys())
         self.assertEqual(1, len(json_response["Result"]))
+        self.assertNotEqual(json_response["info"]['category_codes'], None)
 
     def test_county_statistics_for_individual_schools_at_future_date(self):
         """
@@ -73,6 +75,7 @@ class Test(TestCase):
 
         json_response = json.loads(web_response.content)
         self.assertEqual(0, len(json_response["Result"]))
+        self.assertNotEqual(json_response["info"]['category_codes'], None)
 
     def test_county_statistics_with_invalid_URL_parameter(self):
         """
@@ -97,3 +100,4 @@ class Test(TestCase):
 
         municipality_names_list = [municipality["name"] for municipality in json_response["Result"][0]["municipalities"]]
         self.assertEqual(len(municipality_names_list), len(set(municipality_names_list)))
+        self.assertNotEqual(json_response["info"]['category_codes'], None)

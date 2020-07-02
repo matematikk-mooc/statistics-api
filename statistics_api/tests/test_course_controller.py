@@ -23,4 +23,4 @@ class Test(TestCase):
                 path=f"/api/statistics/{course['id']}?from={from_date}")
             self.assertEqual(200, web_response.status_code)
             json_response = json.loads(web_response.content)
-            self.assertNotEqual(json_response["Result"][0]['antallBrukere'], None)
+            self.assertNotEqual(json_response["Result"][0]['enrollment_count'], None)

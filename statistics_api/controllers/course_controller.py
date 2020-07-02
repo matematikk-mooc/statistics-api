@@ -40,7 +40,7 @@ def course(request: WSGIRequest, course_canvas_id: int):
 
         course_observation_json = {
             "date": course_observation.date_retrieved,
-            "antallBrukere": total_students,
+            "enrollment_count": total_students,
             "groups": groups_dict
         }
 
@@ -72,7 +72,7 @@ def course_count(request: WSGIRequest, course_canvas_id: int):
 
         course_observation_count = {
             "date": course_observation.date_retrieved,
-            "antallBrukere": total_students
+            "enrollment_count": total_students
         }
 
         json_response.append(course_observation_count)

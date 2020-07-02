@@ -48,7 +48,7 @@ services:
         context: .
         dockerfile: Dockerfile.dev
       environment:
-        - CA_FILE_NAME=ca.crt
+        - CA_FILE_NAME=${CA_FILE_NAME}
         - DB_HOST=api-database
         - DB_DATABASE=${MYSQL_DATABASE}
         - DB_USERNAME=${MYSQL_USER}

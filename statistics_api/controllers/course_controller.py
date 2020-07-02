@@ -6,12 +6,19 @@ from statistics_api.models.course_observation import CourseObservation
 from statistics_api.models.group import Group
 from statistics_api.models.group_category import GroupCategory
 from statistics_api.services.course_service import get_n_most_recent_course_observations
-from statistics_api.utils.url_parameter_parser import get_url_parameters
+from statistics_api.utils.url_parameter_parser import get_url_parameters_dict, START_DATE_KEY, END_DATE_KEY, \
+    NR_OF_DATES_LIMIT_KEY
 
 
 @require_http_methods(["GET"])
 def course(request: WSGIRequest, course_canvas_id: int):
-    start_date, end_date, _, nr_of_dates_limit = get_url_parameters(request)
+    url_parameters_dict = get_url_parameters_dict(request)
+    start_date, end_date, nr_of_dates_limit = (url_parameters_dict[
+                                                   START_DATE_KEY],
+                                               url_parameters_dict[
+                                                   END_DATE_KEY],
+                                               url_parameters_dict[
+                                                   NR_OF_DATES_LIMIT_KEY])
 
     course_observations = CourseObservation.objects.filter(canvas_id=course_canvas_id, date_retrieved__gte=start_date,
                                                            date_retrieved__lte=end_date).order_by(
@@ -51,7 +58,14 @@ def course(request: WSGIRequest, course_canvas_id: int):
 
 @require_http_methods(["GET"])
 def course_count(request: WSGIRequest, course_canvas_id: int):
-    start_date, end_date, _, nr_of_dates_limit = get_url_parameters(request)
+    url_parameters_dict = get_url_parameters_dict(request)
+
+    start_date, end_date, nr_of_dates_limit = (url_parameters_dict[
+                                                   START_DATE_KEY],
+                                               url_parameters_dict[
+                                                   END_DATE_KEY],
+                                               url_parameters_dict[
+                                                   NR_OF_DATES_LIMIT_KEY])
 
     course_observations = CourseObservation.objects.filter(canvas_id=course_canvas_id, date_retrieved__gte=start_date,
                                                            date_retrieved__lte=end_date).order_by(

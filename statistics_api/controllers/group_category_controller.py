@@ -8,12 +8,19 @@ from statistics_api.models.group import Group
 from statistics_api.models.group_category import GroupCategory
 from statistics_api.utils.query_maker import get_group_category_observations_between_dates_query, \
     get_groups_by_group_category_ids_query
-from statistics_api.utils.url_parameter_parser import get_url_parameters
+from statistics_api.utils.url_parameter_parser import get_url_parameters_dict, START_DATE_KEY, END_DATE_KEY, \
+    NR_OF_DATES_LIMIT_KEY
 
 
 @require_http_methods(["GET"])
 def group_category(request: WSGIRequest, group_category_canvas_id: int):
-    start_date, end_date, _, nr_of_dates_limit = get_url_parameters(request)
+    url_parameters_dict = get_url_parameters_dict(request)
+    start_date, end_date, nr_of_dates_limit = (url_parameters_dict[
+                                                   START_DATE_KEY],
+                                               url_parameters_dict[
+                                                   END_DATE_KEY],
+                                               url_parameters_dict[
+                                                   NR_OF_DATES_LIMIT_KEY])
 
     group_category_observations_between_dates_query: str = get_group_category_observations_between_dates_query()
     group_categories = GroupCategory.objects.raw(
@@ -47,8 +54,13 @@ def group_category(request: WSGIRequest, group_category_canvas_id: int):
 
 @require_http_methods(["GET"])
 def group_category_count(request: WSGIRequest, group_category_canvas_id: int):
-
-    start_date, end_date, _, nr_of_dates_limit = get_url_parameters(request)
+    url_parameters_dict = get_url_parameters_dict(request)
+    start_date, end_date, nr_of_dates_limit = (url_parameters_dict[
+                                                   START_DATE_KEY],
+                                               url_parameters_dict[
+                                                   END_DATE_KEY],
+                                               url_parameters_dict[
+                                                   NR_OF_DATES_LIMIT_KEY])
 
     group_category_observations_between_dates_query: str = get_group_category_observations_between_dates_query()
     group_categories = GroupCategory.objects.raw(

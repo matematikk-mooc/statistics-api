@@ -57,7 +57,11 @@ class Command(BaseCommand):
         group_to_school_relationships = []
 
         for db_group, group in zip(all_db_groups, all_groups):
-            _, _, institution_type, _, organization_number = [s.strip() for s in group['description'].split(":")]
+            try:
+                _, _, institution_type, _, organization_number = ([s.strip() for s in str(group['description']).split(":")] + [""]*5)[:5]
+            except ValueError as e:
+                logger.critical(group)
+                raise e
             if institution_type.lower().strip() == "school":
                 schools = School.objects.filter(organization_number=organization_number)
                 if len(schools) == 0:

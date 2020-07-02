@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from distutils import util
 from time import time
 from typing import Tuple, Dict, Set
@@ -19,11 +19,11 @@ def get_url_parameters_dict(request: WSGIRequest) -> Dict:
     try:
         STRFTIME_FORMAT = "%Y-%m-%d"
 
-        start_date_str: str = request.GET.get('from')
-        end_date_str: str = request.GET.get('to')
-        if request.GET.get('enrollment_percentage_categories'):
+        start_date_str: str = request.GET.get(START_DATE_KEY)
+        end_date_str: str = request.GET.get(END_DATE_KEY)
+        if request.GET.get(ENROLLMENT_PERCENTAGE_CATEGORIES_KEY):
             enrollment_percentage_categories: Set[int] = set(
-            [int(i.strip()) for i in request.GET.get('enrollment_percentage_categories').split(",")])
+            [int(i.strip()) for i in request.GET.get(ENROLLMENT_PERCENTAGE_CATEGORIES_KEY).split(",")])
         else:
             enrollment_percentage_categories: Set[int] = set(CATEGORY_CODES)
 
@@ -37,8 +37,9 @@ def get_url_parameters_dict(request: WSGIRequest) -> Dict:
 
         end_date: date = (datetime.strptime(end_date_str, STRFTIME_FORMAT) if end_date_str else datetime.fromtimestamp(
             int(time()))).date()
+        end_date += timedelta(days=1)
 
-        show_schools: bool = bool(util.strtobool(request.GET.get('show_schools', "False")))
+        show_schools: bool = bool(util.strtobool(request.GET.get(SHOW_SCHOOLS_KEY, "False")))
 
         return {START_DATE_KEY: start_date,
                 END_DATE_KEY: end_date,

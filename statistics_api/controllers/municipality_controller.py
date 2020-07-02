@@ -3,6 +3,7 @@ from django.db import connection
 from django.http import JsonResponse, HttpResponseNotFound, HttpResponseBadRequest
 from django.views.decorators.http import require_http_methods
 from statistics_api.clients.kpas_client import KpasClient
+from statistics_api.definitions import CATEGORY_CODE_INFORMATION_DICT
 from statistics_api.models.course_observation import CourseObservation
 from statistics_api.utils.calculate_enrollment_percentage_category import calculate_enrollment_percentage_category
 from statistics_api.utils.get_org_nrs_enrollment_counts_and_teacher_counts import \
@@ -74,4 +75,4 @@ def municipality_statistics(request: WSGIRequest, municipality_id: int, canvas_c
 
         json_response.append(course_observation_for_municipality_json)
 
-    return JsonResponse({"Result": json_response})
+    return JsonResponse({**CATEGORY_CODE_INFORMATION_DICT, **{"Result": json_response}})

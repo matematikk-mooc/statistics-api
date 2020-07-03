@@ -18,5 +18,5 @@ class Command(BaseCommand):
         for command in commands:
             try:
                 management.call_command(command)
-            except JSONDecodeError as e:
+            except (JSONDecodeError, AssertionError) as e:
                 logger.critical(e)

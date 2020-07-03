@@ -8,3 +8,4 @@ django~=3.0.7
 gunicorn~=20.0.4
 arrow~=0.15.6
 python-graphql-client~=0.2.0
+djangorestframework>=3.10,<3.11

@@ -16,25 +16,7 @@ class StatisticsApiConfig(AppConfig):
             scheduler = BackgroundScheduler()
             scheduler.add_job(
                 management.call_command,
-                args=("pull_course_member_counts_from_canvas",),
-                max_instances=1,
-                replace_existing=False,
-                trigger="cron",
-                minute=DATABASE_REFRESH_MINUTE,
-                hour=DATABASE_REFRESH_HOUR,
-            )
-            scheduler.add_job(
-                management.call_command,
-                args=("fetch_course_enrollment_and_post_to_kpas",),
-                max_instances=1,
-                replace_existing=False,
-                trigger="cron",
-                minute=DATABASE_REFRESH_MINUTE,
-                hour=DATABASE_REFRESH_HOUR,
-            )
-            scheduler.add_job(
-                management.call_command,
-                args=("trigger_scheduling_of_kpas_job",),
+                args=("do_all_scheduled_maintenance_jobs",),
                 max_instances=1,
                 replace_existing=False,
                 trigger="cron",

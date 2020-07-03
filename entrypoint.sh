@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -e
 source venv/bin/activate
-python manage.py makemigrations statistics_api
 python manage.py migrate
+python manage.py migrate enrollment_activity
 python manage.py import_school_teacher_counts_from_csv data/primary_schools_data.csv
 if [ "$PULL_MEMBER_COUNTS_FROM_CANVAS_ON_STARTUP" = "True" ]
 then

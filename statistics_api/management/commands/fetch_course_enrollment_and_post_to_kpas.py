@@ -14,7 +14,7 @@ from statistics_api.clients.kpas_client import KpasClient
 from statistics_api.definitions import CANVAS_DOMAIN, CANVAS_ACCESS_KEY, CA_FILE_PATH, CANVAS_ACCOUNT_ID
 from statistics_api.services.course_service import get_n_most_recent_course_observations, \
     compute_total_nr_of_students_for_course_observation
-
+from statistics_api.enrollment_activity.models import EnrollmentActivity as EnrollmentActivityModel
 
 class Command(BaseCommand):
     help = """Retrieves per-course enrollment activity for all courses administrated by the Canvas account ID
@@ -133,6 +133,16 @@ class EnrollmentActivity(object):
         enrollment_activity['active_users_count'] = active_users_count
         enrollment_activity['course_id'] = self.course_id
         enrollment_activity['course_name'] = result['data']['course']['name']
+        self.logger.debug(f"saving {enrollment_activity} to DB")
+
+        created_enrollment_object = EnrollmentActivityModel(
+            course_id=enrollment_activity['course_id'],
+            course_name=enrollment_activity['course_name'],
+            active_users_count=enrollment_activity['active_users_count'],
+            activity_date=enrollment_activity['activity_date']
+        )
+        created_enrollment_object.save()
+        self.logger.debug(f"{created_enrollment_object} created in DB")
 
         self.logger.debug(f"Posting {enrollment_activity} to KPAS...")
         try:

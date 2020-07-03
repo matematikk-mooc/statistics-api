@@ -35,6 +35,8 @@ def county_statistics(request: WSGIRequest, county_id: int, canvas_course_id: in
 
     kpas_client = KpasClient()
     schools_in_county = kpas_client.get_schools_by_county_id(county_id)
+    county: [Dict] = kpas_client.get_county(county_id)
+    county_name, county_organization_number = (county["Navn"], int(county["OrgNr"]))
 
     # Retrieving the {nr_of_most_recent_dates} most recent observations of Canvas LMS course with
     # canvas ID {canvas_course_id} ordered by date descending.
@@ -43,14 +45,17 @@ def county_statistics(request: WSGIRequest, county_id: int, canvas_course_id: in
         f"-{CourseObservation.date_retrieved.field.name}")[:nr_of_dates_limit]
 
     if show_schools:
-        return get_individual_school_data_for_county(course_observations, schools_in_county,
+        return get_individual_school_data_for_county(course_observations, county_id, county_name,
+                                                     county_organization_number, schools_in_county,
                                                      enrollment_percentage_categories)
     else:
-        return get_municipality_aggregated_school_data_for_county(course_observations, county_id, schools_in_county,
+        return get_municipality_aggregated_school_data_for_county(course_observations, county_id, county_name,
+                                                                  county_organization_number, schools_in_county,
                                                                   enrollment_percentage_categories)
 
 
-def get_individual_school_data_for_county(course_observations: Tuple[CourseObservation],
+def get_individual_school_data_for_county(course_observations: Tuple[CourseObservation], county_id: int,
+                                          county_name: str, county_organization_number: int,
                                           schools_in_county: Tuple[Dict],
                                           enrollment_percentage_categories: Set[int]) -> JsonResponse:
     organization_number_to_school_name_mapping = {}
@@ -73,7 +78,13 @@ def get_individual_school_data_for_county(course_observations: Tuple[CourseObser
 
         names_org_nrs_enrollment_counts_and_teacher_counts = []
 
+        county_enrollment_count = 0
+        county_teacher_count = 0
+
         for org_nr, enrollment_count, teacher_count in org_nrs_enrollment_counts_and_teacher_counts:
+            county_enrollment_count += enrollment_count
+            county_teacher_count += teacher_count
+
             enrollment_percentage_category = calculate_enrollment_percentage_category(enrollment_count, teacher_count)
 
             if enrollment_percentage_category in enrollment_percentage_categories:
@@ -86,18 +97,26 @@ def get_individual_school_data_for_county(course_observations: Tuple[CourseObser
 
         names_org_nrs_enrollment_counts_and_teacher_counts.sort(key=lambda d: d["name"])
 
-        course_observation_for_municipality_json = {
+        county_enrollment_percentage_category = calculate_enrollment_percentage_category(county_enrollment_count,
+                                                                                         county_teacher_count)
+
+        course_observation_json = {
             "date": course_observation.date_retrieved,
+            "county_name": county_name,
+            "county_id": county_id,
+            "county_organization_number": county_organization_number,
+            "enrollment_percentage_category": county_enrollment_percentage_category,
             "schools": names_org_nrs_enrollment_counts_and_teacher_counts
         }
 
-        json_response.append(course_observation_for_municipality_json)
+        json_response.append(course_observation_json)
 
     return JsonResponse({**CATEGORY_CODE_INFORMATION_DICT, **{"Result": json_response}})
 
 
 def get_municipality_aggregated_school_data_for_county(course_observations: Tuple[CourseObservation],
-                                                       county_id: int,
+                                                       county_id: int, county_name: str,
+                                                       county_organization_number: int,
                                                        schools_in_county: Tuple[Dict],
                                                        enrollment_percentage_categories: Set[int]) -> JsonResponse:
     municipality_number_to_list_of_school_org_nrs_mapping: Dict[str, List[str]] = defaultdict(list)
@@ -128,6 +147,9 @@ def get_municipality_aggregated_school_data_for_county(course_observations: Tupl
         school_org_nr_to_enrollment_and_teacher_count_mapping: Dict[str, Tuple[int, int]] = {}
         municipality_dicts: List = []
 
+        county_enrollment_count = 0
+        county_teacher_count = 0
+
         for org_nr, enrollment_count, teacher_count in org_nrs_enrollment_counts_and_teacher_counts:
             school_org_nr_to_enrollment_and_teacher_count_mapping[org_nr] = (enrollment_count, teacher_count)
 
@@ -143,6 +165,9 @@ def get_municipality_aggregated_school_data_for_county(course_observations: Tupl
                  school_org_nr_to_enrollment_and_teacher_count_mapping.get(org_nr) else 0 for org_nr in
                  municipality_school_org_nrs])
 
+            county_enrollment_count += municipality_enrollment_count
+            county_teacher_count += municipality_teacher_count
+
             enrollment_percentage_category = calculate_enrollment_percentage_category(municipality_enrollment_count,
                                                                                       municipality_teacher_count)
             if enrollment_percentage_category in enrollment_percentage_categories:
@@ -156,8 +181,15 @@ def get_municipality_aggregated_school_data_for_county(course_observations: Tupl
 
         municipality_dicts.sort(key=lambda d: d["name"])
 
+        county_enrollment_percentage_category = calculate_enrollment_percentage_category(county_enrollment_count,
+                                                                                         county_teacher_count)
+
         course_observation_for_municipality_json = {
             "date": course_observation.date_retrieved,
+            "county_name": county_name,
+            "county_id": county_id,
+            "county_organization_number": county_organization_number,
+            "enrollment_percentage_category": county_enrollment_percentage_category,
             "municipalities": municipality_dicts
         }
 

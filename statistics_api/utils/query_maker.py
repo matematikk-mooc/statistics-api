@@ -35,15 +35,16 @@ def get_org_nrs_enrollment_counts_and_teacher_counts_query(organization_numbers:
     Returns a prepared SQL statement to retrieve all organization numbers, Canvas enrollment counts (member counts) and
     number of teachers at all primary schools within a municipality specified by a municipality ID and a course_observation ID.
     
-    Example statement returned by this method:
+    Example statement returned by this function:
     
-    SELECT organization_number, members_count, number_of_teachers FROM `group`
-    LEFT JOIN group_category ON `group`.group_category_id = group_category.id
+    SELECT organization_number, SUM(members_count), number_of_teachers FROM `group`
     INNER JOIN group_to_school_relationship ON group_to_school_relationship.group_id = `group`.id
-    LEFT JOIN course_observation ON group_category.course_id = course_observation.id
-    LEFT JOIN school ON group_to_school_relationship.school_id = school.id
-    WHERE course_observation.id = %s
-    AND organization_number IN ('987654321', '987654320', '987654319', '987654318');
+    LEFT JOIN school ON group_to_school_relationship.school_id = `school`.id
+    LEFT JOIN group_category ON `group`.group_category_id = group_category.id
+    LEFT JOIN course_observation ON group_category.course_id = `course_observation`.id
+    WHERE `course_observation`.id = 3
+    AND organization_number IN ('975284778', '975284794', '975284786')
+    GROUP BY organization_number;
     """
 
     if len(organization_numbers) == 0:
@@ -57,13 +58,14 @@ def get_org_nrs_enrollment_counts_and_teacher_counts_query(organization_numbers:
         org_nrs_str = ', '.join(['\'' + str(i) + '\'' for i in organization_numbers])
 
 
-    return f"""SELECT {ORGANIZATION_NUMBER}, {MEMBERS_COUNT}, {NUMBER_OF_TEACHERS} FROM `{GROUP_TBL_NAME}`
-    LEFT JOIN {GROUP_CATEGORY_TBL_NAME} ON `{GROUP_TBL_NAME}`.{GROUP_GROUP_CATEGORY_FK} = {GROUP_CATEGORY_ID}
+    return f"""SELECT {ORGANIZATION_NUMBER}, SUM({MEMBERS_COUNT}), {NUMBER_OF_TEACHERS} FROM `{GROUP_TBL_NAME}`
     INNER JOIN {GROUP_TO_SCHOOL_RELATIONSHIP_TBL_NAME} ON {GROUP_TO_SCHOOL_RELATIONSHIP_TBL_NAME}.{GROUP_TO_SCHOOL_RELATIONSHIP_GROUP_FK} = {GROUP_ID}
-    LEFT JOIN {COURSE_OBSERVATION_TBL_NAME} ON {GROUP_CATEGORY_TBL_NAME}.{GROUP_CATEGORY_COURSE_FK} = {COURSE_OBSERVATION_ID}
     LEFT JOIN {SCHOOL_TBL_NAME} ON {GROUP_TO_SCHOOL_RELATIONSHIP_TBL_NAME}.{GROUP_TO_SCHOOL_RELATIONSHIP_SCHOOL_FK} = {SCHOOL_ID}
+    LEFT JOIN {GROUP_CATEGORY_TBL_NAME} ON `{GROUP_TBL_NAME}`.{GROUP_GROUP_CATEGORY_FK} = {GROUP_CATEGORY_ID}
+    LEFT JOIN {COURSE_OBSERVATION_TBL_NAME} ON {GROUP_CATEGORY_TBL_NAME}.{GROUP_CATEGORY_COURSE_FK} = {COURSE_OBSERVATION_ID}
     WHERE {COURSE_OBSERVATION_ID} = %s
-    AND {ORGANIZATION_NUMBER} IN ({org_nrs_str});
+    AND {ORGANIZATION_NUMBER} IN ({org_nrs_str})
+    GROUP BY {ORGANIZATION_NUMBER};
     """
 
 
@@ -71,7 +73,7 @@ def get_org_nrs_enrollment_counts_and_teacher_counts_for_unregistered_schools_qu
     """
     Returns a prepared SQL statement to retrieve all organization numbers, Canvas enrollment counts (member counts) and
     number of teachers at all primary schools within a municipality specified by a municipality ID and a
-    course_observation ID. This query will only return schools that are not registered at Canvas, so the Cnavas
+    course_observation ID. This query will only return schools that are not registered at Canvas, so the Canvas
     enrollment count will always be 0.
     """
 

@@ -28,6 +28,8 @@ def municipality_statistics(request: WSGIRequest, municipality_id: int, canvas_c
 
     kpas_client = KpasClient()
     schools_in_municipality = kpas_client.get_schools_by_municipality_id(municipality_id)
+    municipality = kpas_client.get_municipality(municipality_id)
+    municipality_name, municipality_organization_number = (municipality["Navn"], int(municipality["OrgNr"]))
 
     organization_number_to_school_name_mapping = {}
 
@@ -44,9 +46,11 @@ def municipality_statistics(request: WSGIRequest, municipality_id: int, canvas_c
     json_response = []
     municipality_schools_org_nrs = tuple([str(k) for k in organization_number_to_school_name_mapping.keys()])
 
+    municipality_enrollment_count = 0
+    municipality_teacher_count = 0
+
     for course_observation in course_observations:
         course_observation: CourseObservation
-
 
         # Retrieving tuples like (organization_number, members_count, teacher_count) for all matching
         # schools.
@@ -58,6 +62,9 @@ def municipality_statistics(request: WSGIRequest, municipality_id: int, canvas_c
         for org_nr, enrollment_count, teacher_count in org_nrs_enrollment_counts_and_teacher_counts:
             enrollment_percentage_category = calculate_enrollment_percentage_category(enrollment_count, teacher_count)
 
+            municipality_enrollment_count += enrollment_count
+            municipality_teacher_count += teacher_count
+
             if enrollment_percentage_category in enrollment_percentage_categories:
                 school_dict = {
                     "name": organization_number_to_school_name_mapping[org_nr],
@@ -68,8 +75,15 @@ def municipality_statistics(request: WSGIRequest, municipality_id: int, canvas_c
 
         names_org_nrs_enrollment_counts_and_teacher_counts.sort(key=lambda d: d["name"])
 
+        municipality_enrollment_percentage_category = calculate_enrollment_percentage_category(
+            municipality_enrollment_count, municipality_teacher_count)
+
         course_observation_for_municipality_json = {
             "date": course_observation.date_retrieved,
+            "municipality_name": municipality_name,
+            "municipality_id": municipality_id,
+            "municipality_organization_number": municipality_organization_number,
+            "enrollment_percentage_category": municipality_enrollment_percentage_category,
             "schools": names_org_nrs_enrollment_counts_and_teacher_counts
         }
 

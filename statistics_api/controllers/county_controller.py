@@ -19,7 +19,7 @@ from statistics_api.utils.url_parameter_parser import get_url_parameters_dict, E
 
 
 @require_http_methods(["GET"])
-def county_statistics(request: WSGIRequest, county_id: int, canvas_course_id: int) -> HttpResponse:
+def county_primary_school_statistics(request: WSGIRequest, county_id: int, canvas_course_id: int) -> HttpResponse:
     url_parameters_dict = get_url_parameters_dict(request)
     start_date, end_date, show_schools, \
     nr_of_dates_limit, enrollment_percentage_categories = (url_parameters_dict[

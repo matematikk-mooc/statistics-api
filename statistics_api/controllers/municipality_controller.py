@@ -15,7 +15,7 @@ from statistics_api.utils.url_parameter_parser import get_url_parameters_dict, S
 
 
 @require_http_methods(["GET"])
-def municipality_statistics(request: WSGIRequest, municipality_id: int, canvas_course_id: int):
+def municipality_primary_school_statistics(request: WSGIRequest, municipality_id: int, canvas_course_id: int):
     url_parameters_dict = get_url_parameters_dict(request)
     start_date, end_date, nr_of_dates_limit, enrollment_percentage_categories = (url_parameters_dict[
                                                                                      START_DATE_KEY],

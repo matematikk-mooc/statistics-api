@@ -34,9 +34,8 @@ urlpatterns = [
     url(r'^api/statistics/(\d+)/count$', course_count),
     url(r'^api/statistics/groupCategory/(\d+)$', group_category),
     url(r'^api/statistics/groupCategory/(\d+)/count$', group_category_count),
-    url(r'^api/statistics/municipality/(\d+)/course/(\d+)$', municipality_statistics),
-    url(r'^api/statistics/county/(\d+)/course/(\d+)$', county_statistics),
+    url(r'^api/statistics/primary_schools/municipality/(\d+)/course/(\d+)$', municipality_statistics),
+    url(r'^api/statistics/primary_schools/county/(\d+)/course/(\d+)$', county_statistics),
 
     path("api/statistics/", include(user_activity.urls)),
-
 ]

@@ -39,7 +39,7 @@ class Test(TestCase):
         client = APIClient()
         current_date = str(datetime.fromtimestamp(int(time.time())).date())
         web_response = client.get(
-            path=f"/api/statistics/municipality/{self.MUNICIPALITY_ID}/course/{self.CANVAS_COURSE_ID}?show_schools=True&to={current_date}")
+            path=f"/api/statistics/primary_schools/municipality/{self.MUNICIPALITY_ID}/course/{self.CANVAS_COURSE_ID}?show_schools=True&to={current_date}")
         self.assertEqual(200, web_response.status_code)
 
         json_response = json.loads(web_response.content)
@@ -49,7 +49,7 @@ class Test(TestCase):
         client = APIClient()
         current_date = str(datetime.fromtimestamp(int(time.time())).date())
         web_response = client.get(
-            path=f"/api/statistics/municipality/{self.MUNICIPALITY_ID}/course/{self.CANVAS_COURSE_ID}?show_schools=True&to={current_date}&enrollment_percentage_categories=2")
+            path=f"/api/statistics/primary_schools/municipality/{self.MUNICIPALITY_ID}/course/{self.CANVAS_COURSE_ID}?show_schools=True&to={current_date}&enrollment_percentage_categories=2")
         self.assertEqual(200, web_response.status_code)
 
         json_response = json.loads(web_response.content)
@@ -61,7 +61,7 @@ class Test(TestCase):
         client = APIClient()
         current_date = str(datetime.fromtimestamp(int(time.time())).date())
         web_response = client.get(
-            path=f"/api/statistics/municipality/{self.MUNICIPALITY_ID}/course/{self.CANVAS_COURSE_ID}?show_schools=True&to={current_date}&enrollment_percentage_categories=1,4")
+            path=f"/api/statistics/primary_schools/municipality/{self.MUNICIPALITY_ID}/course/{self.CANVAS_COURSE_ID}?show_schools=True&to={current_date}&enrollment_percentage_categories=1,4")
         self.assertEqual(200, web_response.status_code)
 
         json_response = json.loads(web_response.content)
@@ -72,7 +72,7 @@ class Test(TestCase):
     def test_municipality_statistics_for_individual_schools_in_empty_municipality(self):
         client = APIClient()
         web_response = client.get(
-            path=f"/api/statistics/municipality/{3450}/course/{self.CANVAS_COURSE_ID}")
+            path=f"/api/statistics/primary_schools/municipality/{3450}/course/{self.CANVAS_COURSE_ID}")
         self.assertEqual(200, web_response.status_code)
 
         json_response = json.loads(web_response.content)

@@ -2,7 +2,6 @@ from collections import defaultdict
 from typing import Tuple, Dict, List, Set
 
 from django.core.handlers.wsgi import WSGIRequest
-from django.db import connection
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_http_methods
 
@@ -12,8 +11,6 @@ from statistics_api.models.course_observation import CourseObservation
 from statistics_api.utils.calculate_enrollment_percentage_category import calculate_enrollment_percentage_category
 from statistics_api.utils.get_org_nrs_enrollment_counts_and_teacher_counts import \
     get_org_nrs_enrollment_counts_and_teacher_counts
-from statistics_api.utils.query_maker import get_org_nrs_enrollment_counts_and_teacher_counts_query, \
-    get_org_nrs_enrollment_counts_and_teacher_counts_for_unregistered_schools_query
 from statistics_api.utils.url_parameter_parser import get_url_parameters_dict, ENROLLMENT_PERCENTAGE_CATEGORIES_KEY, \
     NR_OF_DATES_LIMIT_KEY, SHOW_SCHOOLS_KEY, END_DATE_KEY, START_DATE_KEY
 

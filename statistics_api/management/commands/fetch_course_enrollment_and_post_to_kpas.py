@@ -12,9 +12,8 @@ from python_graphql_client import GraphqlClient
 from statistics_api.clients.canvas_api_client import CanvasApiClient
 from statistics_api.clients.kpas_client import KpasClient
 from statistics_api.definitions import CANVAS_DOMAIN, CANVAS_ACCESS_KEY, CA_FILE_PATH, CANVAS_ACCOUNT_ID
-from statistics_api.services.course_service import get_n_most_recent_course_observations, \
-    compute_total_nr_of_students_for_course_observation
 from statistics_api.enrollment_activity.models import EnrollmentActivity as EnrollmentActivityModel
+
 
 class Command(BaseCommand):
     help = """Retrieves per-course enrollment activity for all courses administrated by the Canvas account ID
@@ -36,12 +35,12 @@ class Command(BaseCommand):
 class EnrollmentActivity(object):
     def __init__(self, access_token: str, graphql_api_url: str, course_id: int, logger: Logger) -> None:
         self.logger = logger
-        most_recent_course_observations = get_n_most_recent_course_observations(course_canvas_id=course_id, n=1)
-        if not most_recent_course_observations:
-            raise AssertionError(f"Could not find observation of course with Canvas LMS ID {course_id}.")
-        most_recent_course_observation = most_recent_course_observations[0]
-        self.total_nr_of_students_for_course = compute_total_nr_of_students_for_course_observation(
-            most_recent_course_observation.pk)
+        # most_recent_course_observations = get_n_most_recent_course_observations(course_canvas_id=course_id, n=1)
+        # if not most_recent_course_observations:
+        #     raise AssertionError(f"Could not find observation of course with Canvas LMS ID {course_id}.")
+        # most_recent_course_observation = most_recent_course_observations[0]
+        # self.total_nr_of_students_for_course = compute_total_nr_of_students_for_course_observation(
+        #     most_recent_course_observation.pk)
         self.access_token = access_token
         self.kpas_client = KpasClient()
         self.course_id = course_id
@@ -114,7 +113,7 @@ class EnrollmentActivity(object):
 
         while result['data']['course']['enrollmentsConnection']['pageInfo']['hasNextPage']:
             checked_nodes += len(result['data']['course']['enrollmentsConnection']['edges'])
-            self.logger.debug(f"Checked activity for {checked_nodes} out of {self.total_nr_of_students_for_course}")
+            # self.logger.debug(f"Checked activity for {checked_nodes} out of {self.total_nr_of_students_for_course}")
             after_cursor = result['data']['course']['enrollmentsConnection']['pageInfo']['endCursor']
             self.variables["after"] = after_cursor
             try:

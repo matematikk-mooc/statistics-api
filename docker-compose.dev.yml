@@ -60,6 +60,7 @@ services:
         - CANVAS_DOMAIN=${CANVAS_DOMAIN}
         - PULL_MEMBER_COUNTS_FROM_CANVAS_ON_STARTUP=${PULL_MEMBER_COUNTS_FROM_CANVAS_ON_STARTUP}
         - KPAS_DOMAIN=${KPAS_DOMAIN}
+        - WEBSITES_PORT=${WEBSITES_PORT}
       networks:
         - backend_canvas-net
         - statistics_api-net

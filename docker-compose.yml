@@ -4,6 +4,6 @@ services:
 
 ### Statistics API #######################################
     statistics_api:
-      image: udirkpas.azurecr.io/statistics-api
       build:
         env_file: .env
+        context: .

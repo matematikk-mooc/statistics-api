@@ -3,44 +3,20 @@ import time
 from datetime import datetime, timedelta
 
 from django.core.exceptions import ValidationError
-from django.test import TestCase
 from rest_framework.test import APIClient
 
 from statistics_api.models.course_observation import CourseObservation
 from statistics_api.services.course_service import compute_total_nr_of_students_for_course_observation
+from statistics_api.tests.county_controller_base_test import CountyControllerBaseTest
 
 
-class Test(TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        super(Test, cls).setUpClass()
-
-        cls.COUNTY_ID = 15
-        distinct_course_observation_canvas_ids = [i[CourseObservation.canvas_id.field.name] for i in
-                                                  CourseObservation.objects.values(
-                                                      CourseObservation.canvas_id.field.name).distinct()]
-
-        most_recent_observations_for_courses = []
-
-        for course_canvas_id in distinct_course_observation_canvas_ids:
-            most_recent_course_observation = CourseObservation.objects.filter(canvas_id=course_canvas_id).order_by(
-                f"-{CourseObservation.date_retrieved.field.name}")[0]
-            most_recent_observations_for_courses.append(most_recent_course_observation)
-
-        c: CourseObservation
-        most_recent_observation_of_course_with_most_members = max(most_recent_observations_for_courses,
-                                                                  key=lambda
-                                                                      c: compute_total_nr_of_students_for_course_observation(
-                                                                      c))
-
-        cls.CANVAS_COURSE_ID = most_recent_observation_of_course_with_most_members.canvas_id
+class Test(CountyControllerBaseTest):
 
     def test_county_statistics_for_individual_schools(self):
         client = APIClient()
         current_date = str(datetime.fromtimestamp(int(time.time())).date())
         web_response = client.get(
-            path=f"/api/statistics/county/{self.COUNTY_ID}/course/{self.CANVAS_COURSE_ID}?show_schools=True&to={current_date}")
+            path=f"/api/statistics/primary_schools/county/{self.COUNTY_ID}/course/{self.CANVAS_COURSE_ID}?show_schools=True&to={current_date}")
         self.assertEqual(200, web_response.status_code)
 
         json_response = json.loads(web_response.content)
@@ -51,7 +27,7 @@ class Test(TestCase):
         client = APIClient()
         current_date = str(datetime.fromtimestamp(int(time.time())).date())
         web_response = client.get(
-            path=f"/api/statistics/county/{self.COUNTY_ID}/course/{self.CANVAS_COURSE_ID}?show_schools=True&to={current_date}&enrollment_percentage_categories=1")
+            path=f"/api/statistics/primary_schools/county/{self.COUNTY_ID}/course/{self.CANVAS_COURSE_ID}?show_schools=True&to={current_date}&enrollment_percentage_categories=1")
         self.assertEqual(200, web_response.status_code)
 
         json_response = json.loads(web_response.content)
@@ -64,7 +40,7 @@ class Test(TestCase):
         client = APIClient()
         current_date = str(datetime.fromtimestamp(int(time.time())).date())
         web_response = client.get(
-            path=f"/api/statistics/county/{self.COUNTY_ID}/course/{self.CANVAS_COURSE_ID}?show_schools=True&to={current_date}&enrollment_percentage_categories=0,5")
+            path=f"/api/statistics/primary_schools/county/{self.COUNTY_ID}/course/{self.CANVAS_COURSE_ID}?show_schools=True&to={current_date}&enrollment_percentage_categories=0,5")
         self.assertEqual(200, web_response.status_code)
 
         json_response = json.loads(web_response.content)
@@ -81,7 +57,7 @@ class Test(TestCase):
         client = APIClient()
         current_date = str(datetime.fromtimestamp(int(time.time())).date())
         web_response = client.get(
-            path=f"/api/statistics/county/{self.COUNTY_ID}/course/{self.CANVAS_COURSE_ID}?show_schools=True")
+            path=f"/api/statistics/primary_schools/county/{self.COUNTY_ID}/course/{self.CANVAS_COURSE_ID}?show_schools=True")
         self.assertEqual(200, web_response.status_code)
 
         json_response = json.loads(web_response.content)
@@ -96,7 +72,7 @@ class Test(TestCase):
         client = APIClient()
         from_date = str(datetime.fromtimestamp(int(time.time())).date() + timedelta(days=1))
         web_response = client.get(
-            path=f"/api/statistics/county/{self.COUNTY_ID}/course/{self.CANVAS_COURSE_ID}?show_schools=True&from={from_date}")
+            path=f"/api/statistics/primary_schools/county/{self.COUNTY_ID}/course/{self.CANVAS_COURSE_ID}?show_schools=True&from={from_date}")
         self.assertEqual(200, web_response.status_code)
 
         json_response = json.loads(web_response.content)
@@ -110,7 +86,7 @@ class Test(TestCase):
         client = APIClient()
         try:
             client.get(
-                path=f"/api/statistics/county/{self.COUNTY_ID}/course/{self.CANVAS_COURSE_ID}?show_schools=foo&from=bar")
+                path=f"/api/statistics/primary_schools/county/{self.COUNTY_ID}/course/{self.CANVAS_COURSE_ID}?show_schools=foo&from=bar")
             self.fail()
         except ValidationError:
             pass
@@ -118,7 +94,7 @@ class Test(TestCase):
     def test_county_statistics_by_municipalities(self):
         client = APIClient()
         web_response = client.get(
-            path=f"/api/statistics/county/{self.COUNTY_ID}/course/{self.CANVAS_COURSE_ID}")
+            path=f"/api/statistics/primary_schools/county/{self.COUNTY_ID}/course/{self.CANVAS_COURSE_ID}")
         self.assertEqual(200, web_response.status_code)
 
         json_response = json.loads(web_response.content)
@@ -131,7 +107,7 @@ class Test(TestCase):
     def test_county_statistics_by_municipalities_should_not_return_newer_entries_than_end_date(self):
         client = APIClient()
         web_response = client.get(
-            path=f"/api/statistics/county/{self.COUNTY_ID}/course/{self.CANVAS_COURSE_ID}?from=1970-01-01")
+            path=f"/api/statistics/primary_schools/county/{self.COUNTY_ID}/course/{self.CANVAS_COURSE_ID}?from=1970-01-01")
         self.assertEqual(200, web_response.status_code)
 
         json_response = json.loads(web_response.content)
@@ -142,7 +118,7 @@ class Test(TestCase):
         oldest_date_in_result_str = oldest_date_in_result + timedelta(days=1)
 
         second_web_response = client.get(
-            path=f"/api/statistics/county/{self.COUNTY_ID}/course/{self.CANVAS_COURSE_ID}?to={oldest_date_in_result_str}")
+            path=f"/api/statistics/primary_schools/county/{self.COUNTY_ID}/course/{self.CANVAS_COURSE_ID}?to={oldest_date_in_result_str}")
         self.assertEqual(200, web_response.status_code)
 
         second_json_response = json.loads(second_web_response.content)
@@ -150,3 +126,9 @@ class Test(TestCase):
         for date_str in [res["date"] for res in second_json_response["Result"]]:
             date = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S.%fZ").date()
             self.assertTrue(oldest_date_in_result >= date)
+
+    def test_county_primary_school_statistics_by_county_id_with_non_existing_id(self):
+        client = APIClient()
+        web_response = client.get(
+            path=f"/api/statistics/primary_schools/county/1100/course/{self.CANVAS_COURSE_ID}")
+        self.assertEqual(404, web_response.status_code)

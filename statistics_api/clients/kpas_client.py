@@ -1,5 +1,5 @@
 import json
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Union
 
 import requests
 
@@ -41,11 +41,14 @@ class KpasClient:
         web_response = self.web_session.post(f"{KPAS_API_URL}/user_activity", data=data)
         return web_response
 
-    def get_county(self, county_id: int) -> Dict:
+    def get_county(self, county_id: int) -> Union[Dict, None]:
         web_response = self.web_session.get(f"{KPAS_NSR_API_URL}/counties/{county_id}")
         return json.loads(web_response.text).get("result")
 
-    def get_municipality(self, municipality_id: int) -> Dict:
+    def get_municipality(self, municipality_id: int) -> Union[Dict, None]:
         web_response = self.web_session.get(f"{KPAS_NSR_API_URL}/communities/{municipality_id}")
         return json.loads(web_response.text).get("result")
 
+    def get_all_high_schools(self) -> Tuple[Dict]:
+        web_response = self.web_session.get(f"{KPAS_NSR_API_URL}/schools", params={"only_high_schools": True})
+        return tuple(json.loads(web_response.text).get("result"))

@@ -1,4 +1,6 @@
-from statistics_api.definitions import PERCENTAGE_INTERVALS, CATEGORY_CODES
+from typing import Tuple, List, Dict
+
+from statistics_api.definitions import CATEGORY_CODES, PERCENTAGE_INTERVALS
 
 
 def calculate_enrollment_percentage_category(enrollment_count: int, teacher_count: int) -> int:
@@ -10,3 +12,7 @@ def calculate_enrollment_percentage_category(enrollment_count: int, teacher_coun
             return category_code
 
     return CATEGORY_CODES[-1]
+
+
+def filter_high_schools(schools: Tuple[Dict]) -> Tuple[Dict]:
+    return tuple([school for school in schools if school['ErVideregaaendeSkole'] == True])

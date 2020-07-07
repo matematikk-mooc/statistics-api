@@ -6,7 +6,7 @@ class School(BaseModel):
     # organization IDs may belong to foreign institutions with non-numeric IDs
     organization_number = models.CharField(max_length=9, unique=True)
 
-    number_of_teachers = models.IntegerField()
+    number_of_teachers = models.IntegerField(null=True)
     updated_date = models.DateTimeField()
 
     class Meta:

@@ -7,8 +7,7 @@ from django.db import transaction
 
 from statistics_api.clients.canvas_api_client import CanvasApiClient
 from statistics_api.clients.db_client import DatabaseClient
-from statistics_api.models.group_to_school_relationship import GroupToSchoolRelationship
-from statistics_api.models.school import School
+from statistics_api.definitions import CANVAS_ACCOUNT_ID
 
 
 class Command(BaseCommand):
@@ -23,7 +22,8 @@ class Command(BaseCommand):
         api_client = CanvasApiClient()
         db_client = DatabaseClient()
 
-        courses = api_client.get_courses()
+        canvas_account_id: int = CANVAS_ACCOUNT_ID if CANVAS_ACCOUNT_ID else api_client.get_canvas_account_id_of_current_user()
+        courses = api_client.get_courses(canvas_account_id=canvas_account_id)
         courses = db_client.insert_courses(courses)
         logger.info(f"Inserted {len(courses)} courses")
 
@@ -51,23 +51,3 @@ class Command(BaseCommand):
         all_db_groups = db_client.insert_groups(tuple(all_groups))
 
         logger.info(f"Inserted {len(all_db_groups)} groups")
-
-        group_to_school_relationships = []
-
-        for db_group, group in zip(all_db_groups, all_groups):
-            _, _, institution_type, _, organization_number = [s.strip() for s in group['description'].split(":")]
-            if institution_type.lower().strip() == "school":
-                schools = School.objects.filter(organization_number=organization_number)
-                if len(schools) == 0:
-                    continue
-                elif len(schools) == 1:
-                    pass
-                else:
-                    raise AssertionError(f"More than 1 school has organization number {organization_number}")
-                group_to_school_relationship = GroupToSchoolRelationship(school=schools[0], group=db_group)
-                group_to_school_relationships.append(group_to_school_relationship)
-
-        GroupToSchoolRelationship.objects.bulk_create(group_to_school_relationships)
-
-        logger.info(
-            f"Mapped {len(group_to_school_relationships)} out of {len(all_db_groups)} groups to known schools from NSR.")

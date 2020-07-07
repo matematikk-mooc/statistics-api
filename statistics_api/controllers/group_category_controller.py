@@ -1,36 +1,49 @@
+from collections import defaultdict
+
 from django.core.handlers.wsgi import WSGIRequest
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseBadRequest
 from django.views.decorators.http import require_http_methods
 
-from statistics_api.models.course_observation import CourseObservation
 from statistics_api.models.group import Group
 from statistics_api.models.group_category import GroupCategory
-
-GROUP_CATEGORY_ID = f"{GroupCategory._meta.db_table}.{GroupCategory._meta.pk.attname}"
-GROUP_CATEGORY_CANVAS_ID = f"{GroupCategory._meta.db_table}.{GroupCategory.canvas_id.field.name}"
-COURSE_OBSERVATION_ID = f"{CourseObservation._meta.db_table}.{CourseObservation._meta.pk.attname}"
-DATE_RETRIEVED = str(CourseObservation.date_retrieved.field.name)
-GROUP_CATEGORY_COURSE_FK = str(GroupCategory.course.field.attname)
+from statistics_api.utils.query_maker import get_group_category_observations_between_dates_query, \
+    get_groups_by_group_category_ids_query
+from statistics_api.utils.url_parameter_parser import get_url_parameters_dict, START_DATE_KEY, END_DATE_KEY, \
+    NR_OF_DATES_LIMIT_KEY
 
 
 @require_http_methods(["GET"])
 def group_category(request: WSGIRequest, group_category_canvas_id: int):
-    nr_of_most_recent_dates: int = int(request.GET.get('nr_of_dates', 1))
+    url_parameters_dict = get_url_parameters_dict(request)
+    start_date, end_date, nr_of_dates_limit = (url_parameters_dict[
+                                                   START_DATE_KEY],
+                                               url_parameters_dict[
+                                                   END_DATE_KEY],
+                                               url_parameters_dict[
+                                                   NR_OF_DATES_LIMIT_KEY])
 
+    group_category_observations_between_dates_query: str = get_group_category_observations_between_dates_query()
     group_categories = GroupCategory.objects.raw(
-        f"""SELECT {GROUP_CATEGORY_ID}, {DATE_RETRIEVED} FROM {GroupCategory._meta.db_table}
-        LEFT JOIN {CourseObservation._meta.db_table} ON {GROUP_CATEGORY_COURSE_FK} = {COURSE_OBSERVATION_ID}
-        WHERE {GROUP_CATEGORY_CANVAS_ID} = %s
-        ORDER BY {DATE_RETRIEVED} DESC LIMIT %s""",
-        [group_category_canvas_id, nr_of_most_recent_dates])
+        group_category_observations_between_dates_query,
+        [group_category_canvas_id, start_date, end_date, nr_of_dates_limit])
 
     json_response = []
 
-    for group_category in group_categories:
-        groups = Group.objects.filter(group_category=group_category.pk)
+    groups_by_group_category_ids_query = get_groups_by_group_category_ids_query(
+        tuple([int(g_cat.pk) for g_cat in group_categories]))
+
+    groups = Group.objects.raw(groups_by_group_category_ids_query)
+
+    date_to_groups_mapping = defaultdict(list)
+
+    for group in groups:
+        date_to_groups_mapping[group.date_retrieved].append(group)
+
+    for date in date_to_groups_mapping.keys():
+        groups = date_to_groups_mapping.get(date)
         group_dicts = [group.to_dict() for group in groups]
         group_category_json = {
-            "date": group_category.date_retrieved,
+            "date": date,
             "groups": group_dicts
         }
 
@@ -41,14 +54,18 @@ def group_category(request: WSGIRequest, group_category_canvas_id: int):
 
 @require_http_methods(["GET"])
 def group_category_count(request: WSGIRequest, group_category_canvas_id: int):
+    url_parameters_dict = get_url_parameters_dict(request)
+    start_date, end_date, nr_of_dates_limit = (url_parameters_dict[
+                                                   START_DATE_KEY],
+                                               url_parameters_dict[
+                                                   END_DATE_KEY],
+                                               url_parameters_dict[
+                                                   NR_OF_DATES_LIMIT_KEY])
 
-    nr_of_most_recent_dates: int = int(request.GET.get('nr_of_dates', 1))
+    group_category_observations_between_dates_query: str = get_group_category_observations_between_dates_query()
     group_categories = GroupCategory.objects.raw(
-        f"""SELECT {GROUP_CATEGORY_ID}, {DATE_RETRIEVED} FROM {GroupCategory._meta.db_table}
-            LEFT JOIN {CourseObservation._meta.db_table} ON {GROUP_CATEGORY_COURSE_FK} = {COURSE_OBSERVATION_ID}
-            WHERE {GROUP_CATEGORY_CANVAS_ID} = %s
-            ORDER BY {DATE_RETRIEVED} DESC LIMIT %s""",
-        [group_category_canvas_id, nr_of_most_recent_dates])
+        group_category_observations_between_dates_query,
+        [group_category_canvas_id, start_date, end_date, nr_of_dates_limit])
 
     json_response = []
 

@@ -8,10 +8,9 @@ from statistics_api.models.base_model import BaseModel
 
 class CourseObservation(BaseModel):
 
-    date_retrieved = models.DateTimeField(auto_now_add=True)
-    canvas_id = models.IntegerField()
+    date_retrieved = models.DateTimeField(auto_now_add=True, db_index=True)
+    canvas_id = models.IntegerField(db_index=True)
     name = models.CharField(max_length=MYSQL_VARCHAR_DEFAULT_LENGTH)
-    total_nr_of_students = models.IntegerField()
 
     class Meta:
         db_table = "course_observation"

@@ -28,12 +28,12 @@ class CanvasApiClient:
         url = f"{CANVAS_API_URL}/group_categories/{group_category_id}/groups?per_page=100"
         return self.paginate_through_url(url)
 
-    def get_courses(self) -> Tuple[Dict]:
+    def get_courses(self, canvas_account_id: int) -> Tuple[Dict]:
         """
             Fetching all courses to which the configured account is root account of.
         :return:
         """
-        url = f"{CANVAS_API_URL}/users/self/courses?include[]=total_students&per_page=100"
+        url = f"{CANVAS_API_URL}/accounts/{canvas_account_id}/courses?include[]=total_students&per_page=100"
         return self.paginate_through_url(url)
 
     def paginate_through_url(self, target_url: str, current_items: List = None) -> Tuple[Dict]:
@@ -50,3 +50,8 @@ class CanvasApiClient:
             return self.paginate_through_url(target_url=next_page_url, current_items=current_items)
         else:
             return tuple(current_items)
+
+    def get_canvas_account_id_of_current_user(self) -> int:
+        web_response = self.web_session.get(f"{CANVAS_API_URL}/users/self")
+        account_json = json.loads(web_response.text)
+        return int(account_json['id'])

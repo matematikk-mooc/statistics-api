@@ -7,6 +7,7 @@ COPY statistics_api /app/statistics_api/
 WORKDIR /app/
 RUN chown appuser:appuser -R /app && chmod 700 /etc/ssh/sshd_setup.sh && /etc/ssh/sshd_setup.sh && find . -type d | grep -v "./venv" | xargs chmod 755 && find . -type f | grep -v "./venv" | xargs chmod 644 && chmod 700 entrypoint.sh start_web_app.sh
 ENV PYTHONPATH="/app"
-ARG STATISTICS_API_PORT=8000
-EXPOSE "${STATISTICS_API_PORT}" 2222
+# If you use a non-default value for WEBSITES_PORT, you must change the corresponding variable in Azure app configuration settings upon deployment
+ARG WEBSITES_PORT=8000
+EXPOSE "${WEBSITES_PORT}" 2222
 CMD ["./entrypoint.sh"]

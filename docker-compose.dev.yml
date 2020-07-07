@@ -15,10 +15,10 @@ services:
         context: ./nginx
         dockerfile: Dockerfile.dev
         args:
-          - STATISTICS_API_PORT=${STATISTICS_API_PORT}
+          - WEBSITES_PORT=${WEBSITES_PORT}
           - STATISTICS_API_HOST=statistics_api
       ports:
-        - "${STATISTICS_API_PORT}:443"
+        - "${WEBSITES_PORT}:443"
       networks:
         - statistics_api-net
       depends_on:

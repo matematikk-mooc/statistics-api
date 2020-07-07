@@ -10,4 +10,4 @@ if [ "$PULL_MEMBER_COUNTS_FROM_CANVAS_ON_STARTUP" = "True" ]
 then
   python manage.py pull_course_member_counts_from_canvas
 fi
-gunicorn --bind 0.0.0.0:"${STATISTICS_API_PORT}" statistics_api.wsgi:application
+gunicorn --bind 0.0.0.0:"${WEBSITES_PORT}" statistics_api.wsgi:application

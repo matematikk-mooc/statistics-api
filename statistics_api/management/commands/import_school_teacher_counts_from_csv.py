@@ -40,4 +40,4 @@ class Command(BaseCommand):
 
         db_client = DatabaseClient()
         nr_of_inserts = db_client.insert_schools(organization_numbers_and_teacher_counts)
-        logger.debug(f"Inserted {nr_of_inserts} counties from Skoleporten.")
+        logger.debug(f"Inserted {nr_of_inserts} schools from Skoleporten.")

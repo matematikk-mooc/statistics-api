@@ -7,3 +7,5 @@ services:
       build:
         env_file: .env
         context: .
+        args:
+        - STATISTICS_API_PORT=8000 #If you change this value, build the image and push to Azure, the corresponding variable in Azure environment configuration must also be changed

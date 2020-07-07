@@ -13,6 +13,4 @@ SyslogFacility 		DAEMON
 PasswordAuthentication 	yes
 PermitEmptyPasswords 	no
 PermitRootLogin 	yes
-UsePam			no
-UsePrivilegeSeparation	no
 Subsystem sftp internal-sftp

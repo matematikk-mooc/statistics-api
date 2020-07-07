@@ -3,38 +3,14 @@ import time
 from datetime import datetime, timedelta
 
 from django.core.exceptions import ValidationError
-from django.test import TestCase
 from rest_framework.test import APIClient
 
 from statistics_api.models.course_observation import CourseObservation
 from statistics_api.services.course_service import compute_total_nr_of_students_for_course_observation
+from statistics_api.tests.county_controller_base_test import CountyControllerBaseTest
 
 
-class Test(TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        super(Test, cls).setUpClass()
-
-        cls.COUNTY_ID = 15
-        distinct_course_observation_canvas_ids = [i[CourseObservation.canvas_id.field.name] for i in
-                                                  CourseObservation.objects.values(
-                                                      CourseObservation.canvas_id.field.name).distinct()]
-
-        most_recent_observations_for_courses = []
-
-        for course_canvas_id in distinct_course_observation_canvas_ids:
-            most_recent_course_observation = CourseObservation.objects.filter(canvas_id=course_canvas_id).order_by(
-                f"-{CourseObservation.date_retrieved.field.name}")[0]
-            most_recent_observations_for_courses.append(most_recent_course_observation)
-
-        c: CourseObservation
-        most_recent_observation_of_course_with_most_members = max(most_recent_observations_for_courses,
-                                                                  key=lambda
-                                                                      c: compute_total_nr_of_students_for_course_observation(
-                                                                      c))
-
-        cls.CANVAS_COURSE_ID = most_recent_observation_of_course_with_most_members.canvas_id
+class Test(CountyControllerBaseTest):
 
     def test_county_statistics_for_individual_schools(self):
         client = APIClient()
@@ -150,3 +126,9 @@ class Test(TestCase):
         for date_str in [res["date"] for res in second_json_response["Result"]]:
             date = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S.%fZ").date()
             self.assertTrue(oldest_date_in_result >= date)
+
+    def test_county_primary_school_statistics_by_county_id_with_non_existing_id(self):
+        client = APIClient()
+        web_response = client.get(
+            path=f"/api/statistics/primary_schools/county/1100/course/{self.CANVAS_COURSE_ID}")
+        self.assertEqual(404, web_response.status_code)

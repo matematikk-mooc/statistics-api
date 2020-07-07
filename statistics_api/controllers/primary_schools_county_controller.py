@@ -2,15 +2,14 @@ from collections import defaultdict
 from typing import Tuple, Dict, List, Set
 
 from django.core.handlers.wsgi import WSGIRequest
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseNotFound
 from django.views.decorators.http import require_http_methods
 
 from statistics_api.clients.kpas_client import KpasClient
 from statistics_api.definitions import CATEGORY_CODE_INFORMATION_DICT
 from statistics_api.models.course_observation import CourseObservation
-from statistics_api.utils.calculate_enrollment_percentage_category import calculate_enrollment_percentage_category
-from statistics_api.utils.get_org_nrs_enrollment_counts_and_teacher_counts import \
-    get_org_nrs_enrollment_counts_and_teacher_counts
+from statistics_api.utils.utils import calculate_enrollment_percentage_category
+from statistics_api.utils.db_utils import get_org_nrs_enrollment_counts_and_teacher_counts
 from statistics_api.utils.url_parameter_parser import get_url_parameters_dict, ENROLLMENT_PERCENTAGE_CATEGORIES_KEY, \
     NR_OF_DATES_LIMIT_KEY, SHOW_SCHOOLS_KEY, END_DATE_KEY, START_DATE_KEY
 
@@ -33,6 +32,8 @@ def county_primary_school_statistics(request: WSGIRequest, county_id: int, canva
     kpas_client = KpasClient()
     schools_in_county = kpas_client.get_schools_by_county_id(county_id)
     county: [Dict] = kpas_client.get_county(county_id)
+    if not county:
+        return HttpResponseNotFound()
     county_name, county_organization_number = (county["Navn"], int(county["OrgNr"]))
 
     # Retrieving the {nr_of_most_recent_dates} most recent observations of Canvas LMS course with

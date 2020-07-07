@@ -1,9 +1,24 @@
-from unittest import TestCase
+import json
+from unittest.case import TestCase
 
-from statistics_api.utils.calculate_enrollment_percentage_category import calculate_enrollment_percentage_category
+from statistics_api.definitions import ROOT_DIR
+from statistics_api.utils.utils import calculate_enrollment_percentage_category, filter_high_schools
 
 
-class Test(TestCase):
+class TestFilterHighSchools(TestCase):
+
+    def test_filter_high_schools(self):
+        with open(f"{ROOT_DIR}/tests/data/api_nsr_counties_15_school.txt") as f:
+            web_response_dict = json.loads(f.read())
+
+        schools = web_response_dict["result"]
+        self.assertEqual(282, len(schools))
+        high_schools = filter_high_schools(schools)
+        self.assertEqual(32, len(high_schools))
+
+
+
+class TestCalculateEnrollmentPercentageCategory(TestCase):
 
     def test_calculate_enrollment_percentage_category_twenty_percent_should_return_category_1(self):
         enrollment_count = 20

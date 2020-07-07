@@ -18,6 +18,7 @@ from django.conf.urls import url
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
+from statistics_api.controllers.high_schools_county_controller import county_high_school_statistics_by_county_id
 from statistics_api.enrollment_activity.views import EnrollmentActivityViewSet
 
 from statistics_api.controllers.primary_schools_county_controller import county_primary_school_statistics
@@ -36,6 +37,7 @@ urlpatterns = [
     url(r'^api/statistics/groupCategory/(\d+)/count$', group_category_count),
     url(r'^api/statistics/primary_schools/municipality/(\d+)/course/(\d+)$', municipality_primary_school_statistics),
     url(r'^api/statistics/primary_schools/county/(\d+)/course/(\d+)$', county_primary_school_statistics),
+    url(r'^api/statistics/high_schools/county/(\d+)/course/(\d+)$', county_high_school_statistics_by_county_id),
 
     path("api/statistics/", include(user_activity.urls)),
 ]

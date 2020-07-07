@@ -5,9 +5,8 @@ from django.views.decorators.http import require_http_methods
 from statistics_api.clients.kpas_client import KpasClient
 from statistics_api.definitions import CATEGORY_CODE_INFORMATION_DICT
 from statistics_api.models.course_observation import CourseObservation
-from statistics_api.utils.calculate_enrollment_percentage_category import calculate_enrollment_percentage_category
-from statistics_api.utils.get_org_nrs_enrollment_counts_and_teacher_counts import \
-    get_org_nrs_enrollment_counts_and_teacher_counts
+from statistics_api.utils.utils import calculate_enrollment_percentage_category
+from statistics_api.utils.db_utils import get_org_nrs_enrollment_counts_and_teacher_counts
 from statistics_api.utils.query_maker import get_org_nrs_enrollment_counts_and_teacher_counts_query, \
     get_org_nrs_enrollment_counts_and_teacher_counts_for_unregistered_schools_query
 from statistics_api.utils.url_parameter_parser import get_url_parameters_dict, START_DATE_KEY, END_DATE_KEY, \
@@ -29,6 +28,8 @@ def municipality_primary_school_statistics(request: WSGIRequest, municipality_id
     kpas_client = KpasClient()
     schools_in_municipality = kpas_client.get_schools_by_municipality_id(municipality_id)
     municipality = kpas_client.get_municipality(municipality_id)
+    if not municipality:
+        return HttpResponseNotFound()
     municipality_name, municipality_organization_number = (municipality["Navn"], int(municipality["OrgNr"]))
 
     organization_number_to_school_name_mapping = {}

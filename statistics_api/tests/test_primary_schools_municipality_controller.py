@@ -45,7 +45,7 @@ class Test(TestCase):
         json_response = json.loads(web_response.content)
         self.assertTrue("schools" in json_response["Result"][0].keys())
 
-    def test_municipality_statistics_for_individual_schools_in_enrollment_percentage_category_2(self):
+    def test_municipality_statistics_for_schools_in_enrollment_percentage_category_2(self):
         client = APIClient()
         current_date = str(datetime.fromtimestamp(int(time.time())).date())
         web_response = client.get(
@@ -57,7 +57,7 @@ class Test(TestCase):
         for school in json_response["Result"][0]["schools"]:
             self.assertEqual(school["enrollment_percentage_category"], 2)
 
-    def test_municipality_statistics_for_individual_schools_in_enrollment_percentage_categories_1_and_4(self):
+    def test_municipality_statistics_for_schools_in_enrollment_percentage_categories_1_and_4(self):
         client = APIClient()
         current_date = str(datetime.fromtimestamp(int(time.time())).date())
         web_response = client.get(
@@ -69,7 +69,7 @@ class Test(TestCase):
         for school in json_response["Result"][0]["schools"]:
             self.assertTrue(school["enrollment_percentage_category"] in (1, 4))
 
-    def test_municipality_statistics_for_individual_schools_in_empty_municipality(self):
+    def test_municipality_statistics_for_empty_municipality(self):
         client = APIClient()
         web_response = client.get(
             path=f"/api/statistics/primary_schools/municipality/{3450}/course/{self.CANVAS_COURSE_ID}")
@@ -77,3 +77,9 @@ class Test(TestCase):
 
         json_response = json.loads(web_response.content)
         self.assertTrue("schools" in json_response["Result"][0].keys())
+
+    def test_municipality_statistics_for_non_existing_municipality(self):
+        client = APIClient()
+        web_response = client.get(
+            path=f"/api/statistics/primary_schools/municipality/9999999/course/{self.CANVAS_COURSE_ID}")
+        self.assertEqual(404, web_response.status_code)

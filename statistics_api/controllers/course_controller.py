@@ -1,11 +1,10 @@
 from django.core.handlers.wsgi import WSGIRequest
-from django.http import JsonResponse, HttpResponseNotFound, HttpResponseBadRequest
+from django.http import JsonResponse, HttpResponseNotFound
 from django.views.decorators.http import require_http_methods
 
 from statistics_api.models.course_observation import CourseObservation
 from statistics_api.models.group import Group
 from statistics_api.models.group_category import GroupCategory
-from statistics_api.services.course_service import get_n_most_recent_course_observations
 from statistics_api.utils.url_parameter_parser import get_url_parameters_dict, START_DATE_KEY, END_DATE_KEY, \
     NR_OF_DATES_LIMIT_KEY
 

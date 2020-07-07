@@ -7,6 +7,6 @@ COPY statistics_api /app/statistics_api/
 WORKDIR /app/
 RUN chown appuser:appuser -R /app && chmod 700 /etc/ssh/sshd_setup.sh && /etc/ssh/sshd_setup.sh && find . -type d | grep -v "./venv" | xargs chmod 755 && find . -type f | grep -v "./venv" | xargs chmod 644 && chmod 700 entrypoint.sh start_web_app.sh
 ENV PYTHONPATH="/app"
-ARG STATISTICS_API_PORT
+ARG STATISTICS_API_PORT=8000
 EXPOSE "${STATISTICS_API_PORT}" 2222
 CMD ["./entrypoint.sh"]

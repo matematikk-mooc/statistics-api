@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Tuple, Dict, List
 
-from django.db import connection, transaction
+from django.db import connection
 
 from statistics_api.clients.db_client import get_is_school_and_org_nr
 from statistics_api.models.county import County

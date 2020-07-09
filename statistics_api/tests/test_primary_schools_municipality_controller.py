@@ -6,7 +6,7 @@ from django.test import TestCase
 from rest_framework.test import APIClient
 
 from statistics_api.models.course_observation import CourseObservation
-from statistics_api.services.course_service import compute_total_nr_of_students_for_course_observation
+from statistics_api.utils.utils import compute_total_nr_of_students_for_course_observation
 
 
 class Test(TestCase):

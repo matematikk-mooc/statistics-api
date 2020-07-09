@@ -1,16 +1,14 @@
 from django.core.handlers.wsgi import WSGIRequest
-from django.db import connection
-from django.http import JsonResponse, HttpResponseNotFound, HttpResponseBadRequest
+from django.http import JsonResponse, HttpResponseNotFound
 from django.views.decorators.http import require_http_methods
+
+from statistics_api.clients.db_client import DatabaseClient
 from statistics_api.clients.kpas_client import KpasClient
 from statistics_api.definitions import CATEGORY_CODE_INFORMATION_DICT
 from statistics_api.models.course_observation import CourseObservation
-from statistics_api.utils.utils import calculate_enrollment_percentage_category
-from statistics_api.utils.db_utils import get_org_nrs_enrollment_counts_and_teacher_counts
-from statistics_api.utils.query_maker import get_org_nrs_enrollment_counts_and_teacher_counts_query, \
-    get_org_nrs_enrollment_counts_and_teacher_counts_for_unregistered_schools_query
 from statistics_api.utils.url_parameter_parser import get_url_parameters_dict, START_DATE_KEY, END_DATE_KEY, \
     NR_OF_DATES_LIMIT_KEY, ENROLLMENT_PERCENTAGE_CATEGORIES_KEY
+from statistics_api.utils.utils import calculate_enrollment_percentage_category
 
 
 @require_http_methods(["GET"])
@@ -55,7 +53,7 @@ def municipality_primary_school_statistics(request: WSGIRequest, municipality_id
 
         # Retrieving tuples like (organization_number, members_count, teacher_count) for all matching
         # schools.
-        org_nrs_enrollment_counts_and_teacher_counts = get_org_nrs_enrollment_counts_and_teacher_counts(
+        org_nrs_enrollment_counts_and_teacher_counts = DatabaseClient.get_org_nrs_enrollment_counts_and_teacher_counts(
             municipality_schools_org_nrs, course_observation.pk)
 
         names_org_nrs_enrollment_counts_and_teacher_counts = []

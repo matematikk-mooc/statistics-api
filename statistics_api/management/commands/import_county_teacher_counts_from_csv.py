@@ -3,18 +3,13 @@ import csv
 import logging
 import sys
 from collections import defaultdict
-from datetime import datetime
 from typing import Tuple, List, Dict
 
 from django.core.management.base import BaseCommand
 
-from statistics_api.clients.db_client import DatabaseClient
-from statistics_api.clients.kpas_client import KpasClient
+from statistics_api.clients.db_maintenance_client import DatabaseMaintenanceClient
 from statistics_api.data.county_id_mapping import COUNTY_TO_NEW_COUNTY_ID_MAPPING
-from statistics_api.definitions import ROOT_DIR, KPAS_NSR_API_URL
-from statistics_api.models.county import County
-from statistics_api.models.school import School
-from django.db import connection
+from statistics_api.definitions import ROOT_DIR
 
 CSV_FILE_PATH_ARG_NAME = "csv_file_path"
 
@@ -53,6 +48,5 @@ class Command(BaseCommand):
 
             new_county_id_to_teacher_count_map[new_county_id] += teacher_count
 
-        db_client = DatabaseClient()
-        db_client.insert_counties(new_county_id_to_teacher_count_map)
+        DatabaseMaintenanceClient.insert_counties(new_county_id_to_teacher_count_map)
         logger.debug(f"Inserted {len(county_ids_and_teacher_counts)} counties from Skoleporten.")

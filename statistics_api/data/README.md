@@ -1,1 +1,1 @@
-Replace the contents of 'primary_schools_data.csv' and redeploy the application in order to update teacher counts of schools.
+Replace the contents of 'primary_schools_data.csv' and 'county_data.csv' and redeploy the application in order to update teacher counts of schools.

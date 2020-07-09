@@ -3,12 +3,11 @@ from typing import Tuple, Dict
 from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
 
+from statistics_api.clients.db_client import DatabaseClient
 from statistics_api.clients.kpas_client import KpasClient
 from statistics_api.definitions import CATEGORY_CODE_INFORMATION_DICT
 from statistics_api.models.county import County
 from statistics_api.models.course_observation import CourseObservation
-from statistics_api.utils.db_utils import get_org_nrs_enrollment_counts_and_teacher_counts, \
-    get_org_nrs_and_enrollment_counts
 from statistics_api.utils.url_parameter_parser import get_url_parameters_dict, START_DATE_KEY, END_DATE_KEY, \
     SHOW_SCHOOLS_KEY, NR_OF_DATES_LIMIT_KEY, ENROLLMENT_PERCENTAGE_CATEGORIES_KEY
 from statistics_api.utils.utils import filter_high_schools, calculate_enrollment_percentage_category
@@ -56,7 +55,7 @@ def county_high_school_statistics_by_county_id(request: WSGIRequest, county_id: 
 
         county_enrollment_count: int = 0
 
-        org_nrs_and_enrollment_counts = get_org_nrs_and_enrollment_counts(
+        org_nrs_and_enrollment_counts = DatabaseClient.get_org_nrs_and_enrollment_counts(
             school_org_nrs, course_observation.pk)
 
         for org_nr, enrollment_count in org_nrs_and_enrollment_counts:

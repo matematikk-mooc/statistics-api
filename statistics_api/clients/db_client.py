@@ -1,13 +1,10 @@
-from datetime import datetime
-from typing import List, Dict, Tuple, Union
+from typing import Tuple
 
 from django.db import connection
 
-from statistics_api.models.county import County
-from statistics_api.models.course_observation import CourseObservation
-from statistics_api.models.group import Group
-from statistics_api.models.group_category import GroupCategory
-from statistics_api.models.school import School
+from statistics_api.utils.query_maker import get_org_nrs_enrollment_counts_and_teacher_counts_query, \
+    get_org_nrs_enrollment_counts_and_teacher_counts_for_unregistered_schools_query, \
+    get_org_nrs_and_enrollment_counts_query
 
 
 def get_is_school_and_org_nr(group_description: str) -> Tuple[bool, str]:
@@ -17,69 +14,31 @@ def get_is_school_and_org_nr(group_description: str) -> Tuple[bool, str]:
 
 class DatabaseClient:
 
-    def insert_courses(self, courses: Tuple[Dict]) -> Tuple[Dict]:
-        for course in courses:
-            db_course = CourseObservation(canvas_id=course['id'], name=course['name'])
-            db_course.save()
-            course['db_id'] = db_course.pk
-        return tuple(courses)
-
-    def insert_group_categories(self, group_categories: List[Dict]) -> Tuple[Dict]:
-        for group_category in group_categories:
-            db_group_category = GroupCategory(canvas_id=group_category['id'], name=group_category['name'],
-                                              course_id=group_category['course_id'])
-            db_group_category.save()
-            group_category['db_id'] = db_group_category.pk
-        return tuple(group_categories)
-
-    def insert_groups(self, groups: Tuple[Dict]) -> Tuple[Group]:
-        db_groups: List[Group] = []
-
-        for group in groups:
-            group_is_school, org_nr = get_is_school_and_org_nr(group['description'])
-            if not group_is_school:
-                org_nr = None
-            db_group = Group(canvas_id=group['id'], group_category_id=group['group_category_id'], name=group['name'],
-                             description=group['description'], members_count=group['members_count'],
-                             organization_number=org_nr, created_at=group['created_at'])
-            db_group.save()
-            db_groups.append(db_group)
-        return tuple(db_groups)
-
-    def insert_schools(self, organization_numbers_and_teacher_counts: List[Tuple[str, int]]) -> int:
-        sql_lines = []
-
-        for organizational_number, teacher_count in organization_numbers_and_teacher_counts:
-            sql_lines.append(
-                f"({organizational_number},{teacher_count},'{str(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))}')")
-
-        sql_statement = f"""INSERT INTO {School._meta.db_table}({School.organization_number.field.name}, 
-                                {School.number_of_teachers.field.name}, {School.updated_date.field.name}) VALUES""" \
-                        + ", \n".join(sql_lines) + \
-                        f"""\n ON DUPLICATE KEY UPDATE
-                                {School.number_of_teachers.field.name} = VALUES({School.number_of_teachers.field.name}), 
-                                {School.updated_date.field.name} = VALUES({School.updated_date.field.name})"""
-
+    @staticmethod
+    def get_org_nrs_enrollment_counts_and_teacher_counts(county_schools_org_nrs: Tuple[str],
+                                                         course_observation_id: int) -> \
+            Tuple[Tuple[str, int, int]]:
         with connection.cursor() as cursor:
-            cursor.execute(sql_statement)
+            org_nrs_enrollment_counts_and_teacher_counts_query: str = get_org_nrs_enrollment_counts_and_teacher_counts_query(
+                county_schools_org_nrs)
+            cursor.execute(org_nrs_enrollment_counts_and_teacher_counts_query, [course_observation_id])
+            org_nrs_enrollment_counts_and_teacher_counts_for_registered_schools = cursor.fetchall()
+            registered_schools_org_nrs = set(
+                [r[0] for r in org_nrs_enrollment_counts_and_teacher_counts_for_registered_schools])
+            unregistered_schools_org_nrs = set(county_schools_org_nrs).difference(registered_schools_org_nrs)
+            org_nrs_enrollment_counts_and_teacher_counts_for_unregistered_schools_query: str = get_org_nrs_enrollment_counts_and_teacher_counts_for_unregistered_schools_query(
+                tuple(unregistered_schools_org_nrs))
+            cursor.execute(org_nrs_enrollment_counts_and_teacher_counts_for_unregistered_schools_query)
+            org_nrs_enrollment_counts_and_teacher_counts_for_unregistered_schools = cursor.fetchall()
+            org_nrs_enrollment_counts_and_teacher_counts = org_nrs_enrollment_counts_and_teacher_counts_for_registered_schools + org_nrs_enrollment_counts_and_teacher_counts_for_unregistered_schools
+            return org_nrs_enrollment_counts_and_teacher_counts
 
-        return len(sql_lines)
-
-    def insert_counties(self, county_id_to_teacher_count_map: Dict[int, int]):
-        sql_lines = []
-
-        for county_id in county_id_to_teacher_count_map.keys():
-            teacher_count = county_id_to_teacher_count_map[county_id]
-
-            sql_lines.append(
-                f"({county_id},{teacher_count},'{str(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))}')")
-
-        sql_statement = f"""INSERT INTO {County._meta.db_table}({County.county_id.field.name}, 
-                                {County.number_of_teachers.field.name}, {County.updated_date.field.name}) VALUES""" \
-                        + ", \n".join(sql_lines) + \
-                        f"""\n ON DUPLICATE KEY UPDATE
-                                {County.number_of_teachers.field.name} = VALUES({County.number_of_teachers.field.name}), 
-                                {County.updated_date.field.name} = VALUES({County.updated_date.field.name})"""
-
+    @staticmethod
+    def get_org_nrs_and_enrollment_counts(county_schools_org_nrs: Tuple[str], course_observation_id: int) -> Tuple[
+        Tuple[str, int]]:
         with connection.cursor() as cursor:
-            cursor.execute(sql_statement)
+            org_nrs_and_enrollment_counts_query: str = get_org_nrs_and_enrollment_counts_query(
+                county_schools_org_nrs)
+            cursor.execute(org_nrs_and_enrollment_counts_query, [course_observation_id])
+            org_nrs_and_enrollment_counts = cursor.fetchall()
+            return org_nrs_and_enrollment_counts

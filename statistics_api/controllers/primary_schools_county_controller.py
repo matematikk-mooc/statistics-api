@@ -5,13 +5,13 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.http import JsonResponse, HttpResponse, HttpResponseNotFound
 from django.views.decorators.http import require_http_methods
 
+from statistics_api.clients.db_client import DatabaseClient
 from statistics_api.clients.kpas_client import KpasClient
 from statistics_api.definitions import CATEGORY_CODE_INFORMATION_DICT
 from statistics_api.models.course_observation import CourseObservation
-from statistics_api.utils.utils import calculate_enrollment_percentage_category
-from statistics_api.utils.db_utils import get_org_nrs_enrollment_counts_and_teacher_counts
 from statistics_api.utils.url_parameter_parser import get_url_parameters_dict, ENROLLMENT_PERCENTAGE_CATEGORIES_KEY, \
     NR_OF_DATES_LIMIT_KEY, SHOW_SCHOOLS_KEY, END_DATE_KEY, START_DATE_KEY
+from statistics_api.utils.utils import calculate_enrollment_percentage_category
 
 
 @require_http_methods(["GET"])
@@ -71,7 +71,7 @@ def get_individual_school_data_for_county(course_observations: Tuple[CourseObser
         # Retrieving tuples like (organization_number, members_count, teacher_count) for all matching
         # rows.
 
-        org_nrs_enrollment_counts_and_teacher_counts = get_org_nrs_enrollment_counts_and_teacher_counts(
+        org_nrs_enrollment_counts_and_teacher_counts = DatabaseClient.get_org_nrs_enrollment_counts_and_teacher_counts(
             county_schools_org_nrs, course_observation.pk)
 
         names_org_nrs_enrollment_counts_and_teacher_counts = []
@@ -139,7 +139,7 @@ def get_municipality_aggregated_school_data_for_county(course_observations: Tupl
 
         # Retrieving tuples like (organization_number, members_count, teacher_count) for all matching
         # schools.
-        org_nrs_enrollment_counts_and_teacher_counts = get_org_nrs_enrollment_counts_and_teacher_counts(
+        org_nrs_enrollment_counts_and_teacher_counts = DatabaseClient.get_org_nrs_enrollment_counts_and_teacher_counts(
             tuple(all_schools_in_county_org_nrs), course_observation.pk)
 
         school_org_nr_to_enrollment_and_teacher_count_mapping: Dict[str, Tuple[int, int]] = {}

@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from statistics_api.models.course_observation import CourseObservation
-from statistics_api.services.course_service import compute_total_nr_of_students_for_course_observation
+from statistics_api.utils.utils import compute_total_nr_of_students_for_course_observation
 
 
 class CountyControllerBaseTest(TestCase):

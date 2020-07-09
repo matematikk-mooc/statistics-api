@@ -2,15 +2,12 @@
 import csv
 import logging
 import sys
-from datetime import datetime
 from typing import Tuple, List
 
 from django.core.management.base import BaseCommand
 
-from statistics_api.clients.db_client import DatabaseClient
+from statistics_api.clients.db_maintenance_client import DatabaseMaintenanceClient
 from statistics_api.definitions import ROOT_DIR
-from statistics_api.models.school import School
-from django.db import connection
 
 CSV_FILE_PATH_ARG_NAME = "csv_file_path"
 
@@ -38,6 +35,5 @@ class Command(BaseCommand):
                 _, organizational_number, _, _, _, _, _, _, _, _, _, _, number_of_teachers, _ = row
                 organization_numbers_and_teacher_counts.append((organizational_number, int(number_of_teachers)))
 
-        db_client = DatabaseClient()
-        nr_of_inserts = db_client.insert_schools(organization_numbers_and_teacher_counts)
+        nr_of_inserts = DatabaseMaintenanceClient.insert_schools(organization_numbers_and_teacher_counts)
         logger.debug(f"Inserted {nr_of_inserts} schools from Skoleporten.")

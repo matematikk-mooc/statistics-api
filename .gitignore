@@ -211,3 +211,4 @@ pip-selfcheck.json
 .tmp.docker-compose.dev.yml
 Dockerfile.dev.local
 *.swp
+**.csv#

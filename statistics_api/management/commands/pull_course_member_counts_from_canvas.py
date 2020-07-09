@@ -6,7 +6,7 @@ from django.core.management import BaseCommand
 from django.db import transaction
 
 from statistics_api.clients.canvas_api_client import CanvasApiClient
-from statistics_api.clients.db_client import DatabaseClient
+from statistics_api.clients.db_maintenance_client import DatabaseMaintenanceClient
 from statistics_api.definitions import CANVAS_ACCOUNT_ID
 
 
@@ -20,11 +20,10 @@ class Command(BaseCommand):
         logger = logging.getLogger()
 
         api_client = CanvasApiClient()
-        db_client = DatabaseClient()
 
         canvas_account_id: int = CANVAS_ACCOUNT_ID if CANVAS_ACCOUNT_ID else api_client.get_canvas_account_id_of_current_user()
         courses = api_client.get_courses(canvas_account_id=canvas_account_id)
-        courses = db_client.insert_courses(courses)
+        courses = DatabaseMaintenanceClient.insert_courses(courses)
         logger.info(f"Inserted {len(courses)} courses")
 
         all_group_categories = []
@@ -36,7 +35,7 @@ class Command(BaseCommand):
 
             all_group_categories += group_categories_for_course
 
-        all_group_categories = db_client.insert_group_categories(all_group_categories)
+        all_group_categories = DatabaseMaintenanceClient.insert_group_categories(all_group_categories)
         logger.info(f"Inserted {len(all_group_categories)} group categories")
 
         all_groups: List[Dict] = []
@@ -48,6 +47,6 @@ class Command(BaseCommand):
 
             all_groups += groups_for_course
 
-        all_db_groups = db_client.insert_groups(tuple(all_groups))
+        all_db_groups = DatabaseMaintenanceClient.insert_groups(tuple(all_groups))
 
         logger.info(f"Inserted {len(all_db_groups)} groups")

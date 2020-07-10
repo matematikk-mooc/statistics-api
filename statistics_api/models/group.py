@@ -15,17 +15,5 @@ class Group(BaseModel):
     updated_date = models.DateTimeField(auto_now=True)
     members_count = models.IntegerField()
 
-    def to_dict(instance):
-        return {
-            "id": instance.pk,
-            "canvas_id": instance.canvas_id,
-            "category_id": instance.group_category.pk,
-            "name": instance.name,
-            "description": instance.description,
-            "created_at": instance.created_at.strftime(STRFTIME_FORMAT),
-            "updated_at": instance.updated_date.strftime(STRFTIME_FORMAT),
-            "members_count": instance.members_count
-        }
-
     class Meta:
         db_table = "group"

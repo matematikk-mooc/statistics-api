@@ -113,7 +113,7 @@ class EnrollmentActivity(object):
 
         while result['data']['course']['enrollmentsConnection']['pageInfo']['hasNextPage']:
             checked_nodes += len(result['data']['course']['enrollmentsConnection']['edges'])
-            # self.logger.debug(f"Checked activity for {checked_nodes} out of {self.total_nr_of_students_for_course}")
+            # self.logger.info(f"Checked activity for {checked_nodes} out of {self.total_nr_of_students_for_course}")
             after_cursor = result['data']['course']['enrollmentsConnection']['pageInfo']['endCursor']
             self.variables["after"] = after_cursor
             try:
@@ -132,7 +132,7 @@ class EnrollmentActivity(object):
         enrollment_activity['active_users_count'] = active_users_count
         enrollment_activity['course_id'] = self.course_id
         enrollment_activity['course_name'] = result['data']['course']['name']
-        self.logger.debug(f"saving {enrollment_activity} to DB")
+        self.logger.info(f"saving {enrollment_activity} to DB")
 
         created_enrollment_object = EnrollmentActivityModel(
             course_id=enrollment_activity['course_id'],
@@ -141,15 +141,15 @@ class EnrollmentActivity(object):
             activity_date=enrollment_activity['activity_date']
         )
         created_enrollment_object.save()
-        self.logger.debug(f"{created_enrollment_object} created in DB")
+        self.logger.info(f"{created_enrollment_object} created in DB")
 
-        self.logger.debug(f"Posting {enrollment_activity} to KPAS...")
+        self.logger.info(f"Posting {enrollment_activity} to KPAS...")
         try:
             web_response = self.kpas_client.post_enrollment_activity_to_kpas(enrollment_activity)
         except Exception as err:
-            self.logger.debug("EnrollmentActivity error while ingesting into kpas : {0}".format(err))
+            self.logger.info("EnrollmentActivity error while ingesting into kpas : {0}".format(err))
             raise err
-        self.logger.debug(web_response.text)
+        self.logger.info(web_response.text)
 
 
 def filter_enrollment_activity_by_date(data):

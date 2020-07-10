@@ -25,7 +25,7 @@ class Command(BaseCommand):
         csv_file_path = f"{ROOT_DIR}{options[CSV_FILE_PATH_ARG_NAME]}"
         organization_numbers_and_teacher_counts: List[Tuple[str, int]] = []
 
-        logger.debug(f"Opening file {csv_file_path}...")
+        logger.info(f"Opening file {csv_file_path}...")
         with open(csv_file_path, encoding='utf-8') as csvfile:
             row_iterator = csv.reader(csvfile, delimiter=";")
 
@@ -36,4 +36,4 @@ class Command(BaseCommand):
                 organization_numbers_and_teacher_counts.append((organizational_number, int(number_of_teachers)))
 
         nr_of_inserts = DatabaseMaintenanceClient.insert_schools(organization_numbers_and_teacher_counts)
-        logger.debug(f"Inserted {nr_of_inserts} schools from Skoleporten.")
+        logger.info(f"Inserted {nr_of_inserts} schools from Skoleporten.")

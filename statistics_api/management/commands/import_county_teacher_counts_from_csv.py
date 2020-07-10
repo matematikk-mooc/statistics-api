@@ -27,7 +27,7 @@ class Command(BaseCommand):
         csv_file_path = f"{ROOT_DIR}{options[CSV_FILE_PATH_ARG_NAME]}"
         county_ids_and_teacher_counts: List[Tuple[int, int]] = []
 
-        logger.debug(f"Opening file {csv_file_path}...")
+        logger.info(f"Opening file {csv_file_path}...")
         with open(csv_file_path, encoding='utf-8') as csvfile:
             row_iterator = csv.reader(csvfile, delimiter=";")
 
@@ -49,4 +49,4 @@ class Command(BaseCommand):
             new_county_id_to_teacher_count_map[new_county_id] += teacher_count
 
         DatabaseMaintenanceClient.insert_counties(new_county_id_to_teacher_count_map)
-        logger.debug(f"Inserted {len(county_ids_and_teacher_counts)} counties from Skoleporten.")
+        logger.info(f"Inserted {len(county_ids_and_teacher_counts)} counties from Skoleporten.")

@@ -62,6 +62,7 @@ services:
         - KPAS_DOMAIN=${KPAS_DOMAIN}
         - WEBSITES_PORT=${WEBSITES_PORT}
         - GUNICORN_TIMEOUT=${GUNICORN_TIMEOUT}
+        - GUNICORN_LOG_LEVEL=${GUNICORN_LOG_LEVEL}
       networks:
         - backend_canvas-net
         - statistics_api-net

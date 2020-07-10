@@ -46,7 +46,10 @@ class DatabaseMaintenanceClient:
         db_groups: List[Group] = []
 
         for group in groups:
-            group_is_school, org_nr = get_is_school_and_org_nr(group['description'])
+            if group.get("description"):
+                group_is_school, org_nr = get_is_school_and_org_nr(group['description'])
+            else:
+                group_is_school = False
             if not group_is_school:
                 org_nr = None
             db_group = Group(canvas_id=group['id'], group_category_id=group['group_category_id'], name=group['name'],

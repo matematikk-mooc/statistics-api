@@ -19,5 +19,7 @@ Access application on e.g. `https://statistics-api-dev.local:8000/api/statistics
 There are a number of tests in this repository, but nearly all of them are integration tests dependent on 3rd party services KPAS LTI and Canvas LMS. At some point in the future, these dependencies should be mocked. Furthermore, the tests require the database to be populated with data from Skoleporten about (1) number of primary teachers at schools, (2) number of high school teachers at counties and (3) Canvas enrollment data. Before you can execute any tests, the following management commands need to run successfully:
 
 `python manage.py import_school_teacher_counts_from_csv data/primary_schools_data.csv`
+
 `python manage.py import_county_teacher_counts_from_csv data/county_data.csv`
+
 `python manage.py do_all_scheduled_maintenance_jobs`

@@ -35,13 +35,13 @@ jobs:
           mysql -h 127.0.0.1 -uroot -proot -e 'CREATE DATABASE `canvas-api`;'
           python3 manage.py makemigrations
           python3 manage.py migrate
-          PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py test --keepdb || true          
+          PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py test --verbosity=0 --keepdb || true          
 
       - name: Import test data to MySQL
         run: mysql -uroot -proot < $GITHUB_WORKSPACE/statistics_api/tests/data/canvas_api_test_data.sql
 
       - name: Run Django unit tests
         run: |
-          PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py test --keepdb
+          PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py test --verbosity=2 --keepdb
 
           

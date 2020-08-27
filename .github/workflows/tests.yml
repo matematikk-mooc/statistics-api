@@ -29,9 +29,10 @@ jobs:
 
       - name: Start MySQL service
         run: sudo systemctl start mysql.service
-
+      
       - name: Run Django migrations
         run: |
+          mysql -h 127.0.0.1 -uroot -proot -e 'CREATE DATABASE `canvas-api`;'
           python3 manage.py makemigrations
           python3 manage.py migrate
 

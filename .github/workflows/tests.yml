@@ -15,6 +15,7 @@ jobs:
       DB_PASSWORD: root
       DB_PORT: 3306
       KPAS_DOMAIN: kpas-lti-staging-kpas.azurewebsites.net
+      DJANGO_SECRET_KEY: not_secret_key
 
     steps:
         # GitHub repository checkout
@@ -28,6 +29,9 @@ jobs:
 
       - name: Start MySQL service
         run: sudo systemctl start mysql.service
+
+      - name: Import test data to MySQL
+        run: mysql -uroot -proot < $GITHUB_WORKSPACE/statistics_api/tests/data/canvas_api_test_data.sql
 
       - name: Run Django unit tests
         run: |

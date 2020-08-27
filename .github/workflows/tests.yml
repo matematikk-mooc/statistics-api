@@ -30,6 +30,11 @@ jobs:
       - name: Start MySQL service
         run: sudo systemctl start mysql.service
 
+      - name: Run Django migrations
+        run: |
+          python3 manage.py makemigrations
+          python3 manage.py migrate
+
       - name: Import test data to MySQL
         run: mysql -uroot -proot < $GITHUB_WORKSPACE/statistics_api/tests/data/canvas_api_test_data.sql
 

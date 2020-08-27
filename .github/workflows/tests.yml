@@ -1,0 +1,35 @@
+name: Tests
+
+# Controls when the action will run. Triggers the workflow on manual trigger or push
+on:
+  workflow_dispatch:
+
+jobs:
+  run-unit-tests:
+
+    runs-on: ubuntu-latest
+    env:
+      DB_HOST: 127.0.0.1
+      DB_DATABASE: canvas-api
+      DB_USERNAME: root
+      DB_PASSWORD: root
+      DB_PORT: 3306
+      KPAS_DOMAIN: kpas-lti-staging-kpas.azurewebsites.net
+
+    steps:
+        # GitHub repository checkout
+      - name: GitHub repository checkout
+        uses: actions/checkout@v1
+      
+      - name: Install python depedencies
+        run: |
+          ${GITHUB_WORKSPACE}/venv/bin/python3 -m pip install -r requirements.txt
+
+      - name: Start MySQL service
+        run: sudo systemctl start mysql.service
+
+      - name: Run Django unit tests
+        run: |
+          PYTHONPATH="${GITHUB_WORKSPACE}" ${GITHUB_WORKSPACE}/venv/bin/python3 manage.py test
+
+          

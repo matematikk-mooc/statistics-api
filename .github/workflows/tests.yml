@@ -3,7 +3,6 @@ name: Tests
 # Controls when the action will run. Triggers the workflow on manual trigger or push
 on:
   workflow_dispatch:
-  push:
 
 jobs:
   run-unit-tests:

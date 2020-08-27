@@ -20,6 +20,10 @@ jobs:
       - name: GitHub repository checkout
         uses: actions/checkout@v1
       
+      - name: Make Python venv
+        run: |
+          python3 -m venv ${GITHUB_WORKSPACE}/venv
+
       - name: Install python depedencies
         run: |
           ${GITHUB_WORKSPACE}/venv/bin/python3 -m pip install -r requirements.txt

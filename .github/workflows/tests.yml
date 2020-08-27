@@ -23,6 +23,7 @@ jobs:
 
       - name: Install python depedencies
         run: |
+          sudo apt-get install python3-setuptools
           python3 -m pip install -r requirements.txt
 
       - name: Start MySQL service

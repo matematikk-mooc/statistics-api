@@ -35,6 +35,6 @@ jobs:
 
       - name: Run Django unit tests
         run: |
-          PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py test
+          PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py test --keepdb
 
           

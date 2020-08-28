@@ -46,7 +46,7 @@ jobs:
         run: |
           sudo bash -c "echo '127.0.0.1 kpas-dev.local' >> /etc/hosts"
 
-      - uses: satackey/action-docker-layer-caching@v0.0.8
+#      - uses: satackey/action-docker-layer-caching@v0.0.8
 
       - name: Start KPAS-LTI service
         run: |

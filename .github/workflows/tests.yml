@@ -15,7 +15,7 @@ jobs:
     if: github.ref=='refs/heads/tests_pipeline'
     runs-on: ubuntu-latest
     env:
-      DB_HOST: /var/run/mysql
+      DB_HOST: 127.0.0.1
       KPAS_DOMAIN: kpas-dev.local  #NB! must match certificate in .github/kpas_ssl_certs
       KPAS_LTI_GIT_COMMIT: 5263fc96967971ef81b5b2248d87692add922cf7  #Exactly which state in the KPAS-LTI git repository should be used as dependency during our tests
       DJANGO_SECRET_KEY: not_secret_key
@@ -29,7 +29,8 @@ jobs:
       - name: Start MySQL service
         run: |
           sudo bash -c 'echo "[mysqld]" >> /etc/mysql/my.cnf'
-          sudo bash -c 'echo "port		= 3307" >> /etc/mysql/my.cnf'
+          sudo bash -c 'echo "port = 3307" >> /etc/mysql/my.cnf'
+          sudo bash -c 'echo "bind-address 0.0.0.0" >> /etc/mysql/my.cnf'
           sudo systemctl start mysql.service
           sudo chmod 700 $GITHUB_WORKSPACE/wait-for-it.sh && $GITHUB_WORKSPACE/wait-for-it.sh 127.0.0.1:3307 -- echo "statistics-api MySQL is up"
 

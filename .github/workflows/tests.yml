@@ -69,7 +69,7 @@ jobs:
         run: |
           mysql -uroot -proot -e 'CREATE DATABASE `default`;'
           mysql -proot -uroot default < $GITHUB_WORKSPACE/.github/kpas_nsr_data/nsr_data.sql
-          curl https://kpas-dev.local/api/nsr/schools
+          curl https://kpas-dev.local/api/nsr/schools --insecure
 
       - name: Install python depedencies
         run: |

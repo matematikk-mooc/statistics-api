@@ -15,7 +15,7 @@ jobs:
     if: github.ref=='refs/heads/tests_pipeline'
     runs-on: ubuntu-latest
     env:
-      DB_HOST: 127.0.0.1
+      DB_HOST: /var/run/mysql
       KPAS_DOMAIN: kpas-dev.local  #NB! must match certificate in .github/kpas_ssl_certs
       KPAS_LTI_GIT_COMMIT: 5263fc96967971ef81b5b2248d87692add922cf7  #Exactly which state in the KPAS-LTI git repository should be used as dependency during our tests
       DJANGO_SECRET_KEY: not_secret_key

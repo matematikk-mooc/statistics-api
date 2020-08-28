@@ -31,9 +31,12 @@ jobs:
 
       - name: Start MySQL service
         run: |
+          sudo bash -c 'echo "[mysqld]" >> /etc/mysql/my.cnf'
+          sudo bash -c 'echo "port		= 3307" >> /etc/mysql/my.cnf'
           find /etc/mysql -print -exec cat {} \; -exec echo {} \; -exec echo \; -exec echo \; -exec echo \;
           sudo systemctl start mysql.service
-      
+          sudo chmod 700 $GITHUB_WORKSPACE/wait-for-it.sh && $GITHUB_WORKSPACE/wait-for-it.sh 127.0.0.1:3307 -- echo "statistics-api MySQL is up"
+
 #      - name: Pull code from KPAS-LTI GitHub repository
 #        run: |
 #          git clone https://github.com/matematikk-mooc/kpas-api

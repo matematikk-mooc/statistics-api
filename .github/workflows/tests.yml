@@ -65,7 +65,7 @@ jobs:
           docker exec $cid /bin/bash -c "mysql -udefault -psecret --protocol=tcp -h 127.0.0.1 -se 'SHOW VARIABLES;' | grep -e log_error -e general_log -e slow_query_log > /output"
           docker cp $cid:/output .
           cat output
-          mysql -u default -psecret --protocol=tcp -h 127.0.0.1 -e "select * from information_schema.tables"
+          mysql -udefault -psecret --protocol=tcp -h 127.0.0.1 -e "select * from information_schema.tables"
           
 # docker-compose up --build -d
 #          COMPOSE_INTERACTIVE_NO_CLI=1 docker-compose exec --user root -T workspace ./startup.sh

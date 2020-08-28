@@ -79,8 +79,8 @@ jobs:
         run: |
           mysql --port=3307 --protocol=tcp --host=127.0.0.1 -uroot -proot -e 'CREATE DATABASE `canvas-api`;'
           python3 manage.py makemigrations
-          python3 manage.py migrate
-          DB_DATABASE="canvas-api" DB_USERNAME="root" DB_PASSWORD="root" DB_PORT="3307" PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py test --verbosity=0 --keepdb || true
+          DB_DATABASE=canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3307 PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py migrate
+          DB_DATABASE=canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3307 PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py test --verbosity=0 --keepdb || true
 
       - name: Import test data to MySQL
         run: mysql --port=3307 --protocol=tcp --host=127.0.0.1 -uroot -proot < $GITHUB_WORKSPACE/statistics_api/tests/data/canvas_api_test_data.sql

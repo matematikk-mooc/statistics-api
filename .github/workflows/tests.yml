@@ -68,8 +68,10 @@ jobs:
         run: |
           mysql_container_id=`docker ps | grep mysql | awk '{print$1}'`
           docker cp ${GITHUB_WORKSPACE}/.github/kpas_nsr_data/nsr_data.sql $mysql_container_id:/nsr_data.sql
+          cd kpas-api/docker
           COMPOSE_INTERACTIVE_NO_CLI=1 docker-compose exec --user root -T mysql /bin/bash -c "mysql -proot -uroot default < /nsr_data.sql"
           curl https://kpas-dev.local/api/nsr/schools --insecure
+          cd ./../..
           
 
       - name: Install python depedencies

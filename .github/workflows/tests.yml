@@ -54,15 +54,16 @@ jobs:
           echo "bind-address 0.0.0.0" >> docker/mysql/my.cnf
           sed -i "s/BUGSNAG_API_KEY=.*/BUGSNAG_API_KEY=/g" environments/local/.env
           sed -i "s/BUGSNAG_API_KEY=.*/BUGSNAG_API_KEY=/g" environments/production/.env
-          sed -i 's/DB_HOST=.*/DB_HOST=127.0.0.1/g' environments/production/.env
-          sed -i 's/DB_HOST=.*/DB_HOST=127.0.0.1/g' environments/local/.env
+          sed -i 's/DB_HOST=.*/DB_HOST=mysql/g' environments/production/.env
+          sed -i 's/DB_HOST=.*/DB_HOST=mysql/g' environments/local/.env
           cd docker
           cp .env.example .env
           sudo chown $(whoami):$(whoami) -R * && sudo chmod 777 -R *
           docker-compose up -d mysql
           sudo chmod 700 $GITHUB_WORKSPACE/wait-for-it.sh && $GITHUB_WORKSPACE/wait-for-it.sh 127.0.0.1:3306 -- echo "KPAS MySQL is up"
           export cid=$(docker ps | sed -n 2p | awk '{print$1}')
-          mysql -udefault -psecret --protocol=tcp -h 127.0.0.1 -e "show databases;"
+          cip=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $cid)
+          mysql -udefault -psecret --protocol=tcp -h $cip -e "show databases;"
 #docker exec $cid /bin/bash -c "mysql -udefault -psecret --protocol=tcp -h 127.0.0.1 -se 'SHOW VARIABLES;' | grep -e log_error -e general_log -e slow_query_log > /output"
   #          docker cp $cid:/output .
   #          cat output

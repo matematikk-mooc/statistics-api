@@ -44,9 +44,10 @@ jobs:
       - name: Add KPAS domain name to /etc/hosts
         run: |
           sudo bash -c "echo '127.0.0.1 kpas-dev.local' >> /etc/hosts"
+      
+      - uses: satackey/action-docker-layer-caching@v0.0.8
 
       - name: Start KPAS-LTI service
-      - uses: satackey/action-docker-layer-caching@v0.0.8
         run: |
           cd kpas-api
           git checkout $KPAS_LTI_GIT_COMMIT

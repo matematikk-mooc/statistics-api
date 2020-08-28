@@ -16,9 +16,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DB_HOST: 127.0.0.1
-      DB_DATABASE: canvas-api
-      DB_USERNAME: root
-      DB_PASSWORD: root
       KPAS_DOMAIN: kpas-dev.local  #NB! must match certificate in .github/kpas_ssl_certs
       KPAS_LTI_GIT_COMMIT: 5263fc96967971ef81b5b2248d87692add922cf7  #Exactly which state in the KPAS-LTI git repository should be used as dependency during our tests
       DJANGO_SECRET_KEY: not_secret_key
@@ -37,62 +34,58 @@ jobs:
           sudo systemctl start mysql.service
           sudo chmod 700 $GITHUB_WORKSPACE/wait-for-it.sh && $GITHUB_WORKSPACE/wait-for-it.sh 127.0.0.1:3307 -- echo "statistics-api MySQL is up"
 
-#      - name: Pull code from KPAS-LTI GitHub repository
-#        run: |
-#          git clone https://github.com/matematikk-mooc/kpas-api
-#
-#      - name: Copy self-signed certificates and keys to KPAS-LTI nginx directory
-#        run: |
-#          cp $GITHUB_WORKSPACE/.github/kpas_ssl_certs/* kpas-api/docker/nginx/ssl/
-#
-#      - name: Add KPAS domain name to /etc/hosts
-#        run: |
-#          sudo bash -c "echo '127.0.0.1 kpas-dev.local' >> /etc/hosts"
-#
-#      - uses: satackey/action-docker-layer-caching@v0.0.8
-#
-#      - name: Start KPAS-LTI service
-#        run: |
-#          cd kpas-api
-#          git checkout $KPAS_LTI_GIT_COMMIT
-#          sed -i "s/BUGSNAG_API_KEY=.*/BUGSNAG_API_KEY=/g" environments/local/.env
-#          sed -i "s/BUGSNAG_API_KEY=.*/BUGSNAG_API_KEY=/g" environments/production/.env
-#          sed -i 's/DB_PORT=3306/DB_PORT=3307/g' environments/production/.env
-#          sed -i 's/DB_PORT=3306/DB_PORT=3307/g' environments/local/.env
-#          sed -i 's/DB_HOST=.*/DB_HOST=127.0.0.1/g' environments/production/.env
-#          sed -i 's/DB_HOST=.*/DB_HOST=127.0.0.1/g' environments/local/.env
-#          cd docker
-#          cp .env.example .env
-#          sed -i 's/MYSQL_PORT=3306/MYSQL_PORT=3307/g' .env
-#          sudo chown $(whoami):$(whoami) -R * && sudo chmod 777 -R *
-#          docker-compose up --build -d
-#          sudo chmod 700 $GITHUB_WORKSPACE/wait-for-it.sh && $GITHUB_WORKSPACE/wait-for-it.sh 127.0.0.1:3307 -- echo "KPAS MySQL is up"
-#          COMPOSE_INTERACTIVE_NO_CLI=1 docker-compose exec --user root -T workspace ./startup.sh
-#          cd ./../..
-#
-#      - name: Populate KPAS with data from NSR
-#        run: |
-#          cd kpas-api/docker
-#          COMPOSE_INTERACTIVE_NO_CLI=1 docker-compose exec --user root -T workspace /bin/bash -c "php artisan fetch_from:nsr"
-#          cd ./../..
-#
-#      - name: Install python depedencies
-#        run: |
-#          sudo apt-get install python3-setuptools
-#          python3 -m pip install -r requirements.txt
-#
-#      - name: Run Django migrations
-#        run: |
-#          mysql -h 127.0.0.1 -uroot -proot -e 'CREATE DATABASE `canvas-api`;'
-#          python3 manage.py makemigrations
-#          python3 manage.py migrate
-#          PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py test --verbosity=0 --keepdb || true
-#
-#      - name: Import test data to MySQL
-#        run: mysql -uroot -proot < $GITHUB_WORKSPACE/statistics_api/tests/data/canvas_api_test_data.sql
-#
-#      - name: Run Django unit tests
-#        run: |
-#          PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py test --verbosity=2 --keepdb
-#
-#
+      - name: Pull code from KPAS-LTI GitHub repository
+        run: |
+          git clone https://github.com/matematikk-mooc/kpas-api
+
+      - name: Copy self-signed certificates and keys to KPAS-LTI nginx directory
+        run: |
+          cp $GITHUB_WORKSPACE/.github/kpas_ssl_certs/* kpas-api/docker/nginx/ssl/
+
+      - name: Add KPAS domain name to /etc/hosts
+        run: |
+          sudo bash -c "echo '127.0.0.1 kpas-dev.local' >> /etc/hosts"
+
+      - uses: satackey/action-docker-layer-caching@v0.0.8
+
+      - name: Start KPAS-LTI service
+        run: |
+          cd kpas-api
+          git checkout $KPAS_LTI_GIT_COMMIT
+          sed -i "s/BUGSNAG_API_KEY=.*/BUGSNAG_API_KEY=/g" environments/local/.env
+          sed -i "s/BUGSNAG_API_KEY=.*/BUGSNAG_API_KEY=/g" environments/production/.env
+          sed -i 's/DB_HOST=.*/DB_HOST=127.0.0.1/g' environments/production/.env
+          sed -i 's/DB_HOST=.*/DB_HOST=127.0.0.1/g' environments/local/.env
+          cd docker
+          cp .env.example .env
+          sudo chown $(whoami):$(whoami) -R * && sudo chmod 777 -R *
+          docker-compose up --build -d
+          sudo chmod 700 $GITHUB_WORKSPACE/wait-for-it.sh && $GITHUB_WORKSPACE/wait-for-it.sh 127.0.0.1:3306 -- echo "KPAS MySQL is up"
+          COMPOSE_INTERACTIVE_NO_CLI=1 docker-compose exec --user root -T workspace ./startup.sh
+          cd ./../..
+
+      - name: Populate KPAS with data from NSR
+        run: |
+          cd kpas-api/docker
+          COMPOSE_INTERACTIVE_NO_CLI=1 docker-compose exec --user root -T workspace /bin/bash -c "php artisan fetch_from:nsr"
+          cd ./../..
+
+      - name: Install python depedencies
+        run: |
+          sudo apt-get install python3-setuptools
+          python3 -m pip install -r requirements.txt
+
+      - name: Run Django migrations
+        run: |
+          mysql -h 127.0.0.1 -uroot -proot -P 3307 -e 'CREATE DATABASE `canvas-api`;'
+          python3 manage.py makemigrations
+          python3 manage.py migrate
+          DB_DATABASE=canvas-api DB_USERNAME=root DB_PASSWORD=root PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py test --verbosity=0 --keepdb || true
+
+      - name: Import test data to MySQL
+        run: mysql -uroot -proot -P 3307 < $GITHUB_WORKSPACE/statistics_api/tests/data/canvas_api_test_data.sql
+
+      - name: Run Django unit tests
+        run: |
+          PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py test --verbosity=2 --keepdb
+

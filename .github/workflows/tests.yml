@@ -62,6 +62,7 @@ jobs:
           sed -i 's/MYSQL_PORT=3306/MYSQL_PORT=3307/g' .env
           sudo chown $(whoami):$(whoami) -R * && sudo chmod 777 -R *
           docker-compose up --build -d
+          $GITHUB_WORKSPACE/wait-for-it.sh 127.0.0.1:3307 -- echo "KPAS MySQL is up"
           COMPOSE_INTERACTIVE_NO_CLI=1 docker-compose exec --user root -T workspace ./startup.sh
           cd ./../..
 

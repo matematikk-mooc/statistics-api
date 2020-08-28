@@ -65,7 +65,9 @@ jobs:
           cd ./../..
 
       - name: Import NSR to KPAS MySQL
-        run: mysql -proot -uroot default < $GITHUB_WORKSPACE/.github/kpas_nsr_data/nsr_data.sql
+        run: |
+          mysql -uroot -proot   -e "show databases;" 
+          mysql -proot -uroot default < $GITHUB_WORKSPACE/.github/kpas_nsr_data/nsr_data.sql
 
       - name: Install python depedencies
         run: |

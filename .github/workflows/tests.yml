@@ -60,18 +60,17 @@ jobs:
           cd docker
           cp .env.example .env
           sudo chown $(whoami):$(whoami) -R * && sudo chmod 777 -R *
-
           docker-compose up --build -d
           COMPOSE_INTERACTIVE_NO_CLI=1 docker-compose exec --user root -T workspace ./startup.sh
           cd ./../..
 
       - name: Import NSR to KPAS MySQL
         run: |
-          mysql -uroot -proot -e 'CREATE DATABASE `default`;'
-          mysql -proot -uroot default < $GITHUB_WORKSPACE/.github/kpas_nsr_data/nsr_data.sql
+          mysql_container_id=`docker ps | grep mysql | awk '{print$1}'`
+          docker cp ${GITHUB_WORKSPACE}/.github/kpas_nsr_data/nsr_data.sql $mysql_container_id:/nsr_data.sql
+          COMPOSE_INTERACTIVE_NO_CLI=1 docker-compose exec --user root -T mysql /bin/bash -c "mysql -proot -uroot default < /nsr_data.sql"
           curl https://kpas-dev.local/api/nsr/schools --insecure
-          mysql -uroot -proot -e 'SHOW DATABASES;'
-          mysql -uroot -proot -e 'USE default; SHOW TABLES;'
+          
 
       - name: Install python depedencies
         run: |

@@ -62,10 +62,10 @@ jobs:
           docker-compose up -d mysql
           sudo chmod 700 $GITHUB_WORKSPACE/wait-for-it.sh && $GITHUB_WORKSPACE/wait-for-it.sh 127.0.0.1:3306 -- echo "KPAS MySQL is up"
           export cid=$(docker ps | sed -n 2p | awk '{print$1}')
-          docker exec $cid /bin/bash -c "mysql -udefault -psecret -se 'SHOW VARIABLES;' | grep -e log_error -e general_log -e slow_query_log > /output"
+          docker exec $cid /bin/bash -c "mysql -udefault -psecret --protocol=tcp -h 0.0.0.0 -se 'SHOW VARIABLES;' | grep -e log_error -e general_log -e slow_query_log > /output"
           docker cp $cid:/output .
           cat /output
-          mysql -udefault -psecret --protocol=tcp -h 127.0.0.1 -e "select * from information_schema.tables"
+          mysql -u default -psecret --protocol=tcp -h 0.0.0.0 -e "select * from information_schema.tables"
           
 # docker-compose up --build -d
 #          COMPOSE_INTERACTIVE_NO_CLI=1 docker-compose exec --user root -T workspace ./startup.sh

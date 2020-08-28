@@ -30,7 +30,6 @@ jobs:
         run: |
           sudo bash -c 'echo "[mysqld]" >> /etc/mysql/my.cnf'
           sudo bash -c 'echo "port		= 3307" >> /etc/mysql/my.cnf'
-          find /etc/mysql -print -exec cat {} \; -exec echo {} \; -exec echo \; -exec echo \; -exec echo \;
           sudo systemctl start mysql.service
           sudo chmod 700 $GITHUB_WORKSPACE/wait-for-it.sh && $GITHUB_WORKSPACE/wait-for-it.sh 127.0.0.1:3307 -- echo "statistics-api MySQL is up"
 
@@ -52,6 +51,7 @@ jobs:
         run: |
           cd kpas-api
           git checkout $KPAS_LTI_GIT_COMMIT
+          echo "bind-address 0.0.0.0" >> docker/mysql/my.cnf
           sed -i "s/BUGSNAG_API_KEY=.*/BUGSNAG_API_KEY=/g" environments/local/.env
           sed -i "s/BUGSNAG_API_KEY=.*/BUGSNAG_API_KEY=/g" environments/production/.env
           sed -i 's/DB_HOST=.*/DB_HOST=127.0.0.1/g' environments/production/.env
@@ -60,7 +60,6 @@ jobs:
           cp .env.example .env
           sudo chown $(whoami):$(whoami) -R * && sudo chmod 777 -R *
           docker-compose up -d mysql
-
           sudo chmod 700 $GITHUB_WORKSPACE/wait-for-it.sh && $GITHUB_WORKSPACE/wait-for-it.sh 127.0.0.1:3306 -- echo "KPAS MySQL is up"
           mysql -udefault -psecret --protocol=tcp -h 127.0.0.1 -e "select * from information_schema.tables"
 # docker-compose up --build -d

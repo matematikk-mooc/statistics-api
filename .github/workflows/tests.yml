@@ -59,43 +59,40 @@ jobs:
           cd docker
           cp .env.example .env
           sudo chown $(whoami):$(whoami) -R * && sudo chmod 777 -R *
-          docker-compose up -d mysql
-          sudo chmod 700 $GITHUB_WORKSPACE/wait-for-it.sh && $GITHUB_WORKSPACE/wait-for-it.sh 127.0.0.1:3306 -- echo "KPAS MySQL is up"
-          export cid=$(docker ps | sed -n 2p | awk '{print$1}')
-          cip=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $cid)
-          sudo chmod 700 $GITHUB_WORKSPACE/wait-for-it.sh && $GITHUB_WORKSPACE/wait-for-it.sh 127.0.0.1:3306 -- echo "Found MySQL running on ${cip}"
-          docker ps
-          mysql -uroot -proot   -e "show databases;" || true
-          mysql -uroot -proot -h localhost -e "show databases;" || true
-#docker exec $cid /bin/bash -c "mysql -udefault -psecret --protocol=tcp -h 127.0.0.1 -se 'SHOW VARIABLES;' | grep -e log_error -e general_log -e slow_query_log > /output"
-  #          docker cp $cid:/output .
-  #          cat output
-# docker-compose up --build -d
-#          COMPOSE_INTERACTIVE_NO_CLI=1 docker-compose exec --user root -T workspace ./startup.sh
-#          cd ./../..
-#
-#      - name: Populate KPAS with data from NSR
-#        run: |
-#          cd kpas-api/docker
-#          COMPOSE_INTERACTIVE_NO_CLI=1 docker-compose exec --user root -T workspace /bin/bash -c "php artisan fetch_from:nsr"
-#          cd ./../..
-#
-#      - name: Install python depedencies
-#        run: |
-#          sudo apt-get install python3-setuptools
-#          python3 -m pip install -r requirements.txt
-#
-#      - name: Run Django migrations
-#        run: |
-#          mysql -h 127.0.0.1 -uroot -proot -P 3307 -e 'CREATE DATABASE `canvas-api`;'
-#          python3 manage.py makemigrations
-#          python3 manage.py migrate
-#          DB_DATABASE=canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3307 PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py test --verbosity=0 --keepdb || true
-#
-#      - name: Import test data to MySQL
-#        run: mysql -uroot -proot -P 3307 < $GITHUB_WORKSPACE/statistics_api/tests/data/canvas_api_test_data.sql
-#
-#      - name: Run Django unit tests
-#        run: |
-#          DB_DATABASE=canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3307 PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py test --verbosity=2 --keepdb
-#
+
+          docker-compose up --build -d
+          COMPOSE_INTERACTIVE_NO_CLI=1 docker-compose exec --user root -T workspace ./startup.sh
+          cd ./../..
+#docker-compose up -d mysql
+#          sudo chmod 700 $GITHUB_WORKSPACE/wait-for-it.sh && $GITHUB_WORKSPACE/wait-for-it.sh 127.0.0.1:3306 -- echo "KPAS MySQL is up"
+#          export cid=$(docker ps | sed -n 2p | awk '{print$1}')
+#          cip=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $cid)
+#          sudo chmod 700 $GITHUB_WORKSPACE/wait-for-it.sh && $GITHUB_WORKSPACE/wait-for-it.sh 127.0.0.1:3306 -- echo "Found MySQL running on ${cip}"
+#          docker ps
+#          mysql -uroot -proot   -e "show databases;" || true
+#          mysql -uroot -proot -h localhost -e "show databases;" || true
+      - name: Populate KPAS with data from NSR
+        run: |
+          cd kpas-api/docker
+          COMPOSE_INTERACTIVE_NO_CLI=1 docker-compose exec --user root -T workspace /bin/bash -c "php artisan fetch_from:nsr"
+          cd ./../..
+
+      - name: Install python depedencies
+        run: |
+          sudo apt-get install python3-setuptools
+          python3 -m pip install -r requirements.txt
+
+      - name: Run Django migrations
+        run: |
+          mysql -h 127.0.0.1 -uroot -proot -P 3307 -e 'CREATE DATABASE `canvas-api`;'
+          python3 manage.py makemigrations
+          python3 manage.py migrate
+          DB_DATABASE=canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3307 PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py test --verbosity=0 --keepdb || true
+
+      - name: Import test data to MySQL
+        run: mysql -uroot -proot -P 3307 < $GITHUB_WORKSPACE/statistics_api/tests/data/canvas_api_test_data.sql
+
+      - name: Run Django unit tests
+        run: |
+          DB_DATABASE=canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3307 PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py test --verbosity=2 --keepdb
+

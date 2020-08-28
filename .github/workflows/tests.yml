@@ -19,7 +19,7 @@ jobs:
       DB_DATABASE: canvas-api
       DB_USERNAME: root
       DB_PASSWORD: root
-      KPAS_DOMAIN: 127.0.0.1
+      KPAS_DOMAIN: kpas-dev.local  #NB! must match certificate in .github/kpas_ssl_certs
       KPAS_LTI_GIT_COMMIT: 5263fc96967971ef81b5b2248d87692add922cf7  #Exactly which state in the KPAS-LTI git repository should be used as dependency during our tests
       DJANGO_SECRET_KEY: not_secret_key
       CA_FILE_NAME: ca.crt
@@ -37,10 +37,14 @@ jobs:
         run: |
           git clone https://github.com/matematikk-mooc/kpas-api
       
-      - name: Copy self-signed certificates and keys to KPAS-LTI nginx dir
+      - name: Copy self-signed certificates and keys to KPAS-LTI nginx directory
         run: |
           cp $GITHUB_WORKSPACE/.github/kpas_ssl_certs/* kpas-api/docker/nginx/ssl/
-        
+      
+      - name: Add KPAS domain name to /etc/hosts
+        run: |
+          sudo bash -c "echo '127.0.0.1 kpas-dev.local'" >> /etc/hosts
+
       - name: Start KPAS-LTI service
         run: |
           cd kpas-api

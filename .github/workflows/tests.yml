@@ -43,7 +43,7 @@ jobs:
       
       - name: Add KPAS domain name to /etc/hosts
         run: |
-          sudo bash -c "echo '127.0.0.1 kpas-dev.local'" >> /etc/hosts
+          sudo bash -c "echo '127.0.0.1 kpas-dev.local' >> /etc/hosts"
 
       - name: Start KPAS-LTI service
         run: |

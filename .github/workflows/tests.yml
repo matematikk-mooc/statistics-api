@@ -52,10 +52,10 @@ jobs:
           cd kpas-api
           git checkout $KPAS_LTI_GIT_COMMIT
           echo "bind-address 0.0.0.0" >> docker/mysql/my.cnf
-          sed -i "s/BUGSNAG_API_KEY=.*/BUGSNAG_API_KEY=/g" environments/local/.env
           sed -i "s/BUGSNAG_API_KEY=.*/BUGSNAG_API_KEY=/g" environments/production/.env
           sed -i 's/DB_HOST=.*/DB_HOST=mysql/g' environments/production/.env
-          sed -i 's/DB_HOST=.*/DB_HOST=mysql/g' environments/local/.env
+          sed -i 's/DB_USERNAME=.*/DB_USERNAME=root/g' environments/production/.env
+          sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=root/g' environments/production/.env
           cd docker
           cp .env.example .env
           sudo chown $(whoami):$(whoami) -R * && sudo chmod 777 -R *

@@ -50,7 +50,7 @@ jobs:
           sed -i 's/MYSQL_PORT=3306/MYSQL_PORT=3307/g' .env
           sudo chown $(whoami):$(whoami) -R * && sudo chmod 777 -R *
           docker-compose up --build -d
-          docker-compose exec --user root workspace ./startup.sh
+          COMPOSE_INTERACTIVE_NO_CLI=1 docker-compose exec --user root workspace ./startup.sh
           cd ./../..
 
       - name: Populate KPAS with data from NSR

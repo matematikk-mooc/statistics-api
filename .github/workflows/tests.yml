@@ -61,8 +61,9 @@ jobs:
           sudo chown $(whoami):$(whoami) -R * && sudo chmod 777 -R *
           docker-compose up -d mysql
           sudo chmod 700 $GITHUB_WORKSPACE/wait-for-it.sh && $GITHUB_WORKSPACE/wait-for-it.sh 127.0.0.1:3306 -- echo "KPAS MySQL is up"
-          sleep 10
+          COMPOSE_INTERACTIVE_NO_CLI=1 docker-compose exec --user root -T mysql /bin/bash -c 'mysql -se "SHOW VARIABLES" | grep -e log_error -e general_log -e slow_query_log'
           mysql -udefault -psecret --protocol=tcp -h 127.0.0.1 -e "select * from information_schema.tables"
+          
 # docker-compose up --build -d
 #          COMPOSE_INTERACTIVE_NO_CLI=1 docker-compose exec --user root -T workspace ./startup.sh
 #          cd ./../..
@@ -83,12 +84,12 @@ jobs:
 #          mysql -h 127.0.0.1 -uroot -proot -P 3307 -e 'CREATE DATABASE `canvas-api`;'
 #          python3 manage.py makemigrations
 #          python3 manage.py migrate
-#          DB_DATABASE=canvas-api DB_USERNAME=root DB_PASSWORD=root PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py test --verbosity=0 --keepdb || true
+#          DB_DATABASE=canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3307 PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py test --verbosity=0 --keepdb || true
 #
 #      - name: Import test data to MySQL
 #        run: mysql -uroot -proot -P 3307 < $GITHUB_WORKSPACE/statistics_api/tests/data/canvas_api_test_data.sql
 #
 #      - name: Run Django unit tests
 #        run: |
-#          PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py test --verbosity=2 --keepdb
+#          DB_DATABASE=canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3307 PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py test --verbosity=2 --keepdb
 #

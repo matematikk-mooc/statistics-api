@@ -59,7 +59,8 @@ jobs:
           cd docker
           cp .env.example .env
           sudo chown $(whoami):$(whoami) -R * && sudo chmod 777 -R *
-          docker-compose up --build -d
+          docker-compose up mysql -d
+# docker-compose up --build -d
           sudo chmod 700 $GITHUB_WORKSPACE/wait-for-it.sh && $GITHUB_WORKSPACE/wait-for-it.sh 127.0.0.1:3306 -- echo "KPAS MySQL is up"
           mysql -udefault -psecret --protocol=tcp -e "select * from information_schema.tables"
 #          COMPOSE_INTERACTIVE_NO_CLI=1 docker-compose exec --user root -T workspace ./startup.sh

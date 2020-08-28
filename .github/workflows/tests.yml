@@ -64,11 +64,8 @@ jobs:
           COMPOSE_INTERACTIVE_NO_CLI=1 docker-compose exec --user root -T workspace ./startup.sh
           cd ./../..
 
-      - name: Populate KPAS with data from NSR
-        run: |
-          cd kpas-api/docker
-          COMPOSE_INTERACTIVE_NO_CLI=1 docker-compose exec --user root -T workspace /bin/bash -c "php artisan fetch_from:nsr"
-          cd ./../..
+      - name: Import NSR to KPAS MySQL
+        run: mysql -uroot -proot < $GITHUB_WORKSPACE/.github/kpas_nsr_data/nsr_data.sql
 
       - name: Install python depedencies
         run: |

@@ -81,6 +81,14 @@ jobs:
           sudo mysql -uroot -proot  -h 127.0.0.1 -e "show databases;" || true
           sudo mysql -udefault -psecret  -h $cip -e "show databases;" || true
           sudo mysql -udefault -psecret  -h 127.0.0.1 -e "show databases;" || true
+          mysql -uroot -proot   -e "show databases;" || true
+          mysql -uroot -proot   -e "show databases;" || true
+          mysql -udefault -psecret   -e "show databases;" || true
+          mysql -udefault -psecret   -e "show databases;" || true
+          sudo mysql -uroot -proot   -e "show databases;" || true
+          sudo mysql -uroot -proot   -e "show databases;" || true
+          sudo mysql -udefault -psecret   -e "show databases;" || true
+          sudo mysql -udefault -psecret   -e "show databases;" || true
 #docker exec $cid /bin/bash -c "mysql -udefault -psecret --protocol=tcp -h 127.0.0.1 -se 'SHOW VARIABLES;' | grep -e log_error -e general_log -e slow_query_log > /output"
   #          docker cp $cid:/output .
   #          cat output

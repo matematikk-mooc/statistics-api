@@ -55,7 +55,7 @@ jobs:
 
       - name: Populate KPAS with data from NSR
         run: |
-          docker-compose exec --user root workspace /bin/bash -c "php artisan fetch_from:nsr"
+          COMPOSE_INTERACTIVE_NO_CLI=1 docker-compose exec --user root workspace /bin/bash -c "php artisan fetch_from:nsr"
 
       - name: Install python depedencies
         run: |

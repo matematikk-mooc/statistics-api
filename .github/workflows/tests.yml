@@ -6,13 +6,11 @@ on:
     branches: 
     - staging
     - master
-    - tests_pipeline
     paths-ignore:
       - '**.md'
 
 jobs:
   run-unit-tests:
-    if: github.ref=='refs/heads/tests_pipeline'
     runs-on: ubuntu-latest
     env:
       DB_HOST: 127.0.0.1
@@ -32,7 +30,6 @@ jobs:
           sudo bash -c 'echo "port = 3307" >> /etc/mysql/my.cnf'
           sudo bash -c 'echo "bind-address = 0.0.0.0" >> /etc/mysql/my.cnf'
           sudo systemctl start mysql.service
-          sudo chmod 700 $GITHUB_WORKSPACE/wait-for-it.sh && $GITHUB_WORKSPACE/wait-for-it.sh 127.0.0.1:3307 -- echo "statistics-api MySQL is up"
 
       - name: Pull code from KPAS-LTI GitHub repository
         run: |
@@ -70,7 +67,6 @@ jobs:
           docker cp ${GITHUB_WORKSPACE}/.github/kpas_nsr_data/nsr_data.sql $mysql_container_id:/nsr_data.sql
           cd kpas-api/docker
           COMPOSE_INTERACTIVE_NO_CLI=1 docker-compose exec --user root -T mysql /bin/bash -c "mysql -proot -uroot default < /nsr_data.sql"
-          curl https://kpas-dev.local/api/nsr/schools --insecure
           cd ./../..
           
 

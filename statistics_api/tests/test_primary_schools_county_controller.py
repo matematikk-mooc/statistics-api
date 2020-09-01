@@ -5,8 +5,6 @@ from datetime import datetime, timedelta
 from django.core.exceptions import ValidationError
 from rest_framework.test import APIClient
 
-from statistics_api.models.course_observation import CourseObservation
-from statistics_api.utils.utils import compute_total_nr_of_students_for_course_observation
 from statistics_api.tests.county_controller_base_test import CountyControllerBaseTest
 
 

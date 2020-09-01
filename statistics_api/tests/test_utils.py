@@ -1,9 +1,9 @@
 import json
-from unittest.case import TestCase
+from django.test import TestCase
 
 from statistics_api.definitions import ROOT_DIR
 from statistics_api.utils.utils import calculate_enrollment_percentage_category, filter_high_schools, \
-    parse_year_from_data_file_name
+    parse_year_from_data_file_name, get_primary_school_data_file_paths, get_county_data_file_paths
 
 
 class TestFilterHighSchools(TestCase):
@@ -58,3 +58,20 @@ class TestParseYearFromDataFileName(TestCase):
         year_of_data = parse_year_from_data_file_name('primary_schools_data_2019.csv')
 
         self.assertEqual(2019, year_of_data)
+
+
+class TestGetPrimarySchoolDataFilePaths(TestCase):
+    def test_get_primary_school_data_file_paths(self):
+        file_paths = get_primary_school_data_file_paths(f"{ROOT_DIR}tests/data/")
+        self.assertEqual(2, len(file_paths))
+        file_names = [p.split("/")[-1] for p in file_paths]
+        file_names.sort()
+        self.assertListEqual(['primary_schools_data_2019.csv', 'primary_schools_data_2020.csv'], file_names)
+
+
+class TestGetCountyDataFilePaths(TestCase):
+    def test_get_county_data_file_paths(self):
+        file_paths = get_county_data_file_paths(f"{ROOT_DIR}tests/data/")
+        self.assertEqual(1, len(file_paths))
+        file_name = file_paths[0].split("/")[-1]
+        self.assertEqual('county_data_2018.csv', file_name)

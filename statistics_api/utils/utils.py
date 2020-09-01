@@ -1,4 +1,7 @@
-from typing import Tuple, List, Dict
+import re
+from os import listdir
+from os.path import isfile, join
+from typing import Tuple, Dict
 
 from statistics_api.definitions import CATEGORY_CODES, PERCENTAGE_INTERVALS
 from statistics_api.models.course_observation import CourseObservation
@@ -16,6 +19,18 @@ def parse_year_from_data_file_name(csv_file_name: str) -> int:
 
     year = int(file_name.split("_")[-1])
     return year
+
+
+def get_primary_school_data_file_paths(primary_school_data_dir_path: str) -> Tuple[str]:
+    all_file_paths = [join(primary_school_data_dir_path, f) for f in listdir(primary_school_data_dir_path) if isfile(join(primary_school_data_dir_path, f))]
+    primary_school_data_file_paths = [f for f in all_file_paths if re.match(r".+\/primary_schools_data_[0-9]{4}\.csv", f)]
+    return tuple(primary_school_data_file_paths)
+
+
+def get_county_data_file_paths(county_data_dir_path: str) -> Tuple[str]:
+    all_file_paths = [join(county_data_dir_path, f) for f in listdir(county_data_dir_path) if isfile(join(county_data_dir_path, f))]
+    county_data_file_paths = [f for f in all_file_paths if re.match(r".+\/county_data_[0-9]{4}\.csv", f)]
+    return tuple(county_data_file_paths)
 
 
 def calculate_enrollment_percentage_category(enrollment_count: int, teacher_count: int) -> int:

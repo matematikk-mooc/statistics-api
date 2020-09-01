@@ -60,15 +60,15 @@ class DatabaseMaintenanceClient:
         return tuple(db_groups)
     
     @staticmethod
-    def insert_schools(organization_numbers_and_teacher_counts: List[Tuple[str, int]]) -> int:
+    def insert_schools(organization_numbers_and_teacher_counts: List[Tuple[str, int]], year_of_data: int) -> int:
         sql_lines = []
 
         for organizational_number, teacher_count in organization_numbers_and_teacher_counts:
             sql_lines.append(
-                f"({organizational_number},{teacher_count},'{str(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))}')")
+                f"({organizational_number},{teacher_count},'{str(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))}',{year_of_data})")
 
         sql_statement = f"""INSERT INTO {School._meta.db_table}({School.organization_number.field.name}, 
-                                {School.number_of_teachers.field.name}, {School.updated_date.field.name}) VALUES""" \
+                                {School.number_of_teachers.field.name}, {School.updated_date.field.name}, {School.year.field.name}) VALUES""" \
                         + ", \n".join(sql_lines) + \
                         f"""\n ON DUPLICATE KEY UPDATE
                                 {School.number_of_teachers.field.name} = VALUES({School.number_of_teachers.field.name}), 
@@ -80,17 +80,17 @@ class DatabaseMaintenanceClient:
         return len(sql_lines)
     
     @staticmethod
-    def insert_counties(county_id_to_teacher_count_map: Dict[int, int]):
+    def insert_counties(county_id_to_teacher_count_map: Dict[int, int], year_of_data: int):
         sql_lines = []
 
         for county_id in county_id_to_teacher_count_map.keys():
             teacher_count = county_id_to_teacher_count_map[county_id]
 
             sql_lines.append(
-                f"({county_id},{teacher_count},'{str(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))}')")
+                f"({county_id},{teacher_count},'{str(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))}', {year_of_data})")
 
         sql_statement = f"""INSERT INTO {County._meta.db_table}({County.county_id.field.name}, 
-                                {County.number_of_teachers.field.name}, {County.updated_date.field.name}) VALUES""" \
+                                {County.number_of_teachers.field.name}, {County.updated_date.field.name}, {County.year.field.name}) VALUES""" \
                         + ", \n".join(sql_lines) + \
                         f"""\n ON DUPLICATE KEY UPDATE
                                 {County.number_of_teachers.field.name} = VALUES({County.number_of_teachers.field.name}), 

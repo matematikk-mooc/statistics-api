@@ -6,6 +6,18 @@ from statistics_api.models.group import Group
 from statistics_api.models.group_category import GroupCategory
 
 
+def parse_year_from_data_file_name(csv_file_name: str) -> int:
+    """
+    :param csv_file_name: can be, e.g., 'primary_schools_data_2019.csv'.
+
+     For that file name, this function will return the integer '2019'
+    """
+    file_name, extension = csv_file_name.split(".")
+
+    year = int(file_name.split("_")[-1])
+    return year
+
+
 def calculate_enrollment_percentage_category(enrollment_count: int, teacher_count: int) -> int:
     percentage_enrollment = enrollment_count / teacher_count if teacher_count > 0 else 0
 

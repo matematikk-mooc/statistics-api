@@ -8,9 +8,9 @@ from django.core.management.base import BaseCommand
 
 from statistics_api.clients.db_maintenance_client import DatabaseMaintenanceClient
 from statistics_api.definitions import ROOT_DIR
+from statistics_api.utils.utils import parse_year_from_data_file_name
 
 CSV_FILE_PATH_ARG_NAME = "csv_file_path"
-
 
 class Command(BaseCommand):
     help = "Imports a CSV file with school teacher counts, downloaded from Skoleporten Rapportbygger to the database"
@@ -22,7 +22,9 @@ class Command(BaseCommand):
         logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
         logger = logging.getLogger()
 
-        csv_file_path = f"{ROOT_DIR}{options[CSV_FILE_PATH_ARG_NAME]}"
+        csv_file_name = options[CSV_FILE_PATH_ARG_NAME]
+
+        csv_file_path = f"{ROOT_DIR}{csv_file_name}"
         organization_numbers_and_teacher_counts: List[Tuple[str, int]] = []
 
         logger.info(f"Opening file {csv_file_path}...")
@@ -35,5 +37,6 @@ class Command(BaseCommand):
                 _, organizational_number, _, _, _, _, _, _, _, _, _, _, number_of_teachers, _ = row
                 organization_numbers_and_teacher_counts.append((organizational_number, int(number_of_teachers)))
 
-        nr_of_inserts = DatabaseMaintenanceClient.insert_schools(organization_numbers_and_teacher_counts)
+        year_of_data = parse_year_from_data_file_name(csv_file_name)
+        nr_of_inserts = DatabaseMaintenanceClient.insert_schools(organization_numbers_and_teacher_counts, year_of_data)
         logger.info(f"Inserted {nr_of_inserts} schools from Skoleporten.")

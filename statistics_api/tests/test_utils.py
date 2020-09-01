@@ -2,7 +2,8 @@ import json
 from unittest.case import TestCase
 
 from statistics_api.definitions import ROOT_DIR
-from statistics_api.utils.utils import calculate_enrollment_percentage_category, filter_high_schools
+from statistics_api.utils.utils import calculate_enrollment_percentage_category, filter_high_schools, \
+    parse_year_from_data_file_name
 
 
 class TestFilterHighSchools(TestCase):
@@ -15,7 +16,6 @@ class TestFilterHighSchools(TestCase):
         self.assertEqual(282, len(schools))
         high_schools = filter_high_schools(schools)
         self.assertEqual(32, len(high_schools))
-
 
 
 class TestCalculateEnrollmentPercentageCategory(TestCase):
@@ -51,3 +51,10 @@ class TestCalculateEnrollmentPercentageCategory(TestCase):
         enrollment_percentage_category = calculate_enrollment_percentage_category(enrollment_count, teacher_count)
 
         self.assertEqual(2, enrollment_percentage_category)
+
+
+class TestParseYearFromDataFileName(TestCase):
+    def test_parse_year_from_data_file_name(self):
+        year_of_data = parse_year_from_data_file_name('primary_schools_data_2019.csv')
+
+        self.assertEqual(2019, year_of_data)

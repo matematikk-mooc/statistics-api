@@ -97,11 +97,11 @@ jobs:
 
       - name: Build and push Docker image to registry, triggering new deployment
         run: |
-          if TEST-COMMAND1
+          if [ "$GITHUB_REF_NAME" = "staging"]
           then
             docker build . -f Dockerfile -t $AZURE_CONTAINER_REGISTRY/statistics-api-staging
             docker push $AZURE_CONTAINER_REGISTRY/statistics-api
-          elif TEST-COMMAND2
+          elif [ "$GITHUB_REF_NAME" = "master"]
           then
             docker build . -f Dockerfile -t $AZURE_CONTAINER_REGISTRY/statistics-api
             docker push $AZURE_CONTAINER_REGISTRY/statistics-api

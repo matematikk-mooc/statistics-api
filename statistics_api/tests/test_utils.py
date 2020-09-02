@@ -1,8 +1,12 @@
 import json
-from unittest.case import TestCase
+from datetime import datetime
+
+from django.test import TestCase
 
 from statistics_api.definitions import ROOT_DIR
-from statistics_api.utils.utils import calculate_enrollment_percentage_category, filter_high_schools
+from statistics_api.utils.utils import calculate_enrollment_percentage_category, filter_high_schools, \
+    parse_year_from_data_file_name, get_primary_school_data_file_paths, get_county_data_file_paths, \
+    get_target_year_for_course_observation_teacher_count
 
 
 class TestFilterHighSchools(TestCase):
@@ -15,7 +19,6 @@ class TestFilterHighSchools(TestCase):
         self.assertEqual(282, len(schools))
         high_schools = filter_high_schools(schools)
         self.assertEqual(32, len(high_schools))
-
 
 
 class TestCalculateEnrollmentPercentageCategory(TestCase):
@@ -51,3 +54,43 @@ class TestCalculateEnrollmentPercentageCategory(TestCase):
         enrollment_percentage_category = calculate_enrollment_percentage_category(enrollment_count, teacher_count)
 
         self.assertEqual(2, enrollment_percentage_category)
+
+
+class TestParseYearFromDataFileName(TestCase):
+    def test_parse_year_from_data_file_name(self):
+        year_of_data = parse_year_from_data_file_name('primary_schools_data_2019.csv')
+
+        self.assertEqual(2019, year_of_data)
+
+
+class TestGetPrimarySchoolDataFilePaths(TestCase):
+    def test_get_primary_school_data_file_paths(self):
+        file_paths = get_primary_school_data_file_paths(f"{ROOT_DIR}tests/data/")
+        self.assertEqual(2, len(file_paths))
+        file_names = [p.split("/")[-1] for p in file_paths]
+        file_names.sort()
+        self.assertListEqual(['primary_schools_data_2019.csv', 'primary_schools_data_2020.csv'], file_names)
+
+
+class TestGetCountyDataFilePaths(TestCase):
+    def test_get_county_data_file_paths(self):
+        file_paths = get_county_data_file_paths(f"{ROOT_DIR}tests/data/")
+        self.assertEqual(1, len(file_paths))
+        file_name = file_paths[0].split("/")[-1]
+        self.assertEqual('county_data_2018.csv', file_name)
+
+
+class TestGetTargetYearForCourseObservationTeacherCount(TestCase):
+    def test_get_target_year_for_course_observation_teacher_count(self):
+
+        date_1 = datetime(year=2020, month=3, day=2)
+        target_year = get_target_year_for_course_observation_teacher_count(date_1)
+        self.assertEqual(2019, target_year)
+
+        date_1 = datetime(year=2020, month=7, day=2)
+        target_year = get_target_year_for_course_observation_teacher_count(date_1)
+        self.assertEqual(2020, target_year)
+
+        date_1 = datetime(year=2020, month=9, day=5)
+        target_year = get_target_year_for_course_observation_teacher_count(date_1)
+        self.assertEqual(2020, target_year)

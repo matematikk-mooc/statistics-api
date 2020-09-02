@@ -42,7 +42,7 @@ def get_org_nrs_str(organization_numbers) -> str:
     return org_nrs_str
 
 
-def get_org_nrs_enrollment_counts_and_teacher_counts_query(organization_numbers: Tuple[str]) -> str:
+def get_org_nrs_enrollment_counts_and_teacher_counts_query(organization_numbers: Tuple[str], teacher_count_year: int) -> str:
     """
     Returns a prepared SQL statement to retrieve all organization numbers, Canvas enrollment counts (member counts) and
     number of teachers at all schools with specified organization numbers and course_observation ID.
@@ -63,6 +63,7 @@ def get_org_nrs_enrollment_counts_and_teacher_counts_query(organization_numbers:
 
     return f"""SELECT {SCHOOL_TBL_NAME}.{SCHOOL_ORGANIZATION_NUMBER}, SUM({MEMBERS_COUNT}), {NUMBER_OF_TEACHERS} FROM `{GROUP_TBL_NAME}`
     INNER JOIN {SCHOOL_TBL_NAME} ON {SCHOOL_TBL_NAME}.{SCHOOL_ORGANIZATION_NUMBER} = `{GROUP_TBL_NAME}`.{GROUP_ORGANIZATION_NUMBER}
+    AND {SCHOOL_TBL_NAME}.{School.year.field.name} = {teacher_count_year}
     LEFT JOIN {GROUP_CATEGORY_TBL_NAME} ON `{GROUP_TBL_NAME}`.{GROUP_GROUP_CATEGORY_FK} = {GROUP_CATEGORY_ID}
     LEFT JOIN {COURSE_OBSERVATION_TBL_NAME} ON {GROUP_CATEGORY_TBL_NAME}.{GROUP_CATEGORY_COURSE_FK} = {COURSE_OBSERVATION_ID}
     WHERE {COURSE_OBSERVATION_ID} = %s
@@ -72,7 +73,7 @@ def get_org_nrs_enrollment_counts_and_teacher_counts_query(organization_numbers:
 
 
 def get_org_nrs_enrollment_counts_and_teacher_counts_for_unregistered_schools_query(
-        organization_numbers: Tuple[str]) -> str:
+        organization_numbers: Tuple[str], teacher_count_year: int) -> str:
     """
     Returns a prepared SQL statement to retrieve all organization numbers, Canvas enrollment counts (member counts) and
     number of teachers at all schools with specified organization numbers. This query will only return schools
@@ -82,7 +83,8 @@ def get_org_nrs_enrollment_counts_and_teacher_counts_for_unregistered_schools_qu
     org_nrs_str = get_org_nrs_str(organization_numbers)
 
     return f"""SELECT {SCHOOL_ORGANIZATION_NUMBER}, {0}, {NUMBER_OF_TEACHERS} FROM `{SCHOOL_TBL_NAME}`
-        WHERE {SCHOOL_ORGANIZATION_NUMBER} IN ({org_nrs_str});
+        WHERE {SCHOOL_ORGANIZATION_NUMBER} IN ({org_nrs_str})
+        AND {School.year.field.name} = {teacher_count_year};
         """
 
 

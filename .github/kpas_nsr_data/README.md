@@ -1,0 +1,1 @@
+This directory has a database snapshot of the KPAS-API application. It's only used for testing during automatic deployment pipeline.

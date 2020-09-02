@@ -6,9 +6,11 @@ from statistics_api.clients.db_client import DatabaseClient
 from statistics_api.clients.kpas_client import KpasClient
 from statistics_api.definitions import CATEGORY_CODE_INFORMATION_DICT
 from statistics_api.models.course_observation import CourseObservation
+from statistics_api.models.school import School
 from statistics_api.utils.url_parameter_parser import get_url_parameters_dict, START_DATE_KEY, END_DATE_KEY, \
     NR_OF_DATES_LIMIT_KEY, ENROLLMENT_PERCENTAGE_CATEGORIES_KEY
-from statistics_api.utils.utils import calculate_enrollment_percentage_category
+from statistics_api.utils.utils import calculate_enrollment_percentage_category, \
+    get_target_year_for_course_observation_teacher_count, get_closest_matching_prior_year_to_target_year
 
 
 @require_http_methods(["GET"])
@@ -42,6 +44,9 @@ def municipality_primary_school_statistics(request: WSGIRequest, municipality_id
                                                            date_retrieved__lte=end_date).order_by(
         f"-{CourseObservation.date_retrieved.field.name}")[:nr_of_dates_limit]
 
+    teacher_count_available_years = tuple(
+        [int(s[School.year.field.name]) for s in School.objects.values(School.year.field.name).distinct()])
+
     json_response = []
     municipality_schools_org_nrs = tuple([str(k) for k in organization_number_to_school_name_mapping.keys()])
 
@@ -51,10 +56,14 @@ def municipality_primary_school_statistics(request: WSGIRequest, municipality_id
     for course_observation in course_observations:
         course_observation: CourseObservation
 
+        target_year = get_target_year_for_course_observation_teacher_count(course_observation.date_retrieved)
+        closest_matching_year = get_closest_matching_prior_year_to_target_year(teacher_count_available_years,
+                                                                               target_year)
+
         # Retrieving tuples like (organization_number, members_count, teacher_count) for all matching
         # schools.
         org_nrs_enrollment_counts_and_teacher_counts = DatabaseClient.get_org_nrs_enrollment_counts_and_teacher_counts(
-            municipality_schools_org_nrs, course_observation.pk)
+            municipality_schools_org_nrs, course_observation.pk, closest_matching_year)
 
         names_org_nrs_enrollment_counts_and_teacher_counts = []
 

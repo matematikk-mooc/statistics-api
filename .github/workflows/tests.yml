@@ -10,7 +10,8 @@ on:
       - '**.md'
 
 jobs:
-  run-unit-tests:
+  test-build-deploy:
+    name: Runs unit tests, builds docker image and deploys image
     runs-on: ubuntu-latest
     env:
       DB_HOST: 127.0.0.1
@@ -46,7 +47,7 @@ jobs:
         run: |
           sudo bash -c "echo '127.0.0.1 kpas-dev.local' >> /etc/hosts"
 
-      - name: Start KPAS-LTI service
+      - name: Build and start KPAS-LTI service
         run: |
           cd kpas-api
           git checkout $KPAS_LTI_GIT_COMMIT

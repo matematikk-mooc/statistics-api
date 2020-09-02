@@ -1,0 +1,77 @@
+[
+  {
+    "name": "CANVAS_ACCOUNT_ID",
+    "value": "99",
+    "slotSetting": true
+  },
+  {
+    "name": "CANVAS_DOMAIN",
+    "value": "bibsys.instructure.com",
+    "slotSetting": true
+  },
+  {
+    "name": "DB_DATABASE",
+    "value": "canvas-api",
+    "slotSetting": false
+  },
+  {
+    "name": "DB_HOST",
+    "value": "kpas.mysql.database.azure.com",
+    "slotSetting": true
+  },
+  {
+    "name": "DJANGO_ALLOWED_HOSTS",
+    "value": "statistics-api.azurewebsites.net, 127.0.0.1",
+    "slotSetting": true
+  },
+  {
+    "name": "DJANGO_DEBUG",
+    "value": "False",
+    "slotSetting": true
+  },
+  {
+    "name": "DOCKER_ENABLE_CI",
+    "value": "true",
+    "slotSetting": false
+  },
+  {
+    "name": "DOCKER_REGISTRY_SERVER_USERNAME",
+    "value": "udirkpas",
+    "slotSetting": false
+  },
+  {
+    "name": "GUNICORN_LOG_LEVEL",
+    "value": "debug",
+    "slotSetting": true
+  },
+  {
+    "name": "GUNICORN_TIMEOUT",
+    "value": "60",
+    "slotSetting": true
+  },
+  {
+    "name": "KPAS_DOMAIN",
+    "value": "kpas-lti.azurewebsites.net",
+    "slotSetting": true
+  },
+  {
+    "name": "PULL_MEMBER_COUNTS_FROM_CANVAS_ON_STARTUP",
+    "value": "False",
+    "slotSetting": false
+  },
+  {
+    "name": "WEBSITE_HTTPLOGGING_RETENTION_DAYS",
+    "value": "2",
+    "slotSetting": false
+  },
+  {
+    "name": "WEBSITES_CONTAINER_START_TIME_LIMIT",
+    "value": "500",
+    "slotSetting": false
+  },
+  {
+    "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
+    "value": "false",
+    "slotSetting": false
+  }
+]

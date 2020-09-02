@@ -21,6 +21,9 @@ jobs:
       CA_FILE_NAME: ca.crt
 
       AZURE_CONTAINER_REGISTRY: udirkpas.azurecr.io
+      AZURE_RESOURCE_GROUP: laravel
+      AZURE_APP_NAME: statistics-api
+      WEBSITES_PORT: 8000
 
 
     steps:
@@ -83,7 +86,6 @@ jobs:
           DB_DATABASE=canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3307 PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py makemigrations
           DB_DATABASE=canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3307 PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py migrate
 
-
       - name: Run Django unit tests
         run: |
           DB_DATABASE=canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3307 PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py test --verbosity=3
@@ -94,15 +96,40 @@ jobs:
           registry: ${{ env.AZURE_CONTAINER_REGISTRY }}
           username: ${{ secrets.AZURE_CLIENT_ID }}
           password: ${{ secrets.AZURE_CLIENT_SECRET }}
+      
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS  }}
 
       - name: Build and push Docker image to registry, triggering new deployment
         run: |
           if [ "$GITHUB_REF" = "refs/heads/staging" ]
           then
-            docker build . -f Dockerfile -t $AZURE_CONTAINER_REGISTRY/statistics-api-staging
+            docker build --build-arg WEBSITES_PORT=$WEBSITES_PORT . -f Dockerfile -t $AZURE_CONTAINER_REGISTRY/statistics-api-staging
+            az webapp config appsettings set -g $AZURE_RESOURCE_GROUP -n $AZURE_APP_NAME --slot staging --settings \
+                CANVAS_ACCESS_KEY=${{ secrets.CANVAS_ACCESS_KEY }} \
+                DB_PASSWORD=${{ secrets.STAGING_DB_PASSWORD }} \
+                DB_USERNAME=${{ secrets.STAGING_DB_USERNAME }} \
+                DJANGO_SECRET_KEY=${{ secrets.STAGING_DJANGO_SECRET_KEY }} \
+                DOCKER_REGISTRY_SERVER_PASSWORD=${{ secrets.DOCKER_REGISTRY_SERVER_PASSWORD }} \
+                KPAS_API_ACCESS_TOKEN=${{ secrets.STAGING_KPAS_API_ACCESS_TOKEN }} \
+                WEBSITES_PORT=$WEBSITES_PORT \
+                DOCKER_REGISTRY_SERVER_URL=https://$AZURE_CONTAINER_REGISTRY \
+                \$${GITHUB_WORKSPACE}/.github/app_service_config/staging_app_service_config.json
             docker push $AZURE_CONTAINER_REGISTRY/statistics-api-staging
           elif [ "$GITHUB_REF" = "refs/heads/master" ]
           then
-            docker build . -f Dockerfile -t $AZURE_CONTAINER_REGISTRY/statistics-api
+            docker build --build-arg WEBSITES_PORT=$WEBSITES_PORT . -f Dockerfile -t $AZURE_CONTAINER_REGISTRY/statistics-api
+            az webapp config appsettings set -g $AZURE_RESOURCE_GROUP -n $AZURE_APP_NAME --settings \
+                CANVAS_ACCESS_KEY=${{ secrets.CANVAS_ACCESS_KEY }} \
+                DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+                DB_USERNAME=${{ secrets.DB_USERNAME }} \
+                DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }} \
+                DOCKER_REGISTRY_SERVER_PASSWORD=${{ secrets.DOCKER_REGISTRY_SERVER_PASSWORD }} \
+                KPAS_API_ACCESS_TOKEN=${{ secrets.KPAS_API_ACCESS_TOKEN }} \
+                WEBSITES_PORT=$WEBSITES_PORT \
+                DOCKER_REGISTRY_SERVER_URL=https://$AZURE_CONTAINER_REGISTRY \
+                \$${GITHUB_WORKSPACE}/.github/app_service_config/app_service_config.json
             docker push $AZURE_CONTAINER_REGISTRY/statistics-api
           fi

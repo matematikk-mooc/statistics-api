@@ -12,9 +12,6 @@ from statistics_api.data.county_id_mapping import COUNTY_TO_NEW_COUNTY_ID_MAPPIN
 from statistics_api.definitions import ROOT_DIR
 from statistics_api.utils.utils import parse_year_from_data_file_name, get_county_data_file_paths
 
-CSV_FILE_PATH_ARG_NAME = "csv_file_path"
-
-
 class Command(BaseCommand):
     help = "Imports a CSV file with county teacher counts, downloaded from Skoleporten Rapportbygger to the database"
 

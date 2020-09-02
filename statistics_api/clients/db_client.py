@@ -16,18 +16,19 @@ class DatabaseClient:
 
     @staticmethod
     def get_org_nrs_enrollment_counts_and_teacher_counts(county_schools_org_nrs: Tuple[str],
-                                                         course_observation_id: int) -> \
+                                                         course_observation_id: int,
+                                                         teacher_count_year: int) -> \
             Tuple[Tuple[str, int, int]]:
         with connection.cursor() as cursor:
             org_nrs_enrollment_counts_and_teacher_counts_query: str = get_org_nrs_enrollment_counts_and_teacher_counts_query(
-                county_schools_org_nrs)
+                county_schools_org_nrs, teacher_count_year)
             cursor.execute(org_nrs_enrollment_counts_and_teacher_counts_query, [course_observation_id])
             org_nrs_enrollment_counts_and_teacher_counts_for_registered_schools = cursor.fetchall()
             registered_schools_org_nrs = set(
                 [r[0] for r in org_nrs_enrollment_counts_and_teacher_counts_for_registered_schools])
             unregistered_schools_org_nrs = set(county_schools_org_nrs).difference(registered_schools_org_nrs)
             org_nrs_enrollment_counts_and_teacher_counts_for_unregistered_schools_query: str = get_org_nrs_enrollment_counts_and_teacher_counts_for_unregistered_schools_query(
-                tuple(unregistered_schools_org_nrs))
+                tuple(unregistered_schools_org_nrs), teacher_count_year)
             cursor.execute(org_nrs_enrollment_counts_and_teacher_counts_for_unregistered_schools_query)
             org_nrs_enrollment_counts_and_teacher_counts_for_unregistered_schools = cursor.fetchall()
             org_nrs_enrollment_counts_and_teacher_counts = org_nrs_enrollment_counts_and_teacher_counts_for_registered_schools + org_nrs_enrollment_counts_and_teacher_counts_for_unregistered_schools

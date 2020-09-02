@@ -1,9 +1,12 @@
 import json
+from datetime import datetime
+
 from django.test import TestCase
 
 from statistics_api.definitions import ROOT_DIR
 from statistics_api.utils.utils import calculate_enrollment_percentage_category, filter_high_schools, \
-    parse_year_from_data_file_name, get_primary_school_data_file_paths, get_county_data_file_paths
+    parse_year_from_data_file_name, get_primary_school_data_file_paths, get_county_data_file_paths, \
+    get_target_year_for_course_observation_teacher_count
 
 
 class TestFilterHighSchools(TestCase):
@@ -75,3 +78,19 @@ class TestGetCountyDataFilePaths(TestCase):
         self.assertEqual(1, len(file_paths))
         file_name = file_paths[0].split("/")[-1]
         self.assertEqual('county_data_2018.csv', file_name)
+
+
+class TestGetTargetYearForCourseObservationTeacherCount(TestCase):
+    def test_get_target_year_for_course_observation_teacher_count(self):
+
+        date_1 = datetime(year=2020, month=3, day=2)
+        target_year = get_target_year_for_course_observation_teacher_count(date_1)
+        self.assertEqual(2019, target_year)
+
+        date_1 = datetime(year=2020, month=7, day=2)
+        target_year = get_target_year_for_course_observation_teacher_count(date_1)
+        self.assertEqual(2020, target_year)
+
+        date_1 = datetime(year=2020, month=9, day=5)
+        target_year = get_target_year_for_course_observation_teacher_count(date_1)
+        self.assertEqual(2020, target_year)

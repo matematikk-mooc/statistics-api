@@ -10,8 +10,6 @@ from statistics_api.clients.db_maintenance_client import DatabaseMaintenanceClie
 from statistics_api.definitions import ROOT_DIR
 from statistics_api.utils.utils import parse_year_from_data_file_name, get_primary_school_data_file_paths
 
-CSV_FILE_PATH_ARG_NAME = "csv_file_path"
-
 
 class Command(BaseCommand):
     help = "Imports a CSV file with school teacher counts, downloaded from Skoleporten Rapportbygger to the database"

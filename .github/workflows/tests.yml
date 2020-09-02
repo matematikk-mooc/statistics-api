@@ -29,7 +29,9 @@ jobs:
         uses: actions/checkout@v1
 
       - name: test
-        run: echo $GITHUB_REF_NAME
+        run: |
+          echo $GITHUB_REF_NAME
+          cat /proc/self/environ
 #      - name: Start MySQL service
 #        run: |
 #          sudo bash -c 'echo "[mysqld]" >> /etc/mysql/my.cnf'

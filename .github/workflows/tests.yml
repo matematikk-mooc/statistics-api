@@ -40,7 +40,6 @@ jobs:
         run: |
           if [ "$GITHUB_REF" = "refs/heads/staging" ]
           then
-            docker build --build-arg WEBSITES_PORT=$WEBSITES_PORT . -f Dockerfile -t $AZURE_CONTAINER_REGISTRY/statistics-api-staging
             az webapp config appsettings set -g $AZURE_RESOURCE_GROUP -n $AZURE_APP_NAME --slot staging --settings \
                 CANVAS_ACCESS_KEY=${{ secrets.CANVAS_ACCESS_KEY }} \
                 DB_PASSWORD=${{ secrets.STAGING_DB_PASSWORD }} \

@@ -1,4 +1,4 @@
-name: Tests
+name: Test, build and deploy
 
 # Controls when the action will run. Triggers the workflow on manual trigger or push
 on:
@@ -100,7 +100,7 @@ jobs:
           if [ "$GITHUB_REF" = "refs/heads/staging" ]
           then
             docker build . -f Dockerfile -t $AZURE_CONTAINER_REGISTRY/statistics-api-staging
-            docker push $AZURE_CONTAINER_REGISTRY/statistics-api
+            docker push $AZURE_CONTAINER_REGISTRY/statistics-api-staging
           elif [ "$GITHUB_REF" = "refs/heads/master" ]
           then
             docker build . -f Dockerfile -t $AZURE_CONTAINER_REGISTRY/statistics-api

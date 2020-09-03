@@ -15,6 +15,7 @@ jobs:
       API_BASE_URL: https://statistics-api-staging.azurewebsites.net
       COURSE_ID: 360
       MUNICIPALITY_ID: 0301
+      DATA_MAX_AGE: 7200
 
       # This job runs on Linux
     runs-on: ubuntu-latest
@@ -22,5 +23,5 @@ jobs:
     steps:
       - name: Check if data from API is less than 7200 seconds old
         run: |
-          curl -s "${API_BASE_URL}/api/statistics/primary_schools/municipality/${MUNICIPALITY_ID}/course/${COURSE_ID}" | \
-          python3 -c "import sys; import json; from datetime import datetime; date_str = json.loads(sys.stdin.read())['Result'][0]['date']; date_obj = datetime.fromisoformat(date_str[:-1]); time_diff = datetime.now() - date_obj; assert time_diff.total_seconds() < 7200"
+          chmod 700 $GITHUB_WORKSPACE/.github/health_test_src/do_health_test.py
+          $GITHUB_WORKSPACE/.github/health_test_src/do_health_test.py

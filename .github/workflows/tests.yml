@@ -9,6 +9,7 @@ on:
     paths-ignore:
       - '**.md'
       - '.github/workflows/health-test.yml'
+      - '.github/health_test_src/**'
       - '**.dev.yml'
 
 jobs:

@@ -44,14 +44,14 @@ jobs:
           python3 -m pip install -r requirements.txt
 
         # Checking that only the issue is the SECURE_HSTS_SECONDS warning
-        - name: Run manage.py check --deploy
-          run: |
-            if [ `DB_DATABASE=canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3307 DJANGO_SECRET_KEY=notasecretkeyExfvXUyFFA9iAH7BYwsL1nN3XIbBcX7djoBSque6bOLXmnf7GD PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py check --deploy 2>&1 | grep -E "System check identified [0-9]+ issue" | grep -E -o [0-9]+ | head -1` -lt 2 ]
-            then
-                    exit 0
-            else
-                    exit 1
-            fi
+      - name: Run manage.py check --deploy
+        run: |
+          if [ `DB_DATABASE=canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3307 DJANGO_SECRET_KEY=notasecretkeyExfvXUyFFA9iAH7BYwsL1nN3XIbBcX7djoBSque6bOLXmnf7GD PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py check --deploy 2>&1 | grep -E "System check identified [0-9]+ issue" | grep -E -o [0-9]+ | head -1` -lt 2 ]
+          then
+                  exit 0
+          else
+                  exit 1
+          fi
 
 #      - name: Pull code from KPAS-LTI GitHub repository
 #        run: |

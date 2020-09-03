@@ -15,6 +15,8 @@ def get_age_of_data_on_statistics_api(url: str, municipality_id, course_id) -> i
     """
 
     response = requests.get(f"{url}/api/statistics/primary_schools/municipality/{municipality_id}/course/{course_id}")
+    print("test")
+    print(response)
     print(response.text)
     exit(0)
     try:

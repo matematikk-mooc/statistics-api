@@ -93,7 +93,7 @@ jobs:
       # Checking that only the issue is the SECURE_HSTS_SECONDS warning
       - name: Run manage.py check --deploy
         run: |
-          if [ `DB_HOST=127.0.0.1 DB_DATABASE=canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3308 DJANGO_SECRET_KEY=MOTRIHÅE0GW4Q38R9FJVMJFKHDES4KR094Å3JTWMGONE5495W8AP9RIFK5WGHJEP4T7YHGW0E8ÆRJGTITRWHG PYTHONPATH="${GITHUB_WORKSPACE}" ./venv/bin/python3 manage.py check --deploy 2>&1 | grep -E "System check identified [0-9]+ issue" | grep -E -o [0-9]+ | head -1` -lt 1 ]
+          if [ `DB_HOST=127.0.0.1 DB_DATABASE=canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3308 DJANGO_SECRET_KEY=MOTRIHÅE0GW4Q38R9FJVMJFKHDES4KR094Å3JTWMGONE5495W8AP9RIFK5WGHJEP4T7YHGW0E8ÆRJGTITRWHG PYTHONPATH="${GITHUB_WORKSPACE}" ./venv/bin/python3 manage.py check --deploy 2>&1 | grep -E "System check identified [0-9]+ issue" | grep -E -o [0-9]+ | head -1` -lt 2 ]
           then
                   exit 0
           else

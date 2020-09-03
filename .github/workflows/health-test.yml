@@ -4,7 +4,7 @@ name: Periodic API health check
 on:
   schedule:
     # Runs at 0 minutes over the 4th hour on each day. Cron syntax
-    - cron:  '*/5 * * * *'
+    - cron:  '0 4 * * *'
   push:
 
 jobs:
@@ -14,7 +14,7 @@ jobs:
       MASTER_API_BASE_URL: https://statistics-api.azurewebsites.net
       COURSE_ID: 360
       MUNICIPALITY_ID: "0301"
-      DATA_MAX_AGE: 7200
+      DATA_MAX_AGE: 3700
 
       # This job runs on Linux
     runs-on: ubuntu-latest

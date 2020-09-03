@@ -7,14 +7,16 @@ from json.decoder import JSONDecodeError
 import requests
 
 
-def get_age_of_data_on_statistics_api(url: str, municipality_id, course_id) -> int:
+def get_age_of_data_on_statistics_api(base_url: str, municipality_id, course_id) -> int:
     """
     :param course_id: Canvas course ID for which to retrieve data
     :param municipality_id: Municipality ID for which to retrieve data
-    :param url: Base URL of statistics-api service
+    :param base_url: Base URL of statistics-api service
     """
 
-    response = requests.get(f"{url}/api/statistics/primary_schools/municipality/{municipality_id}/course/{course_id}")
+    url = f"{base_url}/api/statistics/primary_schools/municipality/{municipality_id}/course/{course_id}"
+    print(url)
+    response = requests.get(url)
     print("test")
     print(response)
     print(response.text)

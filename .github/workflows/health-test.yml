@@ -14,7 +14,7 @@ jobs:
     env:
       API_BASE_URL: https://statistics-api-staging.azurewebsites.net
       COURSE_ID: 360
-      MUNICIPALITY_ID: 0301
+      MUNICIPALITY_ID: "0301"
       DATA_MAX_AGE: 7200
 
       # This job runs on Linux

@@ -21,6 +21,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # GitHub repository checkout
+      - name: GitHub repository checkout
+        uses: actions/checkout@v1
+
+
       - name: Check if data from API is less than 7200 seconds old
         run: |
           chmod 700 $GITHUB_WORKSPACE/.github/health_test_src/do_health_test.py

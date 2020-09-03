@@ -50,7 +50,7 @@ jobs:
             "WEBSITES_PORT=$WEBSITES_PORT" \
             "DOCKER_REGISTRY_SERVER_URL=https://$AZURE_CONTAINER_REGISTRY" \
             "PUSHED_FROM_GITHUB=yes" \
-            "@{GITHUB_WORKSPACE}/.github/app_service_config/staging_app_service_config.json"
+            @"${GITHUB_WORKSPACE}/.github/app_service_config/staging_app_service_config.json"
           elif [ "$GITHUB_REF" = "refs/heads/master" ]
           then
             docker build --build-arg WEBSITES_PORT=$WEBSITES_PORT . -f Dockerfile -t $AZURE_CONTAINER_REGISTRY/statistics-api
@@ -63,7 +63,7 @@ jobs:
                 "KPAS_API_ACCESS_TOKEN=${{ secrets.KPAS_API_ACCESS_TOKEN }}" \
                 "WEBSITES_PORT=$WEBSITES_PORT" \
                 "DOCKER_REGISTRY_SERVER_URL=https://$AZURE_CONTAINER_REGISTRY" \
-                "@{GITHUB_WORKSPACE}/.github/app_service_config/app_service_config.json"
+                @"${GITHUB_WORKSPACE}/.github/app_service_config/app_service_config.json"
           fi
 
 #      - name: Start MySQL service

@@ -40,30 +40,30 @@ jobs:
         run: |
           if [ "$GITHUB_REF" = "refs/heads/staging" ]
           then
-            az webapp config appsettings set -g $AZURE_RESOURCE_GROUP -n $AZURE_APP_NAME --slot staging --settings \
-                CANVAS_ACCESS_KEY=${{ secrets.CANVAS_ACCESS_KEY }} \
-                DB_PASSWORD=${{ secrets.STAGING_DB_PASSWORD }} \
-                DB_USERNAME=${{ secrets.STAGING_DB_USERNAME }} \
-                DJANGO_SECRET_KEY=${{ secrets.STAGING_DJANGO_SECRET_KEY }} \
-                DOCKER_REGISTRY_SERVER_PASSWORD=${{ secrets.DOCKER_REGISTRY_SERVER_PASSWORD }} \
-                KPAS_API_ACCESS_TOKEN=${{ secrets.STAGING_KPAS_API_ACCESS_TOKEN }} \
-                WEBSITES_PORT=$WEBSITES_PORT \
-                DOCKER_REGISTRY_SERVER_URL=https://$AZURE_CONTAINER_REGISTRY \
-                PUSHED_FROM_GITHUB=yes \
-                \$${GITHUB_WORKSPACE}/.github/app_service_config/staging_app_service_config.json
+            az webapp config appsettings set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} -g $AZURE_RESOURCE_GROUP -n $AZURE_APP_NAME --slot staging --settings \
+            "CANVAS_ACCESS_KEY=${{ secrets.CANVAS_ACCESS_KEY }}" \
+            "DB_PASSWORD=${{ secrets.STAGING_DB_PASSWORD }}" \
+            "DB_USERNAME=${{ secrets.STAGING_DB_USERNAME }}" \
+            "DJANGO_SECRET_KEY=${{ secrets.STAGING_DJANGO_SECRET_KEY }}" \
+            "DOCKER_REGISTRY_SERVER_PASSWORD=${{ secrets.DOCKER_REGISTRY_SERVER_PASSWORD }}" \
+            "KPAS_API_ACCESS_TOKEN=${{ secrets.STAGING_KPAS_API_ACCESS_TOKEN }}" \
+            "WEBSITES_PORT=$WEBSITES_PORT" \
+            "DOCKER_REGISTRY_SERVER_URL=https://$AZURE_CONTAINER_REGISTRY" \
+            "PUSHED_FROM_GITHUB=yes" \
+            "@{GITHUB_WORKSPACE}/.github/app_service_config/staging_app_service_config.json"
           elif [ "$GITHUB_REF" = "refs/heads/master" ]
           then
             docker build --build-arg WEBSITES_PORT=$WEBSITES_PORT . -f Dockerfile -t $AZURE_CONTAINER_REGISTRY/statistics-api
-            az webapp config appsettings set -g $AZURE_RESOURCE_GROUP -n $AZURE_APP_NAME --settings \
-                CANVAS_ACCESS_KEY=${{ secrets.CANVAS_ACCESS_KEY }} \
-                DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-                DB_USERNAME=${{ secrets.DB_USERNAME }} \
-                DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }} \
-                DOCKER_REGISTRY_SERVER_PASSWORD=${{ secrets.DOCKER_REGISTRY_SERVER_PASSWORD }} \
-                KPAS_API_ACCESS_TOKEN=${{ secrets.KPAS_API_ACCESS_TOKEN }} \
-                WEBSITES_PORT=$WEBSITES_PORT \
-                DOCKER_REGISTRY_SERVER_URL=https://$AZURE_CONTAINER_REGISTRY \
-                \$${GITHUB_WORKSPACE}/.github/app_service_config/app_service_config.json
+            az webapp config appsettings set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} -g $AZURE_RESOURCE_GROUP -n $AZURE_APP_NAME --settings \
+                "CANVAS_ACCESS_KEY=${{ secrets.CANVAS_ACCESS_KEY }}" \
+                "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" \
+                "DB_USERNAME=${{ secrets.DB_USERNAME }}" \
+                "DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}" \
+                "DOCKER_REGISTRY_SERVER_PASSWORD=${{ secrets.DOCKER_REGISTRY_SERVER_PASSWORD }}" \
+                "KPAS_API_ACCESS_TOKEN=${{ secrets.KPAS_API_ACCESS_TOKEN }}" \
+                "WEBSITES_PORT=$WEBSITES_PORT" \
+                "DOCKER_REGISTRY_SERVER_URL=https://$AZURE_CONTAINER_REGISTRY" \
+                "@{GITHUB_WORKSPACE}/.github/app_service_config/app_service_config.json"
           fi
 
 #      - name: Start MySQL service
@@ -135,7 +135,7 @@ jobs:
 #      - name: Azure Login
 #        uses: azure/login@v1
 #        with:
-#          creds: ${{ secrets.AZURE_CREDENTIALS  }}
+#          creds: ${{ secrets.AZURE_CREDENTIALS }}
 #
 #      - name: Build and push Docker image to registry, triggering new deployment
 #        run: |

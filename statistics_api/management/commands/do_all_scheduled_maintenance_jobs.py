@@ -2,9 +2,10 @@ import logging
 import sys
 from json.decoder import JSONDecodeError
 
+import django
 from django.core import management
 from django.core.management import BaseCommand
-
+from django.db import connection
 
 class Command(BaseCommand):
     help = """This command does performs all scheduled maintenance jobs in correct order."""
@@ -17,6 +18,7 @@ class Command(BaseCommand):
 
         for command in commands:
             try:
+                django.db.close_old_connections()
                 management.call_command(command)
             except (JSONDecodeError, AssertionError) as e:
                 logger.critical(e)

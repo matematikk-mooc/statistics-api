@@ -5,7 +5,6 @@ on:
   schedule:
     # Runs at 0 minutes over the 4th hour on each day. Cron syntax
     - cron:  '0 4 * * *'
-  push:
 
 jobs:
   health-test:

@@ -15,17 +15,9 @@ def get_age_of_data_on_statistics_api(base_url: str, municipality_id, course_id)
     """
 
     url = f"{base_url}/api/statistics/primary_schools/municipality/{municipality_id}/course/{course_id}"
-    print(url)
     response = requests.get(url)
-    print("test")
-    print(response)
-    print(response.text)
-    exit(0)
-    try:
-        json_result = json.loads(response.text)
-    except JSONDecodeError as e:
-        print(response.text)
-        raise e
+    json_result = json.loads(response.text)
+
     date_str = json_result["Result"][0]["date"]
     date_obj = datetime.fromisoformat(date_str[:-1])
     time_diff = datetime.now() - date_obj

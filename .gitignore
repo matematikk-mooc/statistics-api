@@ -213,3 +213,4 @@ Dockerfile.dev.local
 *.swp
 **.csv#
 /statistics_api/tests/test_test.py
+test.bash

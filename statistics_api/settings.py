@@ -126,6 +126,12 @@ USE_L10N = True
 
 USE_TZ = True
 
+SECURE_HSTS_SECONDS = 0
+#SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/

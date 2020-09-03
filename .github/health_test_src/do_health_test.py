@@ -2,6 +2,7 @@
 import json
 import os
 from datetime import datetime
+from json import JSONDecodeError
 
 import requests
 
@@ -14,7 +15,11 @@ def get_age_of_data_on_statistics_api(url: str, municipality_id, course_id) -> i
     """
 
     response = requests.get(f"{url}/api/statistics/primary_schools/municipality/{municipality_id}/course/{course_id}")
-    json_result = json.loads(response.text)
+    try:
+        json_result = json.loads(response.text)
+    except JSONDecodeError as e:
+        print(response.text)
+        raise e
     date_str = json_result["Result"][0]["date"]
     date_obj = datetime.fromisoformat(date_str[:-1])
     time_diff = datetime.now() - date_obj

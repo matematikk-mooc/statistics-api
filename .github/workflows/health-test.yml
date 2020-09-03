@@ -10,7 +10,8 @@ on:
 jobs:
   health-test:
     env:
-      API_BASE_URL: https://statistics-api-staging.azurewebsites.net
+      STAGING_API_BASE_URL: https://statistics-api-staging.azurewebsites.net
+      MASTER_API_BASE_URL: https://statistics-api.azurewebsites.net
       COURSE_ID: 360
       MUNICIPALITY_ID: "0301"
       DATA_MAX_AGE: 7200
@@ -26,5 +27,12 @@ jobs:
 
       - name: Check if data from API is less than 7200 seconds old
         run: |
-          chmod 700 $GITHUB_WORKSPACE/.github/health_test_src/do_health_test.py
-          $GITHUB_WORKSPACE/.github/health_test_src/do_health_test.py
+          if [ "$GITHUB_REF" = "refs/heads/staging" ]
+          then
+              chmod 700 $GITHUB_WORKSPACE/.github/health_test_src/do_health_test.py
+              API_BASE_URL=$STAGING_API_BASE_URL $GITHUB_WORKSPACE/.github/health_test_src/do_health_test.py
+          elif [ "$GITHUB_REF" = "refs/heads/master" ]
+          then
+              chmod 700 $GITHUB_WORKSPACE/.github/health_test_src/do_health_test.py
+              API_BASE_URL=$MASTER_API_BASE_URL $GITHUB_WORKSPACE/.github/health_test_src/do_health_test.py
+          fi

@@ -8,6 +8,7 @@ on:
     - master
     paths-ignore:
       - '**.md'
+      - '.github/workflows/health-test.yml'
 
 jobs:
   test-build-deploy:

@@ -2,7 +2,7 @@
 import json
 import os
 from datetime import datetime
-from json import JSONDecodeError
+from json.decoder import JSONDecodeError
 
 import requests
 

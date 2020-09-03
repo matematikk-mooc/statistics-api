@@ -6,6 +6,7 @@ on:
     branches: 
     - staging
     - master
+    - test
     paths-ignore:
       - '**.md'
       - '.github/workflows/health-test.yml'

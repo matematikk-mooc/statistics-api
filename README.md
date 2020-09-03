@@ -30,3 +30,7 @@ However, a working test environment is automatically built in GitHub actions pip
 # Deployment
 
 Any merge to `staging` or `master` branch will automatically deploy the application to the staging and production environments respectively. Unit tests will also be run, and deployment will stop if any test fails.
+
+# Documentation
+
+Swagger UI documentation is available at https://matematikk-mooc.github.io/statistics-api-documentation/, using GitHub pages. The source for the documentation is available at https://github.com/matematikk-mooc/statistics-api-documentation.

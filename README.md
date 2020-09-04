@@ -3,7 +3,7 @@ Python Django application which serves HTTP endpoints that provide statistical a
 
 # Setup
 
-This app requires a local or remote instance of Canvas LMS and an instance of KPAS LTI (https://github.com/matematikk-mooc/kpas-api), from which this service retrieves data about schools, counties, municipalities and associations thereof. You will need an API key to Canvas LMS which is valid for some Canvas account ID, and a valid access token to KPAS LTI. Copy `.env.example` to new file `.env`, and fill in the domain of your Canvas LMS instance and the API key of your root account, and alter other attributes, if necessary. Adjust settings in `docker-compose.dev.yml` for your environment, if necessary. Run 
+This app requires a local or remote instance of Canvas LMS and an instance of KPAS LTI (https://github.com/matematikk-mooc/kpas-api), from which this service retrieves data about schools, counties, municipalities and associations thereof. You will need an API key to Canvas LMS which is valid for some Canvas account ID. Copy `.env.example` to new file `.env`, and fill in the domain of your Canvas LMS instance and the API key of your root account, and alter other attributes, if necessary. Adjust settings in `docker-compose.dev.yml` for your environment, if necessary. Run 
 
 `docker-compose -f docker-compose.dev.yml up`
 
@@ -16,15 +16,9 @@ Access application on e.g. `https://statistics-api-dev.local:8000/api/statistics
 
 # Testing
 
-There are a number of tests in this repository, but nearly all of them are integration tests dependent on 3rd party services KPAS LTI and Canvas LMS. The tests require the database to be populated with data from Skoleporten about (1) number of primary teachers at schools, (2) number of high school teachers at counties and (3) Canvas enrollment data. Before you can execute any tests locally, the following management commands need to run successfully:
+There are a number of tests in this repository, but nearly all of them are integration tests dependent on 3rd party service KPAS LTI. You will need to configure environment variables to a running instance of KPAS LTI. statistics-api does not mutate the state in KPAST LTI, so using a remote instance should be safe.
 
-`python manage.py import_school_teacher_counts_from_csv`
-
-`python manage.py import_county_teacher_counts_from_csv`
-
-`python manage.py do_all_scheduled_maintenance_jobs`
-
-However, a working test environment is automatically built in GitHub actions pipelines. Any time you push to the `test` branch, all unit tests will be run.
+A working test environment is automatically built in GitHub Actions pipelines. Any time you push to the `test` branch, all unit tests will be run. The pipeline in GitHub actions builds an instance of KPAS LTI using Docker and docker-compose.
 
 
 # Deployment

@@ -143,14 +143,6 @@ class EnrollmentActivity(object):
         created_enrollment_object.save()
         self.logger.info(f"{created_enrollment_object} created in DB")
 
-        self.logger.info(f"Posting {enrollment_activity} to KPAS...")
-        try:
-            web_response = self.kpas_client.post_enrollment_activity_to_kpas(enrollment_activity)
-        except Exception as err:
-            self.logger.info("EnrollmentActivity error while ingesting into kpas : {0}".format(err))
-            raise err
-        self.logger.info(web_response.text)
-
 
 def filter_enrollment_activity_by_date(data):
     """

@@ -31,16 +31,6 @@ class KpasClient:
         web_response = self.web_session.post(f"{KPAS_API_URL}/run_scheduler")
         assert web_response.status_code == 200
 
-    def post_enrollment_activity_to_kpas(self, data: Dict) -> requests.Response:
-        """
-                Ingest enrollment activity date to kpas
-                :param data:
-                :return:
-                """
-
-        web_response = self.web_session.post(f"{KPAS_API_URL}/user_activity", data=data)
-        return web_response
-
     def get_county(self, county_id: int) -> Union[Dict, None]:
         web_response = self.web_session.get(f"{KPAS_NSR_API_URL}/counties/{county_id}")
         return json.loads(web_response.text).get("result")

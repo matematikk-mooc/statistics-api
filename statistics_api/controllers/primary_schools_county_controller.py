@@ -66,7 +66,7 @@ def get_individual_school_data_for_county(course_observations: Tuple[CourseObser
 
     for school in schools_in_county:
         if school['ErSkole'] == 1 and school['ErGrunnSkole'] == 1:
-            organization_number_to_school_name_mapping[school['OrgNr']] = school['Navn']
+            organization_number_to_school_name_mapping[school['OrgNr']] = school['FulltNavn']
 
     json_response: List = []
     county_schools_org_nrs = tuple([str(k) for k in organization_number_to_school_name_mapping.keys()])

@@ -36,7 +36,7 @@ def municipality_primary_school_statistics(request: WSGIRequest, municipality_id
 
     for school in schools_in_municipality:
         if school['ErSkole'] == 1 and school['ErGrunnSkole'] == 1:
-            organization_number_to_school_name_mapping[school['OrgNr']] = school['Navn']
+            organization_number_to_school_name_mapping[school['OrgNr']] = school['FulltNavn']
 
     # Retrieving the {nr_of_most_recent_dates} most recent observations of Canvas LMS course with
     # canvas ID {canvas_course_id} ordered by date descending.

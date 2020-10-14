@@ -1,16 +1,16 @@
 version: '3'
 
 networks:
-  backend_canvas-net:
-    external: true
+#  backend_canvas-net:
+#    external: true
   statistics_api-net:
     driver: bridge
 
 services:
 
-
 ### NGINX ################################################
     nginx:
+      env_file: .env
       build:
         context: ./nginx
         dockerfile: Dockerfile.dev
@@ -65,7 +65,7 @@ services:
         - GUNICORN_TIMEOUT=${GUNICORN_TIMEOUT}
         - GUNICORN_LOG_LEVEL=${GUNICORN_LOG_LEVEL}
       networks:
-        - backend_canvas-net
+#        - backend_canvas-net
         - statistics_api-net
       depends_on:
         - api-database

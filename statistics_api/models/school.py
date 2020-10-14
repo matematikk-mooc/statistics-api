@@ -1,6 +1,7 @@
 from django.db import models
 from statistics_api.models.base_model import BaseModel
 
+
 class School(BaseModel):
 
     # organization IDs may belong to foreign institutions with non-numeric IDs

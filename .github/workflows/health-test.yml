@@ -4,7 +4,7 @@ name: Periodic API health check
 on:
   schedule:
     # Runs at 0 minutes over the 4th hour on each day. Cron syntax
-    - cron:  '0 4 * * *'
+    - cron:  '0 5 * * *'
 
 jobs:
   health-test:
@@ -13,7 +13,7 @@ jobs:
       MASTER_API_BASE_URL: https://statistics-api.azurewebsites.net
       COURSE_ID: 360
       MUNICIPALITY_ID: "0301"
-      DATA_MAX_AGE: 3700
+      DATA_MAX_AGE: 18000   # 5 hours
 
       # This job runs on Linux
     runs-on: ubuntu-latest
@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v1
 
 
-      - name: Check if data from API is less than 7200 seconds old
+      - name: Check if data from API is less than DATA_MAX_AGE seconds old
         run: |
           if [ "$GITHUB_REF" = "refs/heads/staging" ]
           then

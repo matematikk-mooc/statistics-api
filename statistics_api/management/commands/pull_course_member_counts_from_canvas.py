@@ -21,7 +21,7 @@ class Command(BaseCommand):
 
         api_client = CanvasApiClient()
 
-        canvas_account_id: int = CANVAS_ACCOUNT_ID if CANVAS_ACCOUNT_ID else api_client.get_canvas_account_id_of_current_user()
+        canvas_account_id: int = CANVAS_ACCOUNT_ID
         courses = api_client.get_courses(canvas_account_id=canvas_account_id)
         courses = DatabaseMaintenanceClient.insert_courses(courses)
         logger.info(f"Inserted {len(courses)} courses")

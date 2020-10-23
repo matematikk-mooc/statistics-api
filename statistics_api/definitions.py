@@ -29,7 +29,7 @@ DB_USERNAME = os.getenv("DB_USERNAME")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 MYSQL_ROOT_PASSWORD = os.getenv("MYSQL_ROOT_PASSWORD")
 
-# NB! Hour and mintue of the day are in UTC
+# NB! Hour and minute of the day are in UTC
 DATABASE_REFRESH_HOUR = str(os.getenv("DATABASE_REFRESH_HOUR")).zfill(2) if os.getenv("DATABASE_REFRESH_HOUR") else "03"
 DATABASE_REFRESH_MINUTE = str(os.getenv("DATABASE_REFRESH_MINUTE")).zfill(2) if os.getenv(
     "DATABASE_REFRESH_MINUTE") else "00"

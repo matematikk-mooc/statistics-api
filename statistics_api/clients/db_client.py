@@ -31,7 +31,9 @@ class DatabaseClient:
                 tuple(unregistered_schools_org_nrs), teacher_count_year)
             cursor.execute(org_nrs_enrollment_counts_and_teacher_counts_for_unregistered_schools_query)
             org_nrs_enrollment_counts_and_teacher_counts_for_unregistered_schools = cursor.fetchall()
-            org_nrs_enrollment_counts_and_teacher_counts = org_nrs_enrollment_counts_and_teacher_counts_for_registered_schools + org_nrs_enrollment_counts_and_teacher_counts_for_unregistered_schools
+            org_nrs_enrollment_counts_and_teacher_counts: Tuple[Tuple[str, int, int]] = \
+                org_nrs_enrollment_counts_and_teacher_counts_for_registered_schools + org_nrs_enrollment_counts_and_teacher_counts_for_unregistered_schools
+
             return org_nrs_enrollment_counts_and_teacher_counts
 
     @staticmethod

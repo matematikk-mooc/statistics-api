@@ -21,7 +21,7 @@ jobs:
     env:
       DB_HOST: 127.0.0.1
       KPAS_DOMAIN: kpas-dev.local  #NB! must match certificate in .github/kpas_ssl_certs
-      KPAS_LTI_GIT_COMMIT: 896284cc2c601db2411ccbfe441999761441fb7c  #Exactly which state in the KPAS-LTI git repository should be used as dependency during our tests
+      KPAS_LTI_GIT_COMMIT: cb3106d6dbd9a6f126176a0524d0f088c6661ccb #Exactly which state in the KPAS-LTI git repository should be used as dependency during our tests
       DJANGO_SECRET_KEY: not_secret_key
       CA_FILE_NAME: ca.crt
 

@@ -214,3 +214,6 @@ Dockerfile.dev.local
 **.csv#
 /statistics_api/tests/test_test.py
 test.bash
+statistics-api/venv
+get-pip.py
+

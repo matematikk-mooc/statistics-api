@@ -36,6 +36,17 @@ class CanvasApiClient:
         url = f"{CANVAS_API_URL}/accounts/{canvas_account_id}/courses?include[]=total_students&per_page=100"
         return self.paginate_through_url(url)
 
+    def get_course(self, canvas_course_id: int) -> Dict:
+        url = f"{CANVAS_API_URL}/courses/{canvas_course_id}?include[]=total_students"
+        return self.get_single_element_from_url(url)
+
+    def get_single_element_from_url(self, target_url) -> Dict:
+        web_response = self.web_session.get(target_url)
+        if web_response.status_code != 200:
+            raise AssertionError(f"Could not retrieve data from Canvas LMS instance at {CANVAS_API_URL}")
+
+        return json.loads(web_response.text)
+
     def paginate_through_url(self, target_url: str, current_items: List = None) -> Tuple[Dict]:
         if current_items is None:
             current_items = []

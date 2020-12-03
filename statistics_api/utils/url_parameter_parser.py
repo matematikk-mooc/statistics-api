@@ -23,7 +23,7 @@ def get_url_parameters_dict(request: WSGIRequest) -> Dict:
         end_date_str: str = request.GET.get(END_DATE_KEY)
         if request.GET.get(ENROLLMENT_PERCENTAGE_CATEGORIES_KEY):
             enrollment_percentage_categories: Set[int] = set(
-            [int(i.strip()) for i in request.GET.get(ENROLLMENT_PERCENTAGE_CATEGORIES_KEY).split(",")])
+                [int(i.strip()) for i in request.GET.get(ENROLLMENT_PERCENTAGE_CATEGORIES_KEY).split(",")])
         else:
             enrollment_percentage_categories: Set[int] = set(CATEGORY_CODES)
 

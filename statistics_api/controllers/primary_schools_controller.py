@@ -8,7 +8,7 @@ from django.views.decorators.http import require_http_methods
 from statistics_api.clients.db_client import DatabaseClient
 from statistics_api.clients.kpas_client import KpasClient
 from statistics_api.controllers.models.KpasSchool import KpasSchool
-from statistics_api.definitions import CATEGORY_CODE_INFORMATION_DICT
+from statistics_api.definitions import CATEGORY_CODE_INFORMATION_DICT, TOO_FEW_TEACHERS_CODE
 from statistics_api.models.course_observation import CourseObservation
 from statistics_api.models.school import School
 from statistics_api.utils.url_parameter_parser import get_url_parameters_dict, ENROLLMENT_PERCENTAGE_CATEGORIES_KEY, \
@@ -173,7 +173,8 @@ def calculate_enrollment_percentage_for_course(course_observation, enrollment_pe
 
         enrollment_percentage_category = calculate_enrollment_percentage_category(enrollment_count, teacher_count)
 
-        if enrollment_percentage_category in enrollment_percentage_categories:
+        if (enrollment_percentage_category in enrollment_percentage_categories
+                or enrollment_percentage_category == TOO_FEW_TEACHERS_CODE):
             school_dict = vars(organization_number_to_school_name_mapping[org_nr])
             school_dict['enrollment_percentage_category'] = enrollment_percentage_category
             school_enrollment_percentage_categories.append(school_dict)

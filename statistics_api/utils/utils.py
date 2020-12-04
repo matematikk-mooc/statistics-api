@@ -4,7 +4,8 @@ from os import listdir
 from os.path import isfile, join
 from typing import Tuple, Dict, Union
 
-from statistics_api.definitions import CATEGORY_CODES, PERCENTAGE_INTERVALS
+from statistics_api.definitions import CATEGORY_CODES, PERCENTAGE_INTERVALS, TOO_FEW_TEACHERS_CUTOFF, \
+    TOO_FEW_TEACHERS_CODE
 from statistics_api.models.county import County
 from statistics_api.models.course_observation import CourseObservation
 from statistics_api.models.group import Group
@@ -57,6 +58,9 @@ def get_county_data_file_paths(county_data_dir_path: str) -> Tuple[str]:
 
 
 def calculate_enrollment_percentage_category(enrollment_count: int, teacher_count: int) -> int:
+    if teacher_count <= TOO_FEW_TEACHERS_CUTOFF:
+        return TOO_FEW_TEACHERS_CODE
+
     percentage_enrollment = enrollment_count / teacher_count if teacher_count > 0 else 0
 
     for category_code in CATEGORY_CODES:

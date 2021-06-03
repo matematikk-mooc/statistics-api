@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
+import logging
 import os
 import sys
 
 if __name__ == "__main__":
+    logger = logging.getLogger()
+    logger.info(f"start baby")
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "statistics_api.settings")
     try:
         from django.core.management import execute_from_command_line

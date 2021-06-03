@@ -18,7 +18,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
         logger = logging.getLogger()
-
+        logger.info(f"pull coursemember count start")
         api_client = CanvasApiClient()
 
         canvas_account_id: int = CANVAS_ACCOUNT_ID

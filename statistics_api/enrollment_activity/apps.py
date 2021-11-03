@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 
 class EnrollmentActivityConfig(AppConfig):
-    name = 'enrollment_activity'
+    name = 'statistics_api.enrollment_activity'

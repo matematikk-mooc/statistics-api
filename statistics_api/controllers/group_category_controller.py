@@ -10,7 +10,7 @@ from statistics_api.utils.query_maker import get_group_category_observations_bet
     get_groups_by_group_category_ids_query
 from statistics_api.utils.url_parameter_parser import get_url_parameters_dict, START_DATE_KEY, END_DATE_KEY, \
     NR_OF_DATES_LIMIT_KEY
-
+from statistics_api.definitions import  TOO_FEW_TEACHERS_CUTOFF
 
 @require_http_methods(["GET"])
 def group_category(request: WSGIRequest, group_category_canvas_id: int):
@@ -28,6 +28,7 @@ def group_category(request: WSGIRequest, group_category_canvas_id: int):
         [group_category_canvas_id, start_date, end_date, nr_of_dates_limit])
 
     json_response = []
+    json_response_aggregated = []
 
     groups_by_group_category_ids_query = get_groups_by_group_category_ids_query(
         tuple([int(g_cat.pk) for g_cat in group_categories]))
@@ -41,10 +42,19 @@ def group_category(request: WSGIRequest, group_category_canvas_id: int):
 
     for date in date_to_groups_mapping.keys():
         groups = date_to_groups_mapping.get(date)
-        group_dicts = [group.to_dict() for group in groups]
+        group_dicts = []
+        group_dicts_aggregated = []
+        
+        for group in groups:
+            if group.members_count <=TOO_FEW_TEACHERS_CUTOFF:
+                group_dicts_aggregated.append(group.to_dict())
+            else:
+                group_dicts.append(group.to_dict())
+
         group_category_json = {
             "date": date,
-            "groups": group_dicts
+            "groups": group_dicts,
+            "groups_agegregated": group_dicts_aggregated
         }
 
         json_response.append(group_category_json)
@@ -75,7 +85,6 @@ def group_category_count(request: WSGIRequest, group_category_canvas_id: int):
             "date": group_category.date_retrieved,
             "nr_of_groups_in_category": len(groups)
         }
-
         json_response.append(group_category_json)
 
     return JsonResponse({"Result": json_response})

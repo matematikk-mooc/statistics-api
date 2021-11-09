@@ -11,4 +11,4 @@ RUN chown appuser:appuser -R /app && chmod 700 /etc/ssh/sshd_setup.sh && /etc/ss
 ENV PYTHONPATH="/app"
 ARG WEBSITES_PORT=8000
 EXPOSE "${WEBSITES_PORT}" 2222
-CMD ["./wait-for-it.sh", "mysql:${MYSQL_PORT}", "-t", "3", "--", "/app/entrypoint.sh"]
+CMD [ "sh", "-c", "./wait-for-it.sh api-database:${MYSQL_PORT} -t 3 -- /app/entrypoint.sh" ]

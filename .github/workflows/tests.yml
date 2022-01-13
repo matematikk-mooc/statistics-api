@@ -35,73 +35,73 @@ jobs:
       - name: GitHub repository checkout
         uses: actions/checkout@v1
 
-#      - name: Start MySQL service
-#        run: |
-#          sudo bash -c 'echo "[mysqld]" >> /etc/mysql/my.cnf'
-#          sudo bash -c 'echo "port = 3307" >> /etc/mysql/my.cnf'
-#          sudo bash -c 'echo "bind-address = 0.0.0.0" >> /etc/mysql/my.cnf'
-#          sudo systemctl start mysql.service
-#
-#      - name: Pull code from KPAS-LTI GitHub repository
-#        run: |
-#          git clone https://github.com/matematikk-mooc/kpas-api
-#
-#      - name: Copy self-signed certificates and keys to KPAS-LTI nginx directory
-#        run: |
-#          cp $GITHUB_WORKSPACE/.github/kpas_ssl_certs/* kpas-api/docker/nginx/ssl/
-#
-#      - name: Add KPAS domain name to /etc/hosts
-#        run: |
-#          sudo bash -c "echo '127.0.0.1 kpas-dev.local' >> /etc/hosts"
-#
-#      - name: Build and start KPAS-LTI service
-#        run: |
-#          cd kpas-api
-#          git checkout $KPAS_LTI_GIT_COMMIT
-#          echo "bind-address 0.0.0.0" >> docker/mysql/my.cnf
-#          sed -i "s/BUGSNAG_API_KEY=.*/BUGSNAG_API_KEY=/g" environments/production/.env
-#          sed -i 's/DB_HOST=.*/DB_HOST=mysql/g' environments/production/.env
-#          sed -i 's/DB_USERNAME=.*/DB_USERNAME=root/g' environments/production/.env
-#          sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=root/g' environments/production/.env
-#          cd docker
-#          cp .env.example .env
-#          sudo chown $(whoami):$(whoami) -R * && sudo chmod 777 -R *
-#          docker-compose up --build -d
-#          COMPOSE_INTERACTIVE_NO_CLI=1 docker-compose exec --user root -T workspace ./startup.sh
-#          cd ./../..
-#
-#      - name: Import NSR to KPAS MySQL
-#        run: |
-#          mysql_container_id=`docker ps | grep mysql | awk '{print$1}'`
-#          docker cp ${GITHUB_WORKSPACE}/.github/kpas_nsr_data/nsr_data.sql $mysql_container_id:/nsr_data.sql
-#          cd kpas-api/docker
-#          COMPOSE_INTERACTIVE_NO_CLI=1 docker-compose exec --user root -T mysql /bin/bash -c "mysql -proot -uroot default < /nsr_data.sql"
-#          cd ./../..
-#
-#      - name: Install python depedencies
-#        run: |
-#          sudo apt-get install python3-setuptools
-#          python3 -m pip install -r requirements.txt
-#
-#      - name: Run Django migrations
-#        run: |
-#          mysql --port=3307 --protocol=tcp --host=127.0.0.1 -uroot -proot -e 'CREATE DATABASE `canvas-api`;'
-#          DB_DATABASE=canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3307 PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py makemigrations
-#          DB_DATABASE=canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3307 PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py migrate
-#
-#      - name: Run Django unit tests
-#        run: |
-#          DJANGO_SETTINGS_MODULE=statistics_api.tests.test_settings DB_DATABASE=canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3307 PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py test --settings statistics_api.tests.test_settings --verbosity=3
-#
-#      # Checking that only the issue is the SECURE_HSTS_SECONDS warning
-#      - name: Run manage.py check --deploy
-#        run: |
-#          if [ `DB_DATABASE=canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3307 DJANGO_SECRET_KEY=notasecretkeyExfvXUyFFA9iAH7BYwsL1nN3XIbBcX7djoBSque6bOLXmnf7GD PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py check --deploy 2>&1 | grep -E "System check identified [0-9]+ issue" | grep -E -o [0-9]+ | head -1` -lt 2 ]
-#          then
-#                  exit 0
-#          else
-#                  exit 1
-#          fi
+      - name: Start MySQL service
+        run: |
+          sudo bash -c 'echo "[mysqld]" >> /etc/mysql/my.cnf'
+          sudo bash -c 'echo "port = 3307" >> /etc/mysql/my.cnf'
+          sudo bash -c 'echo "bind-address = 0.0.0.0" >> /etc/mysql/my.cnf'
+          sudo systemctl start mysql.service
+
+      - name: Pull code from KPAS-LTI GitHub repository
+        run: |
+          git clone https://github.com/matematikk-mooc/kpas-api
+
+      - name: Copy self-signed certificates and keys to KPAS-LTI nginx directory
+        run: |
+          cp $GITHUB_WORKSPACE/.github/kpas_ssl_certs/* kpas-api/docker/nginx/ssl/
+
+      - name: Add KPAS domain name to /etc/hosts
+        run: |
+          sudo bash -c "echo '127.0.0.1 kpas-dev.local' >> /etc/hosts"
+
+      - name: Build and start KPAS-LTI service
+        run: |
+          cd kpas-api
+          git checkout $KPAS_LTI_GIT_COMMIT
+          echo "bind-address 0.0.0.0" >> docker/mysql/my.cnf
+          sed -i "s/BUGSNAG_API_KEY=.*/BUGSNAG_API_KEY=/g" environments/production/.env
+          sed -i 's/DB_HOST=.*/DB_HOST=mysql/g' environments/production/.env
+          sed -i 's/DB_USERNAME=.*/DB_USERNAME=root/g' environments/production/.env
+          sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=root/g' environments/production/.env
+          cd docker
+          cp .env.example .env
+          sudo chown $(whoami):$(whoami) -R * && sudo chmod 777 -R *
+          docker-compose up --build -d
+          COMPOSE_INTERACTIVE_NO_CLI=1 docker-compose exec --user root -T workspace ./startup.sh
+          cd ./../..
+
+      - name: Import NSR to KPAS MySQL
+        run: |
+          mysql_container_id=`docker ps | grep mysql | awk '{print$1}'`
+          docker cp ${GITHUB_WORKSPACE}/.github/kpas_nsr_data/nsr_data.sql $mysql_container_id:/nsr_data.sql
+          cd kpas-api/docker
+          COMPOSE_INTERACTIVE_NO_CLI=1 docker-compose exec --user root -T mysql /bin/bash -c "mysql -proot -uroot default < /nsr_data.sql"
+          cd ./../..
+
+      - name: Install python depedencies
+        run: |
+          sudo apt-get install python3-setuptools
+          python3 -m pip install -r requirements.txt
+
+      - name: Run Django migrations
+        run: |
+          mysql --port=3307 --protocol=tcp --host=127.0.0.1 -uroot -proot -e 'CREATE DATABASE `canvas-api`;'
+          DB_DATABASE=canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3307 PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py makemigrations
+          DB_DATABASE=canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3307 PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py migrate
+
+      - name: Run Django unit tests
+        run: |
+          DJANGO_SETTINGS_MODULE=statistics_api.tests.test_settings DB_DATABASE=canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3307 PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py test --settings statistics_api.tests.test_settings --verbosity=3
+
+      # Checking that only the issue is the SECURE_HSTS_SECONDS warning
+      - name: Run manage.py check --deploy
+        run: |
+          if [ `DB_DATABASE=canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3307 DJANGO_SECRET_KEY=notasecretkeyExfvXUyFFA9iAH7BYwsL1nN3XIbBcX7djoBSque6bOLXmnf7GD PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py check --deploy 2>&1 | grep -E "System check identified [0-9]+ issue" | grep -E -o [0-9]+ | head -1` -lt 2 ]
+          then
+                  exit 0
+          else
+                  exit 1
+          fi
 
       - name: Log in to Azure Docker container registry
         uses: docker/login-action@v1

@@ -54,35 +54,35 @@ jobs:
         run: |
           sudo bash -c "echo '127.0.0.1 kpas-dev.local' >> /etc/hosts"
 
-#      - name: Build and start KPAS-LTI service
-#        run: |
-#          cd kpas-api
-#          rm composer.lock
-#          sed -i '20 a "doctrine/dbal": "^2.0",' composer.json
-#          sed -i '20 a "doctrine/dbal": "^2.0",' composer.json.prod
-#          sed -i '20 a "doctrine/dbal": "^2.0",' composer.json.dev
-#          git checkout $KPAS_LTI_GIT_COMMIT
-#          echo "bind-address 0.0.0.0" >> docker/mysql/my.cnf
-#          sed -i "s/BUGSNAG_API_KEY=.*/BUGSNAG_API_KEY=/g" environments/production/.env
-#          sed -i 's/DB_HOST=.*/DB_HOST=mysql/g' environments/production/.env
-#          sed -i 's/DB_USERNAME=.*/DB_USERNAME=root/g' environments/production/.env
-#          sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=root/g' environments/production/.env
-#          cd docker
-#          sed '32d' php-fpm/Dockerfile.dev > php-fpm/Dockerfile
-#          sed -i '20 a \ \ \ \ \ \ \ \ \ \ - NODE_VERSION=16' docker-compose.yml
-#          cp .env.example .env
-#          sudo chown $(whoami):$(whoami) -R * && sudo chmod 777 -R *
-#          docker-compose up --build -d
-#          COMPOSE_INTERACTIVE_NO_CLI=1 docker-compose exec --user root -T workspace ./startup.sh
-#          cd ./../..
-#
-#      - name: Import NSR to KPAS MySQL
-#        run: |
-#          mysql_container_id=`docker ps | grep mysql | awk '{print$1}'`
-#          docker cp ${GITHUB_WORKSPACE}/.github/kpas_nsr_data/nsr_data.sql $mysql_container_id:/nsr_data.sql
-#          cd kpas-api/docker
-#          COMPOSE_INTERACTIVE_NO_CLI=1 docker-compose exec --user root -T mysql /bin/bash -c "mysql -proot -uroot default < /nsr_data.sql"
-#          cd ./../..
+      - name: Build and start KPAS-LTI service
+        run: |
+          cd kpas-api
+          rm composer.lock
+          sed -i '20 a "doctrine/dbal": "^2.0",' composer.json
+          sed -i '20 a "doctrine/dbal": "^2.0",' composer.json.prod
+          sed -i '20 a "doctrine/dbal": "^2.0",' composer.json.dev
+          git checkout $KPAS_LTI_GIT_COMMIT
+          echo "bind-address 0.0.0.0" >> docker/mysql/my.cnf
+          sed -i "s/BUGSNAG_API_KEY=.*/BUGSNAG_API_KEY=/g" environments/production/.env
+          sed -i 's/DB_HOST=.*/DB_HOST=mysql/g' environments/production/.env
+          sed -i 's/DB_USERNAME=.*/DB_USERNAME=root/g' environments/production/.env
+          sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=root/g' environments/production/.env
+          cd docker
+          sed '32d' php-fpm/Dockerfile.dev > php-fpm/Dockerfile
+          sed -i '20 a \ \ \ \ \ \ \ \ \ \ - NODE_VERSION=16' docker-compose.yml
+          cp .env.example .env
+          sudo chown $(whoami):$(whoami) -R * && sudo chmod 777 -R *
+          docker-compose up --build -d
+          COMPOSE_INTERACTIVE_NO_CLI=1 docker-compose exec --user root -T workspace ./startup.sh
+          cd ./../..
+
+      - name: Import NSR to KPAS MySQL
+        run: |
+          mysql_container_id=`docker ps | grep mysql | awk '{print$1}'`
+          docker cp ${GITHUB_WORKSPACE}/.github/kpas_nsr_data/nsr_data.sql $mysql_container_id:/nsr_data.sql
+          cd kpas-api/docker
+          COMPOSE_INTERACTIVE_NO_CLI=1 docker-compose exec --user root -T mysql /bin/bash -c "mysql -proot -uroot default < /nsr_data.sql"
+          cd ./../..
 
       - name: Install python depedencies
         run: |

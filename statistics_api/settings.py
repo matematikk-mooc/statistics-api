@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'statistics_api.apps.StatisticsApiConfig',
-    'statistics_api.enrollment_activity']
+    'statistics_api.enrollment_activity',
+]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

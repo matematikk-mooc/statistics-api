@@ -50,6 +50,7 @@ jobs:
 
       - name: Copy self-signed certificates and keys to KPAS-LTI nginx directory
         run: |
+          sed -i 's/server_name\ localhost;/server_name\ \_;/g' kpas-api/docker/nginx/sites/default.conf
           cp $GITHUB_WORKSPACE/.github/kpas_ssl_certs/* kpas-api/docker/nginx/ssl/
 
       - name: Add KPAS domain name to /etc/hosts
@@ -85,6 +86,7 @@ jobs:
           cd kpas-api/docker
           COMPOSE_INTERACTIVE_NO_CLI=1 docker-compose exec --user root -T mysql /bin/bash -c "mysql -proot -uroot default < /nsr_data.sql"
           cd ./../..
+          curl https://kpas-dev.local:4430/api/nsr/counties/15 --verbose || true
 
       - name: Install python depedencies
         run: |

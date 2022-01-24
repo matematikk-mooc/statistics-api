@@ -21,6 +21,8 @@ jobs:
     env:
       DB_HOST: 127.0.0.1
       KPAS_DOMAIN: "kpas-dev.local:4430"  #NB! must match certificate in .github/kpas_ssl_certs
+      CANVAS_DOMAIN: bibsys.instructure.com
+      CANVAS_ACCOUNT_ID: 99
       KPAS_LTI_GIT_COMMIT: 7274efb45554b025d3b9800ab4e915003fe81fb0 #Exactly which state in the KPAS-LTI git repository should be used as dependency during our tests
       DJANGO_SECRET_KEY: not_secret_key
       CA_FILE_NAME: ca.crt
@@ -107,7 +109,7 @@ jobs:
 
       - name: Run Django unit tests
         run: |
-          DJANGO_SETTINGS_MODULE=statistics_api.tests.test_settings DB_DATABASE=canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3307 PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py test --keepdb --settings statistics_api.tests.test_settings --verbosity=3
+          CANVAS_ACCESS_KEY=${{ secrets.CANVAS_ACCESS_KEY }} DJANGO_SETTINGS_MODULE=statistics_api.tests.test_settings DB_DATABASE=canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3307 PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py test --keepdb --settings statistics_api.tests.test_settings --verbosity=3
 
       # Checking that only the issue is the SECURE_HSTS_SECONDS warning
       - name: Run manage.py check --deploy

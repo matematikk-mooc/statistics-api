@@ -1,13 +1,15 @@
-from django.core.management import call_command
-from django.test.runner import DiscoverRunner as BaseRunner
+import subprocess
 
-from statistics_api.definitions import TEST_DATABASE_JSON_FILE_PATH
+from django.test.runner import DiscoverRunner as BaseRunner
 
 
 class MyMixinRunner(object):
     def setup_databases(self, *args, **kwargs):
         temp_return = super(MyMixinRunner, self).setup_databases(*args, **kwargs)
-        call_command('loaddata', TEST_DATABASE_JSON_FILE_PATH, verbosity=0)
+
+        # Instead of letting Python initialize the test database, initialize it manually before running the tests,
+        # and the run the tests with "--keepdb" flag.
+        #subprocess.run([f"mysql --host=127.0.0.1 --port={DB_PORT} -uroot -p{MYSQL_ROOT_PASSWORD} test_{DB_DATABASE} < {TEST_DATABASE_FILE_PATH}"], shell=True)
         return temp_return
 
 

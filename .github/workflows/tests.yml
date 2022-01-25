@@ -43,7 +43,6 @@ jobs:
           sudo bash -c 'echo "port = 3307" >> /etc/mysql/my.cnf'
           sudo bash -c 'echo "bind-address = 0.0.0.0" >> /etc/mysql/my.cnf'
           sudo systemctl start mysql.service
-          echo ${{ secrets.AZURE_CLIENT_ID }} | base64 | base64
 
 #      - name: Pull code from KPAS-LTI GitHub repository
 #        run: |

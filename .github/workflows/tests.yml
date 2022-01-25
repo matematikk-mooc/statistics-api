@@ -39,7 +39,7 @@ jobs:
 
       - name: Log in to Azure
         run: |
-          az login --username 50d27170-f4e0-4185-ac88-27d0348a5dc5 --password ${{ secrets.AZURE_CLIENT_SECRET }}
+          az login --service-principal --username 50d27170-f4e0-4185-ac88-27d0348a5dc5 --password ${{ secrets.AZURE_CLIENT_SECRET }} --tenant 8cd185d3-3aa6-4594-833d-a058dabb5b6d
 
       - name: Log in to Docker
         run: |

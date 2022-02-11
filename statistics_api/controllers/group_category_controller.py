@@ -54,7 +54,7 @@ def group_category(request: WSGIRequest, group_category_canvas_id: int):
         group_category_json = {
             "date": date,
             "groups": group_dicts,
-            "groups_agegregated": group_dicts_aggregated
+            "groups_aggregated": group_dicts_aggregated
         }
 
         json_response.append(group_category_json)

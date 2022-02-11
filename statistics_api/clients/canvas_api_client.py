@@ -53,6 +53,7 @@ class CanvasApiClient:
 
         web_response = self.web_session.get(target_url)
         if web_response.status_code != 200:
+            print(web_response)
             raise AssertionError(f"Could not retrieve data from Canvas LMS instance at {CANVAS_API_URL}")
         new_items = json.loads(web_response.text)
         current_items += new_items

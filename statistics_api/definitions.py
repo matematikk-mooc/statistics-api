@@ -10,8 +10,6 @@ ROOT_DIR = os.path.dirname(os.path.realpath(__file__)) + "/"
 CA_FILE_NAME = os.getenv("CA_FILE_NAME")
 CA_FILE_PATH = ROOT_DIR + f"../{CA_FILE_NAME}" if CA_FILE_NAME else None
 
-TEST_DATABASE_JSON_FILE_PATH = ROOT_DIR + "tests/data/test_canvas-api.json"
-
 CANVAS_DOMAIN = str(os.getenv("CANVAS_DOMAIN")).strip("'\"")
 CANVAS_API_URL = f"https://{CANVAS_DOMAIN}/api/v1"
 CANVAS_ACCESS_KEY = str(os.getenv("CANVAS_ACCESS_KEY")).strip("'\'").strip('\"')

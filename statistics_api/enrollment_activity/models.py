@@ -2,6 +2,7 @@ from django.db import models
 
 
 class EnrollmentActivity(models.Model):
+    id = models.AutoField(primary_key=True)
     course_id = models.IntegerField()
     course_name = models.CharField(
         max_length=80,

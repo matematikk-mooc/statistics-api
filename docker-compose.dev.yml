@@ -26,6 +26,7 @@ services:
 
 ### MySQL ################################################
     api-database:
+      env_file: .env
       image: mysql:5.7.30
       environment:
         - MYSQL_DATABASE=${MYSQL_DATABASE}

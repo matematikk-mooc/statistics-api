@@ -8,6 +8,7 @@ COPY manage.py start_web_app.sh entrypoint.sh ca.crt wait-for-it.sh /app/
 COPY statistics_api /app/statistics_api/
 WORKDIR /app/
 RUN chown appuser:appuser -R /app && chmod 700 /etc/ssh/sshd_setup.sh && /etc/ssh/sshd_setup.sh && find . -type d | grep -v "./venv" | xargs chmod 755 && find . -type f | grep -v "./venv" | xargs chmod 644 && chmod 700 entrypoint.sh start_web_app.sh wait-for-it.sh
+RUN sed -i 's/SECURE_SSL_REDIRECT\ =\ True/SECURE_SSL_REDIRECT\ =\ False/g' /app/statistics_api/settings.py
 ENV PYTHONPATH="/app"
 ARG WEBSITES_PORT=8000
 EXPOSE "${WEBSITES_PORT}" 2222

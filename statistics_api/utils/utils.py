@@ -19,7 +19,8 @@ def parse_year_from_data_file_name(csv_file_name: str) -> int:
 
      For that file name, this function will return the integer '2019'
     """
-    file_name, extension = csv_file_name.split(".")
+    print(csv_file_name)
+    file_name, extension = csv_file_name.rsplit(".", maxsplit=1)
 
     year = int(file_name.split("_")[-1])
     return year

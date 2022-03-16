@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from django.core.exceptions import ValidationError
 from rest_framework.test import APIClient
 
+from statistics_api.definitions import TOO_FEW_TEACHERS_CODE
 from statistics_api.tests.county_controller_base_test import CountyControllerBaseTest
 
 
@@ -32,7 +33,7 @@ class Test(CountyControllerBaseTest):
         self.assertTrue("schools" in json_response["Result"][0].keys())
         self.assertNotEqual(json_response["info"]['category_codes'], None)
         for school in json_response["Result"][0]["schools"]:
-            self.assertEqual(school["enrollment_percentage_category"], 1)
+            self.assertTrue(school["enrollment_percentage_category"] in {1, TOO_FEW_TEACHERS_CODE})
 
     def test_county_statistics_for_individual_schools_in_enrollment_percentage_categories_0_and_5(self):
         client = APIClient()
@@ -45,7 +46,7 @@ class Test(CountyControllerBaseTest):
         self.assertTrue("schools" in json_response["Result"][0].keys())
         self.assertNotEqual(json_response["info"]['category_codes'], None)
         for school in json_response["Result"][0]["schools"]:
-            self.assertTrue(school["enrollment_percentage_category"] in (0, 5))
+            self.assertTrue(school["enrollment_percentage_category"] in {0, 5, TOO_FEW_TEACHERS_CODE})
 
     def test_county_statistics_for_individual_schools_without_date_intervals(self):
         """
@@ -112,18 +113,18 @@ class Test(CountyControllerBaseTest):
         self.assertTrue("municipalities" in json_response["Result"][0].keys())
 
         # "%Y-%m-%dT%H:%M:%S.%fZ"
-        oldest_date_in_result = datetime.strptime(json_response["Result"][-1]["date"], "%Y-%m-%dT%H:%M:%S.%fZ").date()
-        oldest_date_in_result_str = oldest_date_in_result + timedelta(days=1)
+        latest_date_in_result = datetime.strptime(json_response["Result"][-1]["date"], "%Y-%m-%dT%H:%M:%S.%fZ").date()
+        impossibly_late_date = latest_date_in_result + timedelta(days=1)
 
         second_web_response = client.get(
-            path=f"/api/statistics/primary_schools/county/{self.COUNTY_ID}/course/{self.CANVAS_COURSE_ID}?to={oldest_date_in_result_str}")
+            path=f"/api/statistics/primary_schools/county/{self.COUNTY_ID}/course/{self.CANVAS_COURSE_ID}?to={latest_date_in_result}")
         self.assertEqual(200, web_response.status_code)
 
         second_json_response = json.loads(second_web_response.content)
 
         for date_str in [res["date"] for res in second_json_response["Result"]]:
             date = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S.%fZ").date()
-            self.assertTrue(oldest_date_in_result >= date)
+            self.assertTrue(impossibly_late_date >= date)
 
     def test_county_primary_school_statistics_by_county_id_with_non_existing_id(self):
         client = APIClient()

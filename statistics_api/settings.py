@@ -14,7 +14,7 @@ import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 from statistics_api.definitions import DB_DATABASE, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT, DJANGO_SECRET_KEY, \
-    DJANGO_DEBUG, DJANGO_ALLOWED_HOSTS
+    DJANGO_DEBUG, DJANGO_ALLOWED_HOSTS, BUGSNAG_API_KEY
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -47,6 +47,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'bugsnag.django.middleware.BugsnagMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -140,3 +141,27 @@ CORS_ORIGIN_ALLOW_ALL = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+# Bugsnag
+BUGSNAG = {
+    'api_key': BUGSNAG_API_KEY,
+    'project_root': '/app/statistics_api/',
+}
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+
+    'root': {
+        'level': 'ERROR',
+        'handlers': ['bugsnag'],
+    },
+
+    'handlers': {
+        'bugsnag': {
+            'level': 'INFO',
+            'class': 'bugsnag.handlers.BugsnagHandler',
+        },
+    }
+}

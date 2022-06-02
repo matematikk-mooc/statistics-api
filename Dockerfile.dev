@@ -5,6 +5,7 @@ FROM python:3.10.4
 # Create app user
 RUN groupadd -g 999 appuser
 RUN useradd -r -u 999 -g appuser appuser
+RUN echo "root:Docker!" | chpasswd
 
 # Install packages
 RUN apt-get update &&  \
@@ -14,9 +15,6 @@ RUN apt-get update &&  \
                         libmariadb-dev \
                         gdal-bin \
                         gosu
-
-# Change password for appuser
-RUN echo "root:Docker!" | chpasswd
 
 # Set virtual environment
 RUN /usr/bin/python3 -m venv /app/venv

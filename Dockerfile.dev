@@ -15,8 +15,11 @@ RUN apt-get update &&  \
                         gdal-bin \
                         gosu
 
-# Hva gjør denne? Ser den er med i Dockerfile.dev, men ikke i Dockerfile
-RUN echo "root:Docker!" | chpasswd && /usr/bin/python3 -m venv /app/venv
+# Change password for appuser
+RUN echo "root:Docker!" | chpasswd
+
+# Set virtual environment
+RUN /usr/bin/python3 -m venv /app/venv
 
 # Hva er grunnen til at disse pakkene trengs til Dockerfile.dev og ikke Dockerfile? Og at mariadb-client (tidligere mysql-client) trengs her og ikke i prod?
 RUN apt-get update && apt-get install iputils-ping net-tools dnsutils mariadb-client vim -y

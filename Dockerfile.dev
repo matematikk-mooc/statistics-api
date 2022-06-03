@@ -19,16 +19,19 @@ RUN apt-get update &&  \
 # Set virtual environment
 RUN /usr/bin/python3 -m venv /app/venv
 
-# Hva er grunnen til at disse pakkene trengs til Dockerfile.dev og ikke Dockerfile? Og at mariadb-client (tidligere mysql-client) trengs her og ikke i prod?
-RUN apt-get update && apt-get install iputils-ping net-tools dnsutils mariadb-client vim -y
 
+
+########        --DEV SPECIFIC--     #########
+COPY wait-for-it.sh /app/
+RUN apt-get update && apt-get install iputils-ping net-tools dnsutils mariadb-client vim -y
+########        --END, DEV SPECIFIC--     #########
 
 
 ########            APP          #########
 # Copy app files
 COPY requirements.txt /requirements.txt
 COPY sshd_config sshd_setup.sh /etc/ssh/
-COPY manage.py start_web_app.sh entrypoint.sh ca.crt wait-for-it.sh /app/
+COPY manage.py start_web_app.sh entrypoint.sh ca.crt /app/
 COPY statistics_api /app/statistics_api/
 
 WORKDIR /app/
@@ -46,11 +49,14 @@ RUN find . -type d | grep -v "./venv" | xargs chmod 755
 RUN find . -type f | grep -v "./venv" | xargs chmod 644
 RUN chmod 700 entrypoint.sh start_web_app.sh wait-for-it.sh
 
+ENV PYTHONPATH="/app"
+ARG WEBSITES_PORT=8000
+
+
+########        START APP, DEV     #########
+
 # Disable SECURE_SSL_REDIRECT
 RUN sed -i 's/SECURE_SSL_REDIRECT\ =\ True/SECURE_SSL_REDIRECT\ =\ False/g' /app/statistics_api/settings.py
 
-# Start app
-ENV PYTHONPATH="/app"
-ARG WEBSITES_PORT=8000
 EXPOSE "${WEBSITES_PORT}" 2222
 CMD ["./wait-for-it.sh", "mysql:${MYSQL_PORT}", "-t", "3", "--", "/app/entrypoint.sh"]

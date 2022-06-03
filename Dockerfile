@@ -41,7 +41,7 @@ RUN /etc/ssh/sshd_setup.sh
 RUN chown appuser:appuser -R /app
 RUN find . -type d | grep -v "./venv" | xargs chmod 755
 RUN find . -type f | grep -v "./venv" | xargs chmod 644
-RUN chmod 700 entrypoint.sh start_web_app.sh wait-for-it.sh
+RUN chmod 700 entrypoint.sh start_web_app.sh
 
 ENV PYTHONPATH="/app"
 ARG WEBSITES_PORT=8000

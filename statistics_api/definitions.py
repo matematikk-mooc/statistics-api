@@ -37,6 +37,8 @@ DJANGO_DEBUG = bool(util.strtobool(os.getenv("DJANGO_DEBUG"))) if os.getenv("DJA
 DJANGO_ALLOWED_HOSTS = [s.strip() for s in os.getenv("DJANGO_ALLOWED_HOSTS").split(',')] if os.getenv(
     "DJANGO_ALLOWED_HOSTS") else ["*"]
 
+BUGSNAG_API_KEY = os.getenv("BUGSNAG_API_KEY")
+
 ####    END OF ENVIRONMENT VARIABLES  ####
 
 

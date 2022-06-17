@@ -67,3 +67,8 @@ class CanvasApiClient:
         web_response = self.web_session.get(f"{CANVAS_API_URL}/users/self")
         account_json = json.loads(web_response.text)
         return int(account_json['id'])
+
+    def get_quiz_statistics(self, course_id: int, quiz_id: int) -> Dict:
+        '''Get statistics for a given quiz'''
+        url = f"{CANVAS_API_URL}/courses/{course_id}/quizzes/{quiz_id}/statistics"
+        return self.get_single_element_from_url(url)

@@ -17,11 +17,11 @@ class Command(BaseCommand):
         canvas_account_id: int = CANVAS_ACCOUNT_ID if CANVAS_ACCOUNT_ID else api_client.get_canvas_account_id_of_current_user()
         courses = api_client.get_courses(canvas_account_id=canvas_account_id)
         for course in courses:
-            course_id = course['id']
+            course_id = course.get('id')
             quizzes = api_client.get_quizzes_in_course(course_id)
             for quiz in quizzes:
-                quiz_id = quiz['id']
-                self.fetch_statistics_from_single_quiz(api_client, course_id, quiz['id'])
+                quiz_id = quiz.get('id')
+                self.fetch_statistics_from_single_quiz(api_client, course_id, quiz_id)
         #Temp:
         #self.fetch_statistics_from_single_quiz(api_client, 502, 2720)
 

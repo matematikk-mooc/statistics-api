@@ -67,3 +67,7 @@ class CanvasApiClient:
         web_response = self.web_session.get(f"{CANVAS_API_URL}/users/self")
         account_json = json.loads(web_response.text)
         return int(account_json['id'])
+
+    def get_user_history(self, canvas_userid: int) -> Dict:
+        url = f"{CANVAS_API_URL}/users/{canvas_userid}/history"
+        return self.get_single_element_from_url(url)

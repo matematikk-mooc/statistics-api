@@ -171,3 +171,4 @@ jobs:
               "GIT_COMMIT=${GITHUB_SHA}" \
               @"${GITHUB_WORKSPACE}/.github/app_service_config/app_service_config.json"
             docker push $AZURE_CONTAINER_REGISTRY/statistics-api
+            fi

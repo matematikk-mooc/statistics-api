@@ -70,6 +70,10 @@ class CanvasApiClient:
         account_json = json.loads(web_response.text)
         return int(account_json['id'])
 
+    def get_user_history(self, canvas_userid: int) -> Dict:
+        url = f"{CANVAS_API_URL}/users/{canvas_userid}/history"
+        return self.get_single_element_from_url(url)
+
     def get_quizzes_in_course(self, course_id):
         '''Get all quizzes in a given course'''
         url = f"{CANVAS_API_URL}/courses/{course_id}/quizzes?per_page=100"
@@ -89,3 +93,4 @@ class CanvasApiClient:
     #def get_submission_events(self, course_id, quiz_id, submission_id):
     #    url = f"{CANVAS_API_URL}/courses/{course_id}/quizzes/{quiz_id}/submissions/{submission_id}/events?per_page=100"
     #    return self.paginate_through_url(url)
+

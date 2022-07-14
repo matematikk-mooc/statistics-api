@@ -42,6 +42,8 @@ class CanvasApiClient:
 
     def get_single_element_from_url(self, target_url) -> Dict:
         web_response = self.web_session.get(target_url)
+        if web_response.status_code == 204:
+            return None
         if web_response.status_code != 200:
             raise AssertionError(f"Could not retrieve data from Canvas LMS instance at {CANVAS_API_URL}")
 
@@ -67,3 +69,23 @@ class CanvasApiClient:
         web_response = self.web_session.get(f"{CANVAS_API_URL}/users/self")
         account_json = json.loads(web_response.text)
         return int(account_json['id'])
+
+    def get_quizzes_in_course(self, course_id):
+        '''Get all quizzes in a given course'''
+        url = f"{CANVAS_API_URL}/courses/{course_id}/quizzes?per_page=100"
+        return self.paginate_through_url(url)
+
+    def get_quiz_statistics(self, course_id: int, quiz_id: int) -> Dict:
+        '''Get statistics for a given quiz'''
+        url = f"{CANVAS_API_URL}/courses/{course_id}/quizzes/{quiz_id}/statistics"
+        return self.get_single_element_from_url(url)
+
+    # Below code might be used for open answer questions
+    #def get_submissions_in_quiz(self, course_id, quiz_id):
+    #    '''Get submissions in a given quiz'''
+    #    url = f"{CANVAS_API_URL}/courses/{course_id}/quizzes/{quiz_id}/submissions?per_page=100"
+    #    return self.paginate_through_url(url)
+
+    #def get_submission_events(self, course_id, quiz_id, submission_id):
+    #    url = f"{CANVAS_API_URL}/courses/{course_id}/quizzes/{quiz_id}/submissions/{submission_id}/events?per_page=100"
+    #    return self.paginate_through_url(url)

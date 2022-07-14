@@ -27,6 +27,7 @@ from statistics_api.enrollment_activity.views import EnrollmentActivityViewSet
 from statistics_api.controllers.course_controller import course, course_count
 from statistics_api.controllers.group_category_controller import group_category, group_category_count
 
+from statistics_api.quizzes.views import quiz_statistics
 
 user_activity = DefaultRouter()
 user_activity.register(r"user_activity", EnrollmentActivityViewSet, basename="enrollment_activity")
@@ -39,6 +40,7 @@ urlpatterns = [
     url(r'^api/statistics/primary_schools/municipality/(\d+)/course/(\d+)$', municipality_primary_school_statistics),
     url(r'^api/statistics/primary_schools/county/(\d+)/course/(\d+)$', county_primary_school_statistics),
     url(r'^api/statistics/high_schools/county/(\d+)/course/(\d+)$', county_high_school_statistics_by_county_id),
+    url(r'^api/statistics/course/(\d+)/quiz/(\d+)$', quiz_statistics),
 
     url(r'^version/?$', get_software_version),
 

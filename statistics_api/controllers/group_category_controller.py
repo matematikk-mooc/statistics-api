@@ -28,7 +28,6 @@ def group_category(request: WSGIRequest, group_category_canvas_id: int):
         [group_category_canvas_id, start_date, end_date, nr_of_dates_limit])
 
     json_response = []
-    json_response_aggregated = []
 
     groups_by_group_category_ids_query = get_groups_by_group_category_ids_query(
         tuple([int(g_cat.pk) for g_cat in group_categories]))
@@ -43,18 +42,15 @@ def group_category(request: WSGIRequest, group_category_canvas_id: int):
     for date in date_to_groups_mapping.keys():
         groups = date_to_groups_mapping.get(date)
         group_dicts = []
-        group_dicts_aggregated = []
         
         for group in groups:
-            if group.members_count <=TOO_FEW_TEACHERS_CUTOFF:
-                group_dicts_aggregated.append(group.to_dict())
-            else:
-                group_dicts.append(group.to_dict())
+            if group.aggregated:
+                group.members_count = 0
+            group_dicts.append(group.to_dict())
 
         group_category_json = {
             "date": date,
             "groups": group_dicts,
-            "groups_aggregated": group_dicts_aggregated
         }
 
         json_response.append(group_category_json)

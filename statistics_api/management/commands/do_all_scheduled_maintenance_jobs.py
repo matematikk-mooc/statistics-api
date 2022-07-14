@@ -5,7 +5,6 @@ from json.decoder import JSONDecodeError
 import django
 from django.core import management
 from django.core.management import BaseCommand
-from django.db import connection
 
 class Command(BaseCommand):
     help = """This command does performs all scheduled maintenance jobs in correct order."""
@@ -14,7 +13,7 @@ class Command(BaseCommand):
         logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
         logger = logging.getLogger()
         commands = ("trigger_scheduling_of_kpas_job", "pull_course_member_counts_from_canvas",
-                    "fetch_course_enrollment_and_post_to_kpas")
+                    "fetch_course_enrollment_and_post_to_kpas", "pull_quiz_statistics_from_canvas_and_update_db")
 
         for command in commands:
             try:

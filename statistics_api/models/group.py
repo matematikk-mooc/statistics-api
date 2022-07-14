@@ -14,6 +14,7 @@ class Group(BaseModel):
     created_at = models.DateTimeField()
     updated_date = models.DateTimeField(auto_now=True)
     members_count = models.IntegerField()
+    aggregated = models.BooleanField()
 
     class Meta:
         db_table = "group"

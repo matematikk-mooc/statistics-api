@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'statistics_api.apps.StatisticsApiConfig',
     'statistics_api.enrollment_activity',
     'statistics_api.history'
+    'statistics_api.quizzes',
+
 ]
 
 MIDDLEWARE = [

@@ -52,9 +52,12 @@ class DatabaseMaintenanceClient:
                 group_is_school = False
             if not group_is_school:
                 org_nr = None
+            is_aggregated = False
+            if group['members_count'] < 5:
+                is_aggregated = True
             db_group = Group(canvas_id=group['id'], group_category_id=group['group_category_id'], name=group['name'],
                              description=group['description'], members_count=group['members_count'],
-                             organization_number=org_nr, created_at=group['created_at'])
+                             organization_number=org_nr, created_at=group['created_at'], aggregated=is_aggregated)
             db_group.save()
             db_groups.append(db_group)
         return tuple(db_groups)

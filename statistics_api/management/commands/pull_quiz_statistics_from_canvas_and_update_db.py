@@ -30,11 +30,14 @@ class Command(BaseCommand):
         response = api_client.get_quiz_statistics(course_id, quiz_id)
         if response is None:
             return
+        quiz_metadata = api_client.get_quiz_metadata(course_id, quiz_id)
         quiz_data = response['quiz_statistics'][0]
         statistics_object, created = QuizStatistics.objects.update_or_create(
             canvas_course_id=course_id,
             canvas_quiz_id=quiz_id,
-            defaults={'canvas_id' : quiz_data.get('id')})
+            defaults={
+                'canvas_id' : quiz_data.get('id'),
+                'title' : quiz_metadata.get('title')})
 
         question_data = quiz_data['question_statistics']
         for question in question_data:

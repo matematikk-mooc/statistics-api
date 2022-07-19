@@ -84,6 +84,11 @@ class CanvasApiClient:
         url = f"{CANVAS_API_URL}/courses/{course_id}/quizzes/{quiz_id}/statistics"
         return self.get_single_element_from_url(url)
 
+    def get_quiz_metadata(self, course_id: int, quiz_id: int) -> Dict:
+        '''Get metadata for a given quiz'''
+        url = f"{CANVAS_API_URL}/courses/{course_id}/quizzes/{quiz_id}"
+        return self.get_single_element_from_url(url)
+
     # Below code might be used for open answer questions
     #def get_submissions_in_quiz(self, course_id, quiz_id):
     #    '''Get submissions in a given quiz'''

@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'statistics_api.enrollment_activity',
     'statistics_api.history',
     'statistics_api.quizzes',
+    'statistics_api.matomo',
 
 ]
 

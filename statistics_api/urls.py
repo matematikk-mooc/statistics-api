@@ -47,7 +47,7 @@ urlpatterns = [
     url(r'^api/statistics/context/(\d+)/history$', context_history),
     url(r'^api/statistics/user/(\d+)/history/aggregated$', user_aggregated_history),
     url(r'^api/statistics/course/(\d+)/quiz/(\d+)$', quiz_statistics),
-    url(r'^api/statistics/visits$', visits_statistics),
+    url(r'^api/statistics/visits/$', visits_statistics),
 
     url(r'^version/?$', get_software_version),
 

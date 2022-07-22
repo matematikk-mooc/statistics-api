@@ -17,9 +17,7 @@ class MatomoApiClient:
         headers["Content-Type"] = "application/x-www-form-urlencoded"
         web_response = self.web_session.post(target_url, data=target_data, headers=headers)
         if web_response.status_code != 200:
-            url = target_url.split('_')
-            raise AssertionError(f"Could not retrieve data from Matomo instance at {url[0]}")
-
+            raise AssertionError(f"Could not retrieve data from Matomo instance at {target_url}")
         return json.loads(web_response.text)
 
     def get_matomo_visits(self):
@@ -29,5 +27,10 @@ class MatomoApiClient:
     
     def get_matomo_unique_visitors(self):
         data = f"module=API&method=VisitsSummary.getUniqueVisitors&idSite=3&period=day&date=yesterday&format=JSON&token_auth={MATOMO_ACCESS_KEY}"
+        url = f"{MATOMO_API_URL}"
+        return self.get_single_element_from_url(url, data)
+
+    def get_matomo_page_statistics(self):
+        data = f"module=API&method=Actions.getPageUrls&idSite=3&period=day&date=yesterday&expanded=1&filter_limit=-1&format=JSON&token_auth={MATOMO_ACCESS_KEY}"
         url = f"{MATOMO_API_URL}"
         return self.get_single_element_from_url(url, data)

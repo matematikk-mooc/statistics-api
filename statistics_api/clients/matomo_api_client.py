@@ -34,3 +34,8 @@ class MatomoApiClient:
         data = f"module=API&method=Actions.getPageUrls&idSite=3&period=day&date=yesterday&expanded=1&filter_limit=-1&format=JSON&token_auth={MATOMO_ACCESS_KEY}"
         url = f"{MATOMO_API_URL}"
         return self.get_single_element_from_url(url, data)
+
+    def get_matomo_visit_frequency(self):
+        data = f"module=API&method=VisitFrequency.get&idSite=3&period=day&date=yesterday&format=JSON&token_auth={MATOMO_ACCESS_KEY}"
+        url = f"{MATOMO_API_URL}"
+        return self.get_single_element_from_url(url, data)

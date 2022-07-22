@@ -25,7 +25,29 @@ class Command(BaseCommand):
         '''fetch daily visits and visitors whole domain count'''
         visits = matomo_api_client.get_matomo_visits()
         unique_visitors = matomo_api_client.get_matomo_unique_visitors()
-        Visits.objects.update_or_create(date=date, defaults={'visits' : visits.get('value'), 'unique_visitors' : unique_visitors.get('value')})
+        frequency = matomo_api_client.get_matomo_visit_frequency()
+        Visits.objects.update_or_create(date=date, defaults={
+            'visits' : visits.get('value'),
+            'unique_visitors' : unique_visitors.get('value'),
+            'unique_visitors_new' : frequency.get('nb_uniq_visitors_new'),
+            'unique_visitors_returning' : frequency.get('nb_uniq_visitors_returning'),
+            'visits_new' : frequency.get('nb_visits_new'),
+            'visits_returning' : frequency.get('nb_visits_returning'),
+            'bounce_count_new' : frequency.get('bounce_count_new'),
+            'bounce_count_returning' : frequency.get('bounce_count_returning'),
+            'sum_visit_length_new' : frequency.get('sum_visit_length_new'),
+            'sum_visit_length_returning' : frequency.get('sum_visit_length_returning'),
+            'actions_new' : frequency.get('nb_actions_new'),
+            'actions_returning' : frequency.get('nb_actions_returning'),
+            'max_actions_new' : frequency.get('max_actions_new'),
+            'max_actions_returning' : frequency.get('max_actions_returning'),
+            'bounce_rate_new' : frequency.get('bounce_rate_new'),
+            'bounce_rate_returning' : frequency.get('bounce_rate_returning'),
+            'avg_time_on_site_new' : frequency.get('avg_time_on_site_new'),
+            'avg_time_on_site_returning' : frequency.get('avg_time_on_site_returning'),
+            'actions_per_visit_new' : frequency.get('nb_actions_per_visit_new'),
+            'actions_per_visit_returning' : frequency.get('nb_actions_per_visit_returning'),
+            })
 
     @transaction.atomic
     def fetch_page_statistics(self, matomo_api_client, date):

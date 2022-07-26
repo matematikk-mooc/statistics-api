@@ -21,21 +21,29 @@ class MatomoApiClient:
         return json.loads(web_response.text)
 
     def get_matomo_visits(self):
+        if MATOMO_ACCESS_KEY == "" or MATOMO_ACCESS_KEY is None:
+            raise AttributeError("MATOMO_ACCESS_KEY is missing")
         data = f"module=API&method=VisitsSummary.getVisits&idSite=3&period=day&date=yesterday&format=JSON&token_auth={MATOMO_ACCESS_KEY}"
         url = f"{MATOMO_API_URL}"
         return self.get_single_element_from_url(url, data)
     
     def get_matomo_unique_visitors(self):
+        if MATOMO_ACCESS_KEY == "" or MATOMO_ACCESS_KEY is None:
+            raise AttributeError("MATOMO_ACCESS_KEY is missing")
         data = f"module=API&method=VisitsSummary.getUniqueVisitors&idSite=3&period=day&date=yesterday&format=JSON&token_auth={MATOMO_ACCESS_KEY}"
         url = f"{MATOMO_API_URL}"
         return self.get_single_element_from_url(url, data)
 
     def get_matomo_page_statistics(self):
+        if MATOMO_ACCESS_KEY == "" or MATOMO_ACCESS_KEY is None:
+            raise AttributeError("MATOMO_ACCESS_KEY is missing")
         data = f"module=API&method=Actions.getPageUrls&idSite=3&period=day&date=yesterday&expanded=1&filter_limit=-1&format=JSON&token_auth={MATOMO_ACCESS_KEY}"
         url = f"{MATOMO_API_URL}"
         return self.get_single_element_from_url(url, data)
 
     def get_matomo_visit_frequency(self):
+        if MATOMO_ACCESS_KEY == "" or MATOMO_ACCESS_KEY is None:
+            raise AttributeError("MATOMO_ACCESS_KEY is missing")
         data = f"module=API&method=VisitFrequency.get&idSite=3&period=day&date=yesterday&format=JSON&token_auth={MATOMO_ACCESS_KEY}"
         url = f"{MATOMO_API_URL}"
         return self.get_single_element_from_url(url, data)

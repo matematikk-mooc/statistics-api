@@ -157,14 +157,18 @@ LOGGING = {
     'disable_existing_loggers': False,
 
     'root': {
-        'level': 'ERROR',
-        'handlers': ['bugsnag'],
+        'level': 'INFO',
+        'handlers': ['bugsnag', 'console'],
     },
 
     'handlers': {
         'bugsnag': {
             'level': 'INFO',
             'class': 'bugsnag.handlers.BugsnagHandler',
+        },
+        'console' : {
+            'level' : 'INFO',
+            'class' : 'logging.StreamHandler',
         },
     }
 }

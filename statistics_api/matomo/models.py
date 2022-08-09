@@ -39,5 +39,5 @@ class PageStatistics(models.Model):
     exit_rate = models.CharField(max_length=10, null=True, blank=True)
     exit_visits = models.IntegerField(null=True, blank=True)
     entry_visits = models.IntegerField(null=True, blank=True)
-    segment = models.CharField(max_length=512)
+    segment = models.CharField(max_length=512, null=True, blank=True)
 

@@ -61,9 +61,10 @@ class Command(BaseCommand):
             segment = page.get('segment')
             canvas_course_id = None
             #Get course id from page url
-            match = re.search(r'%252Fcourses%252F(\d+)', segment)
-            if match:
-                canvas_course_id = match.group(1)
+            if segment is not None:
+                match = re.search(r'%252Fcourses%252F(\d+)', segment)
+                if match:
+                    canvas_course_id = match.group(1)
             PageStatistics.objects.create(
                 date = date,
                 label = page.get('label'),

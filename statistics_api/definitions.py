@@ -39,6 +39,9 @@ DJANGO_ALLOWED_HOSTS = [s.strip() for s in os.getenv("DJANGO_ALLOWED_HOSTS").spl
 
 BUGSNAG_API_KEY = os.getenv("BUGSNAG_API_KEY")
 
+MATOMO_ACCESS_KEY = os.getenv("MATOMO_ACCESS_KEY")
+MATOMO_API_URL = "https://statistik.digilaer.no/index.php"
+
 ####    END OF ENVIRONMENT VARIABLES  ####
 
 

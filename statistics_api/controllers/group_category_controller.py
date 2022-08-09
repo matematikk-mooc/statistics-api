@@ -26,7 +26,6 @@ def group_category(request: WSGIRequest, group_category_canvas_id: int):
                                                    NR_OF_DATES_LIMIT_KEY],
                                                 url_parameters_dict[
                                                     AGGREGATED])
-    print(aggregated)
     group_category_observations_between_dates_query: str = get_group_category_observations_between_dates_query()
     group_categories = GroupCategory.objects.raw(
         group_category_observations_between_dates_query,
@@ -48,7 +47,6 @@ def group_category(request: WSGIRequest, group_category_canvas_id: int):
     
     groups = Group.objects.raw(groups_by_group_category_ids_query)
     
-
     date_to_groups_mapping = defaultdict(list)
 
     for group in groups:

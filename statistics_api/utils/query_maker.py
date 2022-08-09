@@ -130,7 +130,7 @@ def get_groups_by_group_category_ids_query(group_category_ids: Tuple[int]) -> st
                 LEFT JOIN {CourseObservation._meta.db_table} ON {GROUP_CATEGORY_COURSE_FK} = {COURSE_OBSERVATION_ID}
                 WHERE {GROUP_CATEGORY_ID} IN ({group_category_ids_str})"""
 
-def get_aggregated_groups_by_group_category_ids_query(group_category_ids: Tuple[int]) -> str:
+def get_groups_by_group_category_ids_query_aggregated_parameter(group_category_ids: Tuple[int], aggregated: bool) -> str:
     if len(group_category_ids) == 0:
         group_category_ids_str = "NULL"
     elif len(group_category_ids) == 1:
@@ -142,7 +142,7 @@ def get_aggregated_groups_by_group_category_ids_query(group_category_ids: Tuple[
                 LEFT JOIN {GroupCategory._meta.db_table} ON {GROUP_GROUP_CATEGORY_FK} = {GROUP_CATEGORY_ID}
                 LEFT JOIN {CourseObservation._meta.db_table} ON {GROUP_CATEGORY_COURSE_FK} = {COURSE_OBSERVATION_ID}
                 WHERE {GROUP_CATEGORY_ID} IN ({group_category_ids_str})
-                AND {GROUP_AGGREGATED} = {True}"""
+                AND {GROUP_AGGREGATED} = {aggregated}"""
 
 def get_update_group_organization_numbers_query(group_ids_and_org_nrs: Tuple[Tuple[int, str]]) -> str:
     sql_values = []

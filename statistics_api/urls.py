@@ -25,7 +25,7 @@ from statistics_api.controllers.primary_schools_controller import municipality_p
 from statistics_api.controllers.version_controller import get_software_version
 from statistics_api.enrollment_activity.views import EnrollmentActivityViewSet
 from statistics_api.controllers.course_controller import course, course_count
-from statistics_api.controllers.group_category_controller import group_category, group_category_count, group_category_aggregated
+from statistics_api.controllers.group_category_controller import group_category, group_category_count
 from statistics_api.history.views import user_history, user_history_on_context, context_history, user_aggregated_history
 from statistics_api.quizzes.views import quiz_statistics, course_quizzes_statistics
 
@@ -36,7 +36,6 @@ urlpatterns = [
     url(r'^api/statistics/(\d+)/?$', course),
     url(r'^api/statistics/(\d+)/count$', course_count),
     url(r'^api/statistics/groupCategory/(\d+)$', group_category),
-    url(r'^api/statistics/groupCategory/(\d+)/aggregated$', group_category_aggregated),
     url(r'^api/statistics/groupCategory/(\d+)/count$', group_category_count),
     url(r'^api/statistics/primary_schools/municipality/(\d+)/course/(\d+)$', municipality_primary_school_statistics),
     url(r'^api/statistics/primary_schools/county/(\d+)/course/(\d+)$', county_primary_school_statistics),

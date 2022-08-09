@@ -24,6 +24,7 @@ COURSE_OBSERVATION_ID = f"`{COURSE_OBSERVATION_TBL_NAME}`.{CourseObservation._me
 GROUP_CATEGORY_COURSE_FK = GroupCategory.course.field.attname
 GROUP_CATEGORY_CANVAS_ID = f"{GroupCategory._meta.db_table}.{GroupCategory.canvas_id.field.name}"
 DATE_RETRIEVED = str(CourseObservation.date_retrieved.field.name)
+GROUP_AGGREGATED = Group.aggregated.field.name
 
 QUERY_FOR_EMPTY_RESULT = "SELECT NULL LIMIT 0"
 
@@ -129,6 +130,19 @@ def get_groups_by_group_category_ids_query(group_category_ids: Tuple[int]) -> st
                 LEFT JOIN {CourseObservation._meta.db_table} ON {GROUP_CATEGORY_COURSE_FK} = {COURSE_OBSERVATION_ID}
                 WHERE {GROUP_CATEGORY_ID} IN ({group_category_ids_str})"""
 
+def get_aggregated_groups_by_group_category_ids_query(group_category_ids: Tuple[int]) -> str:
+    if len(group_category_ids) == 0:
+        group_category_ids_str = "NULL"
+    elif len(group_category_ids) == 1:
+        group_category_ids_str = str(group_category_ids[0])
+    else:
+        group_category_ids_str = ", ".join([str(i) for i in group_category_ids])
+
+    return f"""SELECT `{Group._meta.db_table}`.*, {DATE_RETRIEVED} FROM `{Group._meta.db_table}`
+                LEFT JOIN {GroupCategory._meta.db_table} ON {GROUP_GROUP_CATEGORY_FK} = {GROUP_CATEGORY_ID}
+                LEFT JOIN {CourseObservation._meta.db_table} ON {GROUP_CATEGORY_COURSE_FK} = {COURSE_OBSERVATION_ID}
+                WHERE {GROUP_CATEGORY_ID} IN ({group_category_ids_str})
+                AND {GROUP_AGGREGATED} = {True}"""
 
 def get_update_group_organization_numbers_query(group_ids_and_org_nrs: Tuple[Tuple[int, str]]) -> str:
     sql_values = []

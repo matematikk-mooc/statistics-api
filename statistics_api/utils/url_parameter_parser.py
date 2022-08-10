@@ -13,12 +13,13 @@ END_DATE_KEY = "to"
 SHOW_SCHOOLS_KEY = "show_schools"
 NR_OF_DATES_LIMIT_KEY = "nr_of_dates_limit"
 ENROLLMENT_PERCENTAGE_CATEGORIES_KEY = "enrollment_percentage_categories"
+AGGREGATED = "aggregated"
 
 
 def get_url_parameters_dict(request: WSGIRequest) -> Dict:
     try:
         STRFTIME_FORMAT = "%Y-%m-%d"
-
+        aggregated: bool = request.GET.get(AGGREGATED)
         start_date_str: str = request.GET.get(START_DATE_KEY)
         end_date_str: str = request.GET.get(END_DATE_KEY)
         if request.GET.get(ENROLLMENT_PERCENTAGE_CATEGORIES_KEY):
@@ -45,6 +46,8 @@ def get_url_parameters_dict(request: WSGIRequest) -> Dict:
                 END_DATE_KEY: end_date,
                 SHOW_SCHOOLS_KEY: show_schools,
                 NR_OF_DATES_LIMIT_KEY: nr_of_dates_limit,
-                ENROLLMENT_PERCENTAGE_CATEGORIES_KEY: enrollment_percentage_categories}
+                ENROLLMENT_PERCENTAGE_CATEGORIES_KEY: enrollment_percentage_categories,
+                AGGREGATED: aggregated}
     except ValueError:
         raise ValidationError("Invalid parameter value.")
+ 

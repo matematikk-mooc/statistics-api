@@ -42,6 +42,8 @@ class CanvasApiClient:
 
     def get_single_element_from_url(self, target_url) -> Dict:
         web_response = self.web_session.get(target_url)
+        print("url: ", target_url)
+        print("status code: ", web_response.status_code)
         if web_response.status_code == 204:
             return None
         if web_response.status_code != 200:
@@ -50,6 +52,7 @@ class CanvasApiClient:
         return json.loads(web_response.text)
 
     def paginate_through_url(self, target_url: str, current_items: List = None) -> Tuple[Dict]:
+        print(target_url)
         if current_items is None:
             current_items = []
 
@@ -69,6 +72,16 @@ class CanvasApiClient:
         web_response = self.web_session.get(f"{CANVAS_API_URL}/users/self")
         account_json = json.loads(web_response.text)
         return int(account_json['id'])
+
+    def get_canvas_accounts(self) -> Tuple[Dict]:
+        """Get a list of accounts that the current user can view or manage"""
+        url = f"{CANVAS_API_URL}/accounts"
+        return self.paginate_through_url(url)
+
+    def get_account_users(self, account_id: int) -> Tuple[Dict]:
+        """Get a list of of users associated with specified account"""
+        url = f"{CANVAS_API_URL}/accounts/{account_id}/users?per_page=1000"
+        return self.paginate_through_url(url)
 
     def get_user_history(self, canvas_userid: int) -> Dict:
         url = f"{CANVAS_API_URL}/users/{canvas_userid}/history"

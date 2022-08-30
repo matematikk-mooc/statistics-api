@@ -18,6 +18,7 @@ class EnrollmentActivityViewSet(viewsets.ViewSet):
             queryset = queryset.filter(activity_date__gte=from_date)
         if to_date:
             queryset = queryset.filter(activity_date__lte=to_date)
+        queryset = queryset.order_by('-activity_date')
         serializer = EnrollmentActivitySerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -29,6 +30,7 @@ class EnrollmentActivityViewSet(viewsets.ViewSet):
             queryset = queryset.filter(activity_date__gte=from_date)
         if to_date:
             queryset = queryset.filter(activity_date__lte=to_date)
+        queryset = queryset.order_by('-activity_date')
         serializer = EnrollmentActivitySerializer(queryset, many=True)
         return Response(serializer.data)
 

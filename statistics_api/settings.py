@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'statistics_api.enrollment_activity',
     'statistics_api.history',
     'statistics_api.quizzes',
+    'statistics_api.matomo',
 
 ]
 
@@ -157,14 +158,18 @@ LOGGING = {
     'disable_existing_loggers': False,
 
     'root': {
-        'level': 'ERROR',
-        'handlers': ['bugsnag'],
+        'level': 'INFO',
+        'handlers': ['bugsnag', 'console'],
     },
 
     'handlers': {
         'bugsnag': {
             'level': 'INFO',
             'class': 'bugsnag.handlers.BugsnagHandler',
+        },
+        'console' : {
+            'level' : 'INFO',
+            'class' : 'logging.StreamHandler',
         },
     }
 }

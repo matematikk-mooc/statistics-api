@@ -6,6 +6,7 @@ class QuizStatistics(models.Model):
     canvas_quiz_id = models.CharField(max_length=10)
     canvas_course_id = models.CharField(max_length=10)
     canvas_id = models.CharField(max_length=80)
+    title = models.CharField(max_length=512, default="")
 
 class QuestionStatistics(models.Model):
     canvas_id = models.CharField(max_length=80)

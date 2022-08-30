@@ -27,10 +27,14 @@ from statistics_api.enrollment_activity.views import EnrollmentActivityViewSet
 from statistics_api.controllers.course_controller import course, course_count
 from statistics_api.controllers.group_category_controller import group_category, group_category_count
 from statistics_api.history.views import user_history, user_history_on_context, context_history, user_aggregated_history
+from statistics_api.matomo.views import visits_statistics, page_statistics, course_pages_statistics
 from statistics_api.quizzes.views import quiz_statistics
+from statistics_api.quizzes.views import quiz_statistics, course_quizzes_statistics
 
-user_activity = DefaultRouter()
-user_activity.register(r"user_activity", EnrollmentActivityViewSet, basename="enrollment_activity")
+
+router = DefaultRouter()
+router.register(r"user_activity", EnrollmentActivityViewSet, basename="enrollment_activity")
+
 
 urlpatterns = [
     url(r'^api/statistics/(\d+)/?$', course),
@@ -45,7 +49,12 @@ urlpatterns = [
     url(r'^api/statistics/context/(\d+)/history$', context_history),
     url(r'^api/statistics/user/(\d+)/history/aggregated$', user_aggregated_history),
     url(r'^api/statistics/course/(\d+)/quiz/(\d+)$', quiz_statistics),
+    url(r'^api/statistics/visits/$', visits_statistics),
+    url(r'^api/statistics/pages/$', page_statistics), 
+    url(r'^api/statistics/course/(\d+)/pages/$', course_pages_statistics), 
+    url(r'^api/statistics/course/(\d+)/quizzes$', course_quizzes_statistics),
+
     url(r'^version/?$', get_software_version),
 
-    path("api/statistics/", include(user_activity.urls)),
+    path("api/statistics/", include(router.urls)),
 ]

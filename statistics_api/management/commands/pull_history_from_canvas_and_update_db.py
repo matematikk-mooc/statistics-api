@@ -24,8 +24,8 @@ class Command(BaseCommand):
 
     def fetch_user_history(self, api_client, canvas_userid, date):
         history_response = api_client.get_user_history(canvas_userid)
-        print(sys.getrecursionlimit())
-        sys.setrecursionlimit(2000)
+        #print(sys.getrecursionlimit())
+        #sys.setrecursionlimit(2000)
         history = list(filter(lambda x: datetime.strptime(x['visited_at'], '%Y-%m-%d' + 'T' + '%H:%M:%S' + 'Z') >= datetime.combine(date, datetime.min.time()), history_response))
         print(history)
         for event in history:

@@ -5,7 +5,7 @@ class EnrollmentActivity(models.Model):
     id = models.AutoField(primary_key=True)
     course_id = models.IntegerField()
     course_name = models.CharField(
-        max_length=80,
+        max_length=255,
         help_text="Name of the course")
     active_users_count = models.IntegerField()
     activity_date = models.DateTimeField(

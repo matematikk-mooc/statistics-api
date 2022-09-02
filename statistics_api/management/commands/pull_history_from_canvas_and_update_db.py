@@ -1,5 +1,4 @@
 from datetime import date, timedelta, datetime
-import sys
 
 from django.core.management import BaseCommand
 from statistics_api.clients.canvas_api_client import CanvasApiClient
@@ -13,20 +12,21 @@ class Command(BaseCommand):
         api_client = CanvasApiClient()
         yesterday = date.today() - timedelta(1)
         accounts = api_client.get_canvas_accounts()
-        print("number of accounts: ", len(accounts))
         for account in accounts:
-            print("account: ", account.get("id"))
             users = api_client.get_account_users(account.get("id"))
-            print("Nuber of users: ", len(users))
             for user in users:
                 print("user: ", user.get("id"))
                 self.fetch_user_history(api_client, user.get("id"), yesterday)
 
     def fetch_user_history(self, api_client, canvas_userid, date):
         history_response = api_client.get_user_history(canvas_userid)
-        #print(sys.getrecursionlimit())
-        #sys.setrecursionlimit(2000)
-        history = list(filter(lambda x: datetime.strptime(x['visited_at'], '%Y-%m-%d' + 'T' + '%H:%M:%S' + 'Z') >= datetime.combine(date, datetime.min.time()), history_response))
+        history = list(
+            filter(
+                lambda x:
+                    datetime.strptime(x['visited_at'], '%Y-%m-%d' + 'T' + '%H:%M:%S' + 'Z') >= datetime.combine(date, datetime.min.time()),
+                    history_response
+            )
+        )
         print(history)
         for event in history:
             History.objects.get_or_create(

@@ -76,20 +76,22 @@ class CanvasApiClient:
         print(target_url)
         if current_items is None:
             current_items = []
-
-        web_response = self.paginated_result(target_url)
+        web_response = self.paginated_result_account_users(target_url)
         current_items += json.loads(web_response.text)
         yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
-        lastdate = datetime.datetime.strptime(current_items[len(current_items)-1].get('last_login') , '%Y-%m-%d' + 'T' + '%H:%M:%S' + 'Z')
-        while web_response.links.get('next') and lastdate >= yesterday:
+        lastactive_date = self.get_last_active_date(current_items[len(current_items)-1].get('last_login'))
+        while web_response.links.get('next') and lastactive_date >= yesterday:
             next_page_url = web_response.links['next'].get('url')
-            web_response = self.paginated_result(next_page_url)
             print(next_page_url)
+            web_response = self.paginated_result_account_users(next_page_url)
             current_items += json.loads(web_response.text)
-            lastdate = datetime.datetime.strptime(current_items[len(current_items)-1].get('last_login') , '%Y-%m-%d' + 'T' + '%H:%M:%S' + 'Z')
+            lastactive_date = self.get_last_active_date(current_items[len(current_items)-1].get('last_login'))
         return tuple(current_items)
 
-    def paginated_result(self, target_url:str) -> response:
+    def get_last_active_date(self, last_login):
+        return datetime.datetime.strptime(last_login, '%Y-%m-%d' + 'T' + '%H:%M:%S' + 'Z')
+
+    def paginated_result_account_users(self, target_url:str) -> response:
         web_response = self.web_session.get(target_url)
         if web_response.status_code != 200:
             print(web_response)
@@ -108,7 +110,7 @@ class CanvasApiClient:
 
     def get_account_users(self, account_id: int) -> Tuple[Dict]:
         """Get a list of of users associated with specified account"""
-        url = f"{CANVAS_API_URL}/accounts/{account_id}/users?sort=last_login&order=desc&per_page=100"
+        url = f"{CANVAS_API_URL}/accounts/{account_id}/users?sort=last_login&order=desc"
         return self.paginate_through_url_account_users(url)
 
     def get_user_history(self, canvas_userid: int) -> Dict:

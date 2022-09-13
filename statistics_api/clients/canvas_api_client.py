@@ -1,7 +1,12 @@
+import datetime
 import json
+from time import strftime
 from typing import Tuple, List, Dict
+from urllib import response
 
 import requests
+import arrow
+
 
 from statistics_api.definitions import CANVAS_ACCESS_KEY, CANVAS_API_URL, CA_FILE_PATH
 
@@ -42,6 +47,8 @@ class CanvasApiClient:
 
     def get_single_element_from_url(self, target_url) -> Dict:
         web_response = self.web_session.get(target_url)
+        print("url: ", target_url)
+        print("status code: ", web_response.status_code)
         if web_response.status_code == 204:
             return None
         if web_response.status_code != 200:
@@ -65,10 +72,46 @@ class CanvasApiClient:
         else:
             return tuple(current_items)
 
+    def paginate_through_url_account_users(self, target_url: str, current_items: List = None) -> Tuple[Dict]:
+        print(target_url)
+        if current_items is None:
+            current_items = []
+        web_response = self.paginated_result_account_users(target_url)
+        current_items += json.loads(web_response.text)
+        yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
+        lastactive_date = self.get_last_active_date(current_items[len(current_items)-1].get('last_login'))
+        while web_response.links.get('next') and lastactive_date >= yesterday:
+            next_page_url = web_response.links['next'].get('url')
+            print(next_page_url)
+            web_response = self.paginated_result_account_users(next_page_url)
+            current_items += json.loads(web_response.text)
+            lastactive_date = self.get_last_active_date(current_items[len(current_items)-1].get('last_login'))
+        return tuple(current_items)
+
+    def get_last_active_date(self, last_login):
+        return datetime.datetime.strptime(last_login, '%Y-%m-%d' + 'T' + '%H:%M:%S' + 'Z')
+
+    def paginated_result_account_users(self, target_url:str) -> response:
+        web_response = self.web_session.get(target_url)
+        if web_response.status_code != 200:
+            print(web_response)
+            raise AssertionError(f"Could not retrieve data from Canvas LMS instance at {CANVAS_API_URL}")
+        return web_response
+
     def get_canvas_account_id_of_current_user(self) -> int:
         web_response = self.web_session.get(f"{CANVAS_API_URL}/users/self")
         account_json = json.loads(web_response.text)
         return int(account_json['id'])
+
+    def get_canvas_accounts(self) -> Tuple[Dict]:
+        """Get a list of accounts that the current user can view or manage"""
+        url = f"{CANVAS_API_URL}/accounts"
+        return self.paginate_through_url(url)
+
+    def get_account_users(self, account_id: int) -> Tuple[Dict]:
+        """Get a list of of users associated with specified account"""
+        url = f"{CANVAS_API_URL}/accounts/{account_id}/users?sort=last_login&order=desc"
+        return self.paginate_through_url_account_users(url)
 
     def get_user_history(self, canvas_userid: int) -> Dict:
         url = f"{CANVAS_API_URL}/users/{canvas_userid}/history"
@@ -98,4 +141,3 @@ class CanvasApiClient:
     #def get_submission_events(self, course_id, quiz_id, submission_id):
     #    url = f"{CANVAS_API_URL}/courses/{course_id}/quizzes/{quiz_id}/submissions/{submission_id}/events?per_page=100"
     #    return self.paginate_through_url(url)
-

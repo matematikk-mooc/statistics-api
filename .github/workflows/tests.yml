@@ -114,7 +114,7 @@ jobs:
         run: |
           git lfs fetch --all
           git lfs pull
-          unzip $GITHUB_WORKSPACE/statistics_api/tests/data/test_canvas-api.zip -d /tmp/
+          unzip $GITHUB_WORKSPACE/statistics_api/tests/data/test_canvas-api.zip -d /tmp/statistics_api/tests/data/
           mysql --port=3307 --protocol=tcp --host=127.0.0.1 -uroot -proot test_canvas-api < /tmp/statistics_api/tests/data/test_canvas-api.sql 
       - name: Run Django unit tests
         run: |

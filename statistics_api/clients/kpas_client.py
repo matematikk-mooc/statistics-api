@@ -10,7 +10,7 @@ class KpasClient:
 
     def __init__(self):
         self.web_session = requests.Session()
-        self.web_session.headers = {"Authorization": f"Bearer {KPAS_API_ACCESS_TOKEN}"}
+        self.web_session.headers = {"Authorization": f"Bearer {KPAS_API_ACCESS_TOKEN}", "Accept": "application/json"}
 
         if CA_FILE_PATH:
             self.web_session.verify = CA_FILE_PATH

@@ -50,8 +50,10 @@ class KpasClient:
 
     def get_county(self, county_id: int) -> Union[Dict, None]:
         web_response = self.web_session.get(f"{KPAS_NSR_API_URL}/counties/{county_id}")
+        print("Response: ", web_response.text)
         try:
             response_json = web_response.json()
+            print("JSON: ", response_json)
             return response_json.get("result")
         except json.JSONDecodeError:
             print("Returned empty json")

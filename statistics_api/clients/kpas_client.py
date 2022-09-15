@@ -20,7 +20,7 @@ class KpasClient:
         try:
             response_json = web_response.json()
         except json.JSONDecodeError:
-            print("Receievd invalid json")
+            print("Received invalid json")
             return None
         return tuple(response_json.get("result"))
 
@@ -29,7 +29,7 @@ class KpasClient:
         try:
             response_json = web_response.json()
         except json.JSONDecodeError:
-            print("Receievd invalid json")
+            print("Received invalid json")
             return None
         return tuple(response_json.get("result"))
             
@@ -40,7 +40,7 @@ class KpasClient:
             response_json = web_response.json()
             return tuple(response_json.get("result"))
         except json.JSONDecodeError:
-            print("Receievd invalid json")
+            print("Received invalid json")
             return None
 
     def post_trigger_to_activate_schedule_of_job(self) -> None:
@@ -52,7 +52,7 @@ class KpasClient:
         try:
             response_json = web_response.json()
         except json.JSONDecodeError:
-            print("Receievd invalid json")
+            print("Received invalid json")
             return None
         return response_json.get("result")
 
@@ -71,6 +71,6 @@ class KpasClient:
         try:
             response_json = web_response.json()
         except json.JSONDecodeError:
-            print("Receievd invaild json")
+            print("Received invaild json")
             return None
         return tuple(response_json.get("result"))

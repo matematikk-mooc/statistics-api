@@ -131,7 +131,7 @@ class EnrollmentActivity(object):
         enrollment_activity['activity_date'] = yesterday
         enrollment_activity['active_users_count'] = active_users_count
         enrollment_activity['course_id'] = self.course_id
-        enrollment_activity['course_name'] = result['data']['course']['name']
+        enrollment_activity['course_name'] = result['data']['course']['name'].strip()
         self.logger.info(f"saving {enrollment_activity} to DB")
 
         created_enrollment_object = EnrollmentActivityModel(

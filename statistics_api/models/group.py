@@ -1,6 +1,6 @@
 from django.db import models
 
-from statistics_api.definitions import MYSQL_VARCHAR_DEFAULT_LENGTH
+from statistics_api.definitions import MYSQL_VARCHAR_DEFAULT_LENGTH, STRFTIME_FORMAT
 from statistics_api.models.base_model import BaseModel
 from statistics_api.models.group_category import GroupCategory
 
@@ -17,4 +17,4 @@ class Group(BaseModel):
     aggregated = models.BooleanField(default=False)
 
     class Meta:
-        db_table = "canvas_group"
+        db_table = "group"

@@ -27,7 +27,7 @@ class DatabaseMaintenanceClient:
     @staticmethod
     def insert_courses(courses: Tuple[Dict]) -> Tuple[Dict]:
         for course in courses:
-            db_course = CourseObservation(canvas_id=course['id'], name=course['name'])
+            db_course = CourseObservation(canvas_id=course['id'], name=course['name'].strip())
             db_course.save()
             course['db_id'] = db_course.pk
         return tuple(courses)
@@ -35,7 +35,7 @@ class DatabaseMaintenanceClient:
     @staticmethod
     def insert_group_categories(group_categories: List[Dict]) -> Tuple[Dict]:
         for group_category in group_categories:
-            db_group_category = GroupCategory(canvas_id=group_category['id'], name=group_category['name'],
+            db_group_category = GroupCategory(canvas_id=group_category['id'], name=group_category['name'].strip(),
                                               course_id=group_category['course_id'])
             db_group_category.save()
             group_category['db_id'] = db_group_category.pk
@@ -55,7 +55,7 @@ class DatabaseMaintenanceClient:
             is_aggregated = False
             if group['members_count'] < 5:
                 is_aggregated = True
-            db_group = Group(canvas_id=group['id'], group_category_id=group['group_category_id'], name=group['name'],
+            db_group = Group(canvas_id=group['id'], group_category_id=group['group_category_id'], name=group['name'].strip(),
                              description=group['description'], members_count=group['members_count'],
                              organization_number=org_nr, created_at=group['created_at'], aggregated=is_aggregated)
             db_group.save()

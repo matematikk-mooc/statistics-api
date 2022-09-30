@@ -11,25 +11,31 @@ class EnrollmentActivityViewSet(viewsets.ViewSet):
     """
 
     def list(self, request):
-        queryset = EnrollmentActivity.objects.all()
         from_date = request.GET.get("from")
         to_date = request.GET.get("to")
-        if from_date:
-            queryset = queryset.filter(activity_date__gte=from_date)
-        if to_date:
-            queryset = queryset.filter(activity_date__lte=to_date)
+        if from_date and to_date:
+            queryset = EnrollmentActivity.objects.filter(activity_date__gte=from_date, activity_date__lte=to_date)
+        elif from_date:
+            queryset = EnrollmentActivity.objects.filter(activity_date__gte=from_date)
+        elif to_date:
+            queryset = EnrollmentActivity.objects.filter(activity_date__lte=to_date)
+        else:
+            queryset = EnrollmentActivity.objects.all()
         queryset = queryset.order_by('-activity_date')
         serializer = EnrollmentActivitySerializer(queryset, many=True)
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None):
-        queryset = EnrollmentActivity.objects.all().filter(course_id=pk)
         from_date = request.GET.get("from")
         to_date = request.GET.get("to")
-        if from_date:
-            queryset = queryset.filter(activity_date__gte=from_date)
-        if to_date:
-            queryset = queryset.filter(activity_date__lte=to_date)
+        if from_date and to_date:
+            queryset = EnrollmentActivity.objects.filter(course_id=pk, activity_date__gte=from_date, activity_date__lte=to_date)
+        elif from_date:
+            queryset = EnrollmentActivity.objects.filter(course_id=pk, activity_date__gte=from_date)
+        elif to_date:
+            queryset = EnrollmentActivity.objects.filter(course_id=pk, activity_date__lte=to_date)
+        else:
+            queryset = EnrollmentActivity.objects.filter(course_id=pk)
         queryset = queryset.order_by('-activity_date')
         serializer = EnrollmentActivitySerializer(queryset, many=True)
         return Response(serializer.data)

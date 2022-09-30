@@ -53,32 +53,38 @@ class Command(BaseCommand):
     def fetch_page_statistics(self, matomo_api_client, date):
         '''fetch daily statistics for each url in domain'''
         pages = matomo_api_client.get_matomo_page_statistics()
-        self.update_db_page_statistics(date, pages)
+        self.page_statistics(date, pages, None)
 
-    def update_db_page_statistics(self, date, pages):
+    def page_statistics(self, date, pages, canvas_course_id):
         '''update db with page statistics'''
         for page in pages:
-            segment = page.get('segment')
-            canvas_course_id = None
-            #Get course id from page url
-            if segment is not None:
-                match = re.search(r'%252Fcourses%252F(\d+)', segment)
-                if match:
-                    canvas_course_id = match.group(1)
-            PageStatistics.objects.create(
-                date = date,
-                label = page.get('label'),
-                url = page.get('url'),
-                segment = page.get('segment'),
-                visits = page.get('nb_visits'),
-                sum_time_spent = page.get('sum_time_spent'), 
-                average_time_spent = page.get('avg_time_on_page'),
-                unique_visitors = page.get('nb_uniq_visitors'),
-                bounce_rate = page.get('bounce_rate'),
-                exit_rate = page.get('exit_rate'),
-                exit_visits = page.get('exit_nb_visits'),
-                entry_visits = page.get('entry_nb_visits'),
-                canvas_course_id = canvas_course_id
-            )
+            self.update_db(date, page, canvas_course_id)
+            if page.get('subtable') and page.get('label') == 'courses':
+                self.main_course_page(date, page['subtable'])
+            elif page.get('subtable'):
+                self.page_statistics(date, page['subtable'], canvas_course_id)
+
+    def main_course_page(self, date, pages):
+        for page in pages:
+            label = page.get('label')
+            canvas_course_id = ''.join(i for i in label if i.isdigit())
+            self.update_db(date, page, canvas_course_id)
             if page.get('subtable'):
-                self.update_db_page_statistics(date, page['subtable'])
+                self.page_statistics(date, page['subtable'], canvas_course_id)
+
+    def update_db(self, date, page, canvas_course_id):
+        PageStatistics.objects.create(
+            date = date,
+            label = page.get('label'),
+            url = page.get('url'),
+            segment = page.get('segment'),
+            visits = page.get('nb_visits'),
+            sum_time_spent = page.get('sum_time_spent'), 
+            average_time_spent = page.get('avg_time_on_page'),
+            unique_visitors = page.get('nb_uniq_visitors'),
+            bounce_rate = page.get('bounce_rate'),
+            exit_rate = page.get('exit_rate'),
+            exit_visits = page.get('exit_nb_visits'),
+            entry_visits = page.get('entry_nb_visits'),
+            canvas_course_id = canvas_course_id
+        )

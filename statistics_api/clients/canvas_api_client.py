@@ -59,7 +59,7 @@ class CanvasApiClient:
     def paginate_through_url(self, target_url: str, current_items: List = None) -> Tuple[Dict]:
         if current_items is None:
             current_items = []
-
+        print(target_url)
         web_response = self.web_session.get(target_url)
         if web_response.status_code != 200:
             print(web_response)
@@ -132,6 +132,14 @@ class CanvasApiClient:
         url = f"{CANVAS_API_URL}/courses/{course_id}/quizzes/{quiz_id}"
         return self.get_single_element_from_url(url)
 
+    def get_course_groups(self, course_id: int) -> Tuple[Dict]:
+        url = f"{CANVAS_API_URL}/courses/{course_id}/groups?per_page=100"
+        return self.paginate_through_url(url)
+
+    def get_group_users(self, group_id: int) -> Tuple[Dict]:
+        url = f"{CANVAS_API_URL}/groups/{group_id}/users?per_page=100"
+        return self.paginate_through_url(url)
+        
     # Below code might be used for open answer questions
     #def get_submissions_in_quiz(self, course_id, quiz_id):
     #    '''Get submissions in a given quiz'''

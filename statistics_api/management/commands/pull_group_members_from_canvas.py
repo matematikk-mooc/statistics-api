@@ -1,6 +1,7 @@
 import logging
 import sys
 
+from threading import Thread
 from django.core.management import BaseCommand
 from django.db import transaction
 
@@ -10,6 +11,7 @@ from statistics_api.canvas_users.models import CanvasUser
 
 class Command(BaseCommand):
 
+    @transaction.atomic
     def handle(self, *args, **options):
         logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
         logger = logging.getLogger()
@@ -28,29 +30,45 @@ class Command(BaseCommand):
                         groups
                 )
             )
-            for group in filtered_groups:
-                group_id = group.get('id')
-                group_name = group.get('name')
-                group_description = group.get('description')
-                member_count = group.get("members_count")
-                self.fetch_group_users(api_client, course_id, group_id, group_name, group_description, member_count)
+            midle_index = len(filtered_groups)//2 
+            first_half = filtered_groups[:midle_index]
+            second_half = filtered_groups[midle_index:]
+            threads = []
+            threads.append(Thread(target=self.parse_groups, args=(api_client, first_half, course_id)))
+            threads.append(Thread(target=self.parse_groups, args=(api_client, second_half, course_id)))
+            for thread in threads:
+                thread.start()
+            for thread in threads:
+                thread.join()
+    
 
+    def parse_groups(self, api_client, groups, course_id):
+        for group in groups:
+            group_id = group.get('id')
+            group_name = group.get('name')
+            group_description = group.get('description')
+            self.fetch_group_users(api_client, course_id, group_id, group_name, group_description)
 
     @transaction.atomic
-    def fetch_group_users(self, api_client, course_id, group_id, group_name, group_description, member_count):
-        if  member_count is not None and member_count > 0:  
-            users = api_client.get_group_users(group_id)
-            if users is None:
-                return
-            for user in users:
-                canvas_user_id = user.get('id')
-                CanvasUser.objects.get_or_create(
+    def fetch_group_users(self, api_client, course_id, group_id, group_name, group_description):
+        users = api_client.get_group_users(group_id)
+        if users is None:
+            return
+        objects_to_add = []
+        self.parse_users(users, objects_to_add, course_id, group_id,group_name, group_description)
+        CanvasUser.objects.bulk_create(objects_to_add)
+
+    
+    def parse_users(self, queue_users, objects_to_add, course_id, group_id, group_name, group_description):
+        for user in queue_users:
+            canvas_user_id = user.get('id')
+            exists = CanvasUser.objects.filter(canvas_user_id = canvas_user_id, course_id = course_id, group_id = group_id).exists()
+            if not exists:
+                new_user = CanvasUser(
                     canvas_user_id = canvas_user_id,
                     course_id = course_id,
                     group_id = group_id,
-                    defaults={
-                        "group_name" : group_name,
-                        "group_description" : group_description
-                        })
-        else: 
-            print("Count is 0. Group: ", group_name)
+                    group_name = group_name,
+                    group_description =group_description
+                )
+                objects_to_add.append(new_user)

@@ -6,7 +6,8 @@ from django.db import transaction
 
 from statistics_api.clients.canvas_api_client import CanvasApiClient
 from statistics_api.definitions import CANVAS_ACCOUNT_ID
-from statistics_api.quizzes.models import QuestionStatistics, QuizStatistics, Answer, AnswerSet, SubmissionStatistics
+from statistics_api.quizzes.models import QuestionStatistics, QuizStatistics, Answer, AnswerSet, SubmissionStatistics, AnswerUserGroup
+from statistics_api.canvas_users.models import CanvasUser
 
 class Command(BaseCommand):
 
@@ -18,15 +19,16 @@ class Command(BaseCommand):
         courses = api_client.get_courses(canvas_account_id=canvas_account_id)
         for course in courses:
             course_id = course.get('id')
+            course_user_groups = CanvasUser.objects.all().filter(course_id = course_id)
             quizzes = api_client.get_quizzes_in_course(course_id)
             for quiz in quizzes:
                 quiz_id = quiz.get('id')
-                self.fetch_statistics_from_single_quiz(api_client, course_id, quiz_id)
+                self.fetch_statistics_from_single_quiz(api_client, course_id, quiz_id, course_user_groups)
         #Temp:
         #self.fetch_statistics_from_single_quiz(api_client, 502, 2720)
 
     @transaction.atomic
-    def fetch_statistics_from_single_quiz(self, api_client, course_id, quiz_id):
+    def fetch_statistics_from_single_quiz(self, api_client, course_id, quiz_id, course_user_groups):
         response = api_client.get_quiz_statistics(course_id, quiz_id)
         if response is None:
             return
@@ -51,11 +53,11 @@ class Command(BaseCommand):
 
             if 'answer_sets' in question:
                 answer_sets = question['answer_sets']
-                self.parse_answer_sets(answer_sets, question_object)
+                self.parse_answer_sets(answer_sets, question_object, course_user_groups)
 
             if 'answers' in question:
                 answers = question['answers']
-                self.parse_answers(answers, question_object)
+                self.parse_answers(answers, question_object, course_user_groups)
 
         submission_object = quiz_data['submission_statistics']
         SubmissionStatistics.objects.update_or_create(
@@ -63,7 +65,7 @@ class Command(BaseCommand):
             defaults={
                 'unique_count' : submission_object.get('unique_count')})
 
-    def parse_answer_sets(self, answer_sets, question_object):
+    def parse_answer_sets(self, answer_sets, question_object, course_user_groups):
         for answer_set in answer_sets:
             answer_set_object, created =  AnswerSet.objects.update_or_create(
                 canvas_id = answer_set.get('id'),
@@ -71,23 +73,48 @@ class Command(BaseCommand):
                     'text': answer_set.get('text'),
                     'question_statistics' : question_object})
             answers = answer_set['answers']
-            self.parse_answers(answers, answer_set_object)
+            self.parse_answers(answers, answer_set_object, course_user_groups)
 
-    def parse_answers(self, answers, parent_object):
+    def parse_answers(self, answers, parent_object, course_user_groups):
         if isinstance(parent_object, AnswerSet):
             for answer in answers:
-                Answer.objects.update_or_create(
+                answer_obj, created = Answer.objects.update_or_create(
                     canvas_id=answer.get('id'),
                     answer_sets=parent_object,
                     defaults={
                         'text' : answer.get('text'),
                         'responses' : answer.get('responses')})
+                self.map_responses_to_groups(answer.get('user_ids'), answer_obj, course_user_groups)
 
         if isinstance(parent_object, QuestionStatistics):
             for answer in answers:
-                Answer.objects.update_or_create(
+                answer_obj, created = Answer.objects.update_or_create(
                     canvas_id=answer.get('id'),
                     question_statistics=parent_object,
                     defaults={
                         'text' : answer.get('text'),
                         'responses' : answer.get('responses')})
+                self.map_responses_to_groups(answer['user_ids'], answer_obj, course_user_groups)
+
+    def map_responses_to_groups(self, users, answer_obj, course_user_groups):
+        groups_count = []
+        for user in users:
+            groups = course_user_groups.filter(canvas_user_id = user)
+            if groups is None or len(groups) == 0:
+                continue
+            for group in groups:
+                count = [count for count in groups_count if count["group_id"] == getattr(group, "group_id")]
+                if len(count) > 0:
+                    count[0]["count"] += 1
+                else:
+                    groups_count.append({"group_id" : getattr(group, "group_id"), "group_name" : getattr(group, "group_name"), "count" : 1})
+
+        print("groups_count len: ", len(groups_count))
+        for user_group in groups_count:
+            AnswerUserGroup.objects.update_or_create(
+                group_id = user_group["group_id"],
+                answer = answer_obj,
+                defaults={
+                    "group_name" : user_group["group_name"],
+                    "count" : user_group["count"]
+                })

@@ -60,7 +60,7 @@ class AnswerSetSerializer(serializers.ModelSerializer):
 #        model = OpenAnswerResponse
 #        fields = (
 #            'id',
-#            'answer':
+#            'answer'
 #        )
 #        depth = 1
 

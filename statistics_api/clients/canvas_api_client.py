@@ -49,7 +49,7 @@ class CanvasApiClient:
         web_response = self.web_session.get(target_url)
         print("url: ", target_url)
         print("status code: ", web_response.status_code)
-        if web_response.status_code == 204:
+        if web_response.status_code == 204 or web_response.status_code == 404:
             return None
         if web_response.status_code != 200:
             raise AssertionError(f"Could not retrieve data from Canvas LMS instance at {CANVAS_API_URL}")
@@ -130,6 +130,10 @@ class CanvasApiClient:
     def get_quiz_metadata(self, course_id: int, quiz_id: int) -> Dict:
         '''Get metadata for a given quiz'''
         url = f"{CANVAS_API_URL}/courses/{course_id}/quizzes/{quiz_id}"
+        return self.get_single_element_from_url(url)
+
+    def get_course_analytics(self, course_id: int) -> Dict:
+        url = f"{CANVAS_API_URL}/courses/{course_id}/analytics/activity"
         return self.get_single_element_from_url(url)
 
     # Below code might be used for open answer questions

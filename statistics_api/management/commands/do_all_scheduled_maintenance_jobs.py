@@ -14,7 +14,7 @@ class Command(BaseCommand):
         logger = logging.getLogger()
         commands = ("trigger_scheduling_of_kpas_job", "pull_course_member_counts_from_canvas",
                     "fetch_course_enrollment_and_post_to_kpas", "pull_quiz_statistics_from_canvas_and_update_db",
-                    "pull_data_from_matomo", "pull_analytics_from_canvas")
+                    "pull_data_from_matomo")
 
         for command in commands:
             try:

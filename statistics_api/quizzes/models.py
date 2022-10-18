@@ -27,6 +27,12 @@ class Answer(models.Model):
     question_statistics = models.ForeignKey(QuestionStatistics, on_delete=models.CASCADE, related_name="answers", blank=True, null=True)
     answer_sets = models.ForeignKey(AnswerSet, on_delete=models.CASCADE, related_name="answers", blank=True, null=True)
 
+class AnswerUserGroup(models.Model):
+    group_name = models.CharField(max_length=255, blank=True, null=True)
+    group_id = models.CharField(max_length=80)
+    count = models.IntegerField()
+    answer = models.ForeignKey(Answer, on_delete=models.CASCADE, related_name="user_groups", blank=True, null=True)
+
 #class OpenAnswerResponse(models.Model):
 #    answer = models.CharField(max_length=512)
 #    question_statistics = models.ForeignKey(QuestionStatistics, on_delete=models.CASCADE, related_name="open_responses", blank=True, null=True)

@@ -1,11 +1,9 @@
 import datetime
 import json
-from time import strftime
 from typing import Tuple, List, Dict
 from urllib import response
 
 import requests
-import arrow
 
 
 from statistics_api.definitions import CANVAS_ACCESS_KEY, CANVAS_API_URL, CA_FILE_PATH
@@ -47,8 +45,6 @@ class CanvasApiClient:
 
     def get_single_element_from_url(self, target_url) -> Dict:
         web_response = self.web_session.get(target_url)
-        print("url: ", target_url)
-        print("status code: ", web_response.status_code)
         if web_response.status_code == 204:
             return None
         if web_response.status_code != 200:
@@ -59,7 +55,6 @@ class CanvasApiClient:
     def paginate_through_url(self, target_url: str, current_items: List = None) -> Tuple[Dict]:
         if current_items is None:
             current_items = []
-
         web_response = self.web_session.get(target_url)
         if web_response.status_code != 200:
             print(web_response)
@@ -73,7 +68,6 @@ class CanvasApiClient:
             return tuple(current_items)
 
     def paginate_through_url_account_users(self, target_url: str, current_items: List = None) -> Tuple[Dict]:
-        print(target_url)
         if current_items is None:
             current_items = []
         web_response = self.paginated_result_account_users(target_url)
@@ -82,7 +76,6 @@ class CanvasApiClient:
         lastactive_date = self.get_last_active_date(current_items[len(current_items)-1].get('last_login'))
         while web_response.links.get('next') and lastactive_date >= yesterday:
             next_page_url = web_response.links['next'].get('url')
-            print(next_page_url)
             web_response = self.paginated_result_account_users(next_page_url)
             current_items += json.loads(web_response.text)
             lastactive_date = self.get_last_active_date(current_items[len(current_items)-1].get('last_login'))
@@ -132,6 +125,14 @@ class CanvasApiClient:
         url = f"{CANVAS_API_URL}/courses/{course_id}/quizzes/{quiz_id}"
         return self.get_single_element_from_url(url)
 
+    def get_course_groups(self, course_id: int) -> Tuple[Dict]:
+        url = f"{CANVAS_API_URL}/courses/{course_id}/groups?per_page=100"
+        return self.paginate_through_url(url)
+
+    def get_group_users(self, group_id: int) -> Tuple[Dict]:
+        url = f"{CANVAS_API_URL}/groups/{group_id}/users?per_page=100"
+        return self.paginate_through_url(url)
+        
     # Below code might be used for open answer questions
     #def get_submissions_in_quiz(self, course_id, quiz_id):
     #    '''Get submissions in a given quiz'''

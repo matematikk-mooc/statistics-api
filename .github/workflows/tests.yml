@@ -118,7 +118,7 @@ jobs:
           mysql --port=3307 --protocol=tcp --host=127.0.0.1 -uroot -proot test_canvas-api < /tmp/test_canvas-api.sql 
       - name: Run Django unit tests
         run: |
-          DJANGO_DEBUG=True CANVAS_ACCESS_KEY=${{ secrets.CANVAS_ACCESS_KEY }} DJANGO_SETTINGS_MODULE=statistics_api.tests.test_settings DB_DATABASE=canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3307 PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py test --settings statistics_api.tests.test_settings --verbosity=3
+          DJANGO_DEBUG=True CANVAS_ACCESS_KEY=${{ secrets.CANVAS_ACCESS_KEY }} DJANGO_SETTINGS_MODULE=statistics_api.tests.test_settings DB_DATABASE=canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3307 PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py test --noinput --settings statistics_api.tests.test_settings --verbosity=3
 
       # Checking that only the issue is the SECURE_HSTS_SECONDS warning
       - name: Run manage.py check --deploy

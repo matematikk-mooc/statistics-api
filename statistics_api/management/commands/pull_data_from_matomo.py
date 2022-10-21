@@ -67,7 +67,7 @@ class Command(BaseCommand):
     def main_course_page(self, date, pages):
         for page in pages:
             label = page.get('label')
-            canvas_course_id = ''.join(i for i in label if i.isdigit())
+            canvas_course_id = ''.join(i for i in label if i.isdigit())[:3]
             self.update_db(date, page, canvas_course_id)
             if page.get('subtable'):
                 self.page_statistics(date, page['subtable'], canvas_course_id)

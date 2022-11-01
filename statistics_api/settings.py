@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     'statistics_api.quizzes',
     'statistics_api.matomo',
     'statistics_api.canvas_users',
-
+    'statistics_api.canvas_modules',
 ]
 
 MIDDLEWARE = [

@@ -47,6 +47,7 @@ class CanvasApiClient:
         web_response = self.web_session.get(target_url)
         if web_response.status_code == 204 or web_response.status_code == 401 or web_response.status_code == 404:
             print("Unautorized? ", web_response.status_code)
+            print("Returned not 200: ", target_url)
             return None
         if web_response.status_code != 200:
             print(web_response.status_code)
@@ -59,6 +60,8 @@ class CanvasApiClient:
             current_items = []
         web_response = self.web_session.get(target_url)
         if web_response.status_code == 404 or web_response.status_code == 401:
+            print("Unautorized? ", web_response.status_code)
+            print("Returned not 200: ", target_url)
             return None
         if web_response.status_code != 200:
             print(web_response)
@@ -155,6 +158,7 @@ class CanvasApiClient:
     
     def get_finnish_mark_per_student(self, course_id: int, module_id: int, student_id: int) -> Tuple[Dict]:
         url = f"{CANVAS_API_URL}/courses/{course_id}/modules/{module_id}/items?student_id={student_id}&per_page=100"
+        print(url)
         return self.paginate_through_url(url)
     
 

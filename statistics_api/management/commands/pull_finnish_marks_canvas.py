@@ -39,6 +39,7 @@ class Command(BaseCommand):
                 student_id = student.get("id")
                 finnish_marks = api_client.get_finnish_mark_per_student(course_id, module_id, student_id)
                 if finnish_marks is None:
+                    print("finnish marks is None")
                     continue
                 for finnish_mark in finnish_marks:
                     if finnish_mark.get("completion_requirement") is not None and finnish_mark["completion_requirement"].get("completed"):
@@ -56,6 +57,7 @@ class Command(BaseCommand):
                         })
                         stud, createdStudent = FinnishedStudent.objects.get_or_create(user_id = student_id, module_item = module_item, defaults={"completed" : True})
                         if createdStudent:
+                            print("Student ", student_id, " not counted")
                             self.count_groups(student_id, course_id, module_item)
 
 

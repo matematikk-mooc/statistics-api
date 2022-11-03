@@ -45,9 +45,7 @@ class CanvasApiClient:
 
     def get_single_element_from_url(self, target_url) -> Dict:
         web_response = self.web_session.get(target_url)
-        if web_response.status_code == 204 or web_response.status_code == 401 or web_response.status_code == 404:
-            print("Unautorized? ", web_response.status_code)
-            print("Returned not 200: ", target_url)
+        if web_response.status_code == 204 or web_response.status_code == 404:
             return None
         if web_response.status_code != 200:
             print(web_response.status_code)
@@ -59,9 +57,24 @@ class CanvasApiClient:
         if current_items is None:
             current_items = []
         web_response = self.web_session.get(target_url)
-        if web_response.status_code == 404 or web_response.status_code == 401:
-            print("Unautorized? ", web_response.status_code)
-            print("Returned not 200: ", target_url)
+        if web_response.status_code != 200:
+            print(web_response)
+            raise AssertionError(f"Could not retrieve data from Canvas LMS instance at {target_url}")
+        new_items = json.loads(web_response.text)
+        current_items += new_items
+        if web_response.links.get('next'):
+            next_page_url = web_response.links['next'].get('url')
+            return self.paginate_through_url(target_url=next_page_url, current_items=current_items)
+        else:
+            return tuple(current_items)
+
+    def paginate_through_url_module_items(self, target_url: str, current_items: List = None) -> Tuple[Dict]:
+        if current_items is None:
+            current_items = []
+        web_response = self.web_session.get(target_url)
+        if web_response.status_code == 401 or web_response.status_code == 403:
+            print("Completed course? ", web_response.status_code)
+            print(target_url)
             return None
         if web_response.status_code != 200:
             print(web_response)
@@ -73,6 +86,7 @@ class CanvasApiClient:
             return self.paginate_through_url(target_url=next_page_url, current_items=current_items)
         else:
             return tuple(current_items)
+
 
     def paginate_through_url_account_users(self, target_url: str, current_items: List = None) -> Tuple[Dict]:
         if current_items is None:
@@ -159,7 +173,7 @@ class CanvasApiClient:
     def get_finnish_mark_per_student(self, course_id: int, module_id: int, student_id: int) -> Tuple[Dict]:
         url = f"{CANVAS_API_URL}/courses/{course_id}/modules/{module_id}/items?student_id={student_id}&per_page=100"
         print(url)
-        return self.paginate_through_url(url)
+        return self.paginate_through_url_module_items(url)
     
 
     def get_course_module_items(self, course_id: int, module_id: int) -> Tuple[Dict]:
@@ -169,6 +183,11 @@ class CanvasApiClient:
     def get_student_completed_item(self, course_id: int, module_id: int, item_id: int, student_id: int) -> Dict:
         url = f"{CANVAS_API_URL}/courses/{course_id}/modules/{module_id}/items/{item_id}?student_id={student_id}"
         return self.get_single_element_from_url(url)
+
+    def get_student_completed(self, course_id: int, student_id: int) -> Dict:
+        url = f"{CANVAS_API_URL}/courses/{course_id}/enrollments?state[]=completed&user_id={student_id}"
+        return self.paginate_through_url(url)
+        
 
 
     # Below code might be used for open answer questions

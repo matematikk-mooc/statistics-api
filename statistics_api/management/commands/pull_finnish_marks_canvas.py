@@ -15,6 +15,9 @@ class Command(BaseCommand):
         canvas_account_id: int = CANVAS_ACCOUNT_ID if CANVAS_ACCOUNT_ID else api_client.get_canvas_account_id_of_current_user()
         courses = api_client.get_courses(canvas_account_id)
         for course in courses:
+            course_id = course.get('id')
+            if course_id == 360:
+                continue
             self.course_modules(api_client, course)
 
     def course_modules(self, api_client, course):
@@ -78,7 +81,6 @@ class Command(BaseCommand):
     def count_groups(self, student_id, course_id, module_item):
         groups = CanvasUser.objects.filter(canvas_user_id=student_id, course_id = course_id)
         if not groups:
-            print("no groups")
             FinnishMarkCount.objects.get_or_create(
                 module_item = module_item,
                 group_id = "0000",
@@ -88,7 +90,6 @@ class Command(BaseCommand):
             )
             FinnishMarkCount.objects.filter(module_item = module_item, group_id="0000").update(count=F("count") + 1)
         else:
-            print("member of groups")
             for group in groups:
                 FinnishMarkCount.objects.get_or_create(
                     module_item = module_item,

@@ -20,13 +20,15 @@ class Command(BaseCommand):
     def course_modules(self, api_client, course):
         course_id = course.get("id")
         modules = api_client.get_course_modules(course_id)
-        students = api_client.get_course_students_recently_active(course_id)
+        students = api_client.get_course_students_recently_active(course_id)        
         yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
         students_active_yesterday = [item for item in students if self.get_last_active_date(item.get("last_login")) >= yesterday ]
 
         for module in modules:
+            if not module.get("published"):
+                continue
             module_id = module.get("id")
-            module_obj, created = Module.objects.update_or_create(
+            module_object, created = Module.objects.update_or_create(
             canvas_id = module_id,
             course_id = course_id,
             defaults={
@@ -34,36 +36,49 @@ class Command(BaseCommand):
                 "published" : module.get("published"),
                 "position" : module.get("position")
             })
-
+        
             for student in students_active_yesterday:
                 student_id = student.get("id")
                 finnish_marks = api_client.get_finnish_mark_per_student(course_id, module_id, student_id)
                 if finnish_marks is None:
-                    print("finnish marks is None")
-                    continue
-                for finnish_mark in finnish_marks:
-                    if finnish_mark.get("completion_requirement") is not None and finnish_mark["completion_requirement"].get("completed"):
-                        item_id = finnish_mark.get("id")
-                        module_item, created = ModuleItem.objects.get_or_create(
-                        canvas_id = item_id,
-                        defaults={
-                            "module" : module_obj,
-                            "title" : finnish_mark.get("title"),
-                            "position" : finnish_mark.get("position"),
-                            "url" : finnish_mark.get("url"),
-                            "type" : finnish_mark.get("type"),
-                            "published" : finnish_mark.get("published"),
-                            "completion_type" : finnish_mark["completion_requirement"].get("type")
-                        })
-                        stud, createdStudent = FinnishedStudent.objects.get_or_create(user_id = student_id, module_item = module_item, defaults={"completed" : True})
-                        if createdStudent:
-                            print("Student ", student_id, " not counted")
-                            self.count_groups(student_id, course_id, module_item)
+                    print("student completed?")
+                    self.student_completed_course(api_client, course_id, student_id, module_id, module_object)
+                else:
+                    self.parse_module_items(module_object, finnish_marks, student_id, course_id, False)
 
+
+    def student_completed_course(self, api_client, course_id, user_id, module_id, module_object):
+        completed = api_client.get_student_completed(course_id, user_id)
+        if completed is []:
+            return
+        module_items = api_client.get_course_module_items(course_id, module_id)
+        self.parse_module_items(module_object, module_items, user_id, course_id, True)
+
+    def parse_module_items(self, module_object, module_items, user_id, course_id, completed_course):
+        for item in module_items:
+            if item.get("completion_requirement"):
+                if not completed_course and not item["completion_requirement"].get("completed"):
+                    continue
+                module_item, created = ModuleItem.objects.get_or_create(
+                    canvas_id = item.get("id"),
+                    defaults={
+                        "module" : module_object,
+                        "title" : item.get("title"),
+                        "position" : item.get("position"),
+                        "url" : item.get("url"),
+                        "type" : item.get("type"),
+                        "published" : item.get("published"),
+                        "completion_type" : item["completion_requirement"].get("type")
+                    }
+                )
+                student, createdStudent = FinnishedStudent.objects.get_or_create(user_id = user_id, module_item = module_item, defaults={"completed" : True})
+                if createdStudent:
+                    self.count_groups(user_id, course_id, module_item)
 
     def count_groups(self, student_id, course_id, module_item):
         groups = CanvasUser.objects.filter(canvas_user_id=student_id, course_id = course_id)
         if not groups:
+            print("no groups")
             FinnishMarkCount.objects.get_or_create(
                 module_item = module_item,
                 group_id = "0000",
@@ -73,6 +88,7 @@ class Command(BaseCommand):
             )
             FinnishMarkCount.objects.filter(module_item = module_item, group_id="0000").update(count=F("count") + 1)
         else:
+            print("member of groups")
             for group in groups:
                 FinnishMarkCount.objects.get_or_create(
                     module_item = module_item,

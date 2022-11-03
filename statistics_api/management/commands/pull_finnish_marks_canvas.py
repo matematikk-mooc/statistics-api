@@ -1,4 +1,6 @@
 import datetime
+from threading import Thread
+
 from django.core.management import BaseCommand
 from statistics_api.canvas_modules.models import Module, ModuleItem, FinnishedStudent, FinnishMarkCount
 from statistics_api.canvas_users.models import CanvasUser
@@ -11,9 +13,23 @@ from statistics_api.clients.canvas_api_client import CanvasApiClient
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
+        print("command pull_finnish_marks_canvas started")
         api_client = CanvasApiClient()
         canvas_account_id: int = CANVAS_ACCOUNT_ID if CANVAS_ACCOUNT_ID else api_client.get_canvas_account_id_of_current_user()
         courses = api_client.get_courses(canvas_account_id)
+        midle_index = len(courses)//2
+        first_half = courses[:midle_index]
+        second_half = courses[midle_index:]
+        threads = []
+        threads.append(Thread(target=self.parse_courses, args=(api_client, first_half)))
+        threads.append(Thread(target=self.parse_courses, args=(api_client, second_half)))
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join()
+        print("command pull_finnish_marks_canvas completed")
+
+    def parse_courses(self, api_client, courses):
         for course in courses:
             course_id = course.get('id')
             if course_id == 360:
@@ -23,7 +39,7 @@ class Command(BaseCommand):
     def course_modules(self, api_client, course):
         course_id = course.get("id")
         modules = api_client.get_course_modules(course_id)
-        students = api_client.get_course_students_recently_active(course_id)        
+        students = api_client.get_course_students_recently_active(course_id)
         yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
         students_active_yesterday = [item for item in students if self.get_last_active_date(item.get("last_login")) >= yesterday ]
 

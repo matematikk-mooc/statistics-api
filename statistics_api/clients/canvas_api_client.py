@@ -1,11 +1,9 @@
 import datetime
 import json
-from time import strftime
 from typing import Tuple, List, Dict
 from urllib import response
 
 import requests
-import arrow
 
 
 from statistics_api.definitions import CANVAS_ACCESS_KEY, CANVAS_API_URL, CA_FILE_PATH
@@ -47,11 +45,10 @@ class CanvasApiClient:
 
     def get_single_element_from_url(self, target_url) -> Dict:
         web_response = self.web_session.get(target_url)
-        print("url: ", target_url)
-        print("status code: ", web_response.status_code)
-        if web_response.status_code == 204:
+        if web_response.status_code in (204, 404):
             return None
         if web_response.status_code != 200:
+            print(web_response.status_code)
             raise AssertionError(f"Could not retrieve data from Canvas LMS instance at {CANVAS_API_URL}")
 
         return json.loads(web_response.text)
@@ -59,36 +56,54 @@ class CanvasApiClient:
     def paginate_through_url(self, target_url: str, current_items: List = None) -> Tuple[Dict]:
         if current_items is None:
             current_items = []
-
         web_response = self.web_session.get(target_url)
         if web_response.status_code != 200:
             print(web_response)
-            raise AssertionError(f"Could not retrieve data from Canvas LMS instance at {CANVAS_API_URL}")
+            raise AssertionError(f"Could not retrieve data from Canvas LMS instance at {target_url}")
         new_items = json.loads(web_response.text)
         current_items += new_items
         if web_response.links.get('next'):
             next_page_url = web_response.links['next'].get('url')
             return self.paginate_through_url(target_url=next_page_url, current_items=current_items)
-        else:
-            return tuple(current_items)
+        return tuple(current_items)
+
+    def paginate_through_url_module_items(self, target_url: str, current_items: List = None) -> Tuple[Dict]:
+        if current_items is None:
+            current_items = []
+        web_response = self.web_session.get(target_url)
+        if web_response.status_code in (401, 403):
+            print("Completed course? ", web_response.status_code)
+            print(target_url)
+            return None
+        if web_response.status_code != 200:
+            print(web_response)
+            raise AssertionError(f"Could not retrieve data from Canvas LMS instance at {target_url}")
+        new_items = json.loads(web_response.text)
+        current_items += new_items
+        if web_response.links.get('next'):
+            next_page_url = web_response.links['next'].get('url')
+            return self.paginate_through_url(target_url=next_page_url, current_items=current_items)
+        return tuple(current_items)
+
 
     def paginate_through_url_account_users(self, target_url: str, current_items: List = None) -> Tuple[Dict]:
-        print(target_url)
         if current_items is None:
             current_items = []
         web_response = self.paginated_result_account_users(target_url)
         current_items += json.loads(web_response.text)
         yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
-        lastactive_date = self.get_last_active_date(current_items[len(current_items)-1].get('last_login'))
+        if len(current_items)>0:
+            lastactive_date = self.get_last_active_date(current_items[len(current_items)-1].get('last_login'))
         while web_response.links.get('next') and lastactive_date >= yesterday:
             next_page_url = web_response.links['next'].get('url')
-            print(next_page_url)
             web_response = self.paginated_result_account_users(next_page_url)
             current_items += json.loads(web_response.text)
             lastactive_date = self.get_last_active_date(current_items[len(current_items)-1].get('last_login'))
         return tuple(current_items)
 
     def get_last_active_date(self, last_login):
+        if last_login is None:
+            return datetime.datetime.strptime("2000-01-01T00:00:00Z", '%Y-%m-%d' + 'T' + '%H:%M:%S' + 'Z')
         return datetime.datetime.strptime(last_login, '%Y-%m-%d' + 'T' + '%H:%M:%S' + 'Z')
 
     def paginated_result_account_users(self, target_url:str) -> response:
@@ -132,6 +147,44 @@ class CanvasApiClient:
         url = f"{CANVAS_API_URL}/courses/{course_id}/quizzes/{quiz_id}"
         return self.get_single_element_from_url(url)
 
+    def get_course_groups(self, course_id: int) -> Tuple[Dict]:
+        url = f"{CANVAS_API_URL}/courses/{course_id}/groups?per_page=100"
+        return self.paginate_through_url(url)
+
+    def get_group_users(self, group_id: int) -> Tuple[Dict]:
+        url = f"{CANVAS_API_URL}/groups/{group_id}/users?per_page=100"
+        return self.paginate_through_url(url)
+        
+    def get_course_students(self, course_id: int) -> Tuple[Dict]:
+        url = f"{CANVAS_API_URL}/courses/{course_id}/users?enrollment_type[]=student&per_page=100"
+        return self.paginate_through_url(url)
+
+
+    def get_course_students_recently_active(self, course_id) -> Tuple[Dict]:
+        url = f"{CANVAS_API_URL}/courses/{course_id}/recent_students?per_page=100"
+        return self.paginate_through_url_account_users(url)
+
+    def get_course_modules(self, course_id: int) -> Tuple[Dict]:
+        url = f"{CANVAS_API_URL}/courses/{course_id}/modules?per_page=100"
+        return self.paginate_through_url(url)
+    
+    def get_finnish_mark_per_student(self, course_id: int, module_id: int, student_id: int) -> Tuple[Dict]:
+        url = f"{CANVAS_API_URL}/courses/{course_id}/modules/{module_id}/items?student_id={student_id}&per_page=100"
+        return self.paginate_through_url_module_items(url)
+    
+
+    def get_course_module_items(self, course_id: int, module_id: int) -> Tuple[Dict]:
+        url = f"{CANVAS_API_URL}/courses/{course_id}/modules/{module_id}/items?per_page=100"
+        return self.paginate_through_url(url)
+
+    def get_student_completed_item(self, course_id: int, module_id: int, item_id: int, student_id: int) -> Dict:
+        url = f"{CANVAS_API_URL}/courses/{course_id}/modules/{module_id}/items/{item_id}?student_id={student_id}"
+        return self.get_single_element_from_url(url)
+
+    def get_student_completed(self, course_id: int, student_id: int) -> Dict:
+        url = f"{CANVAS_API_URL}/courses/{course_id}/enrollments?state[]=completed&user_id={student_id}"
+        return self.paginate_through_url(url)
+    
     # Below code might be used for open answer questions
     #def get_submissions_in_quiz(self, course_id, quiz_id):
     #    '''Get submissions in a given quiz'''

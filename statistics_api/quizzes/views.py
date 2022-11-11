@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
-from statistics_api.quizzes.models import Answer, AnswerSet, QuestionStatistics, QuizStatistics, SubmissionStatistics
+from statistics_api.quizzes.models import AnswerUserGroup, Answer, AnswerSet, QuestionStatistics, QuizStatistics, SubmissionStatistics
 
 # Create your views here.
 
@@ -18,14 +18,27 @@ def course_quizzes_statistics(self, course_id: int):
     result = QuizStatisticsSerializer(query, many=True)
     return Response(result.data)
 
+
+class AnswerUserGroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AnswerUserGroup
+        fields = (
+            'group_id',
+            'group_name',
+            'count'
+        )
+        depth = 1
+
 class AnswerSerializer(serializers.ModelSerializer):
+    user_groups = AnswerUserGroupSerializer(many=True)
     class Meta:
         model = Answer
         fields = (
             'id',
             'canvas_id',
             'text',
-            'responses'
+            'responses',
+            'user_groups'
         )
         depth = 1
 

@@ -30,7 +30,7 @@ DEBUG = DJANGO_DEBUG
 
 ALLOWED_HOSTS = DJANGO_ALLOWED_HOSTS
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 
 # Application definition

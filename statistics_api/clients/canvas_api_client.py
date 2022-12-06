@@ -184,13 +184,10 @@ class CanvasApiClient:
     def get_student_completed(self, course_id: int, student_id: int) -> Dict:
         url = f"{CANVAS_API_URL}/courses/{course_id}/enrollments?state[]=completed&user_id={student_id}"
         return self.paginate_through_url(url)
-    
-    # Below code might be used for open answer questions
-    #def get_submissions_in_quiz(self, course_id, quiz_id):
-    #    '''Get submissions in a given quiz'''
-    #    url = f"{CANVAS_API_URL}/courses/{course_id}/quizzes/{quiz_id}/submissions?per_page=100"
-    #    return self.paginate_through_url(url)
 
-    #def get_submission_events(self, course_id, quiz_id, submission_id):
-    #    url = f"{CANVAS_API_URL}/courses/{course_id}/quizzes/{quiz_id}/submissions/{submission_id}/events?per_page=100"
-    #    return self.paginate_through_url(url)
+    
+    def get_submissions_in_quiz(self, course_id, assignment_id):
+        '''Get submissions in a given quiz to access open answer responses'''
+        url = f"{CANVAS_API_URL}/courses/{course_id}/assignments/{assignment_id}/submissions?include[]=submission_history&per_page=100"
+        return self.paginate_through_url(url)
+

@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.db.models import Prefetch
 
-from statistics_api.quizzes.models import AnswerUserGroup, Answer, AnswerSet, QuestionStatistics, QuizStatistics, SubmissionStatistics
+from statistics_api.quizzes.models import AnswerUserGroup, Answer, AnswerSet, QuestionStatistics, QuizStatistics, SubmissionStatistics, OpenAnswerResponse
 
 # Create your views here.
 
@@ -20,6 +20,11 @@ def quiz_statistics(request, course_id: int, quiz_id: int):
                 Prefetch(
                     'question_statistics__answers__user_groups',
                     queryset=AnswerUserGroup.objects.filter(group_id__in=groups)
+                )
+            ).prefetch_related(
+                Prefetch(
+                    'question_statistics__open_responses',
+                    queryset=OpenAnswerResponse.objects.filter(group_id__in=groups)
                 )
             )
     else:
@@ -42,6 +47,11 @@ def course_quizzes_statistics(request, course_id: int):
                 Prefetch(
                     'question_statistics__answers__user_groups',
                     queryset=AnswerUserGroup.objects.filter(group_id__in=groups)
+                )
+            ).prefetch_related(
+                Prefetch(
+                    'question_statistics__open_responses',
+                    queryset=OpenAnswerResponse.objects.filter(group_id__in=groups)
                 )
             )
     else:
@@ -84,16 +94,18 @@ class AnswerSetSerializer(serializers.ModelSerializer):
         )
         depth = 1
 
-#class OpenAnswerResponseSerializer(serializers.ModelSerializer):
-#    class Meta:
-#        model = OpenAnswerResponse
-#        fields = (
-#            'id',
-#            'answer'
-#        )
-#        depth = 1
+class OpenAnswerResponseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OpenAnswerResponse
+        fields = (
+            'group_id',
+            'group_name',
+            'answer'
+        )
+        depth = 1
 
 class QuestionStatisticsSerializer(serializers.ModelSerializer):
+    open_responses = OpenAnswerResponseSerializer(many=True, required=False)
     answers = AnswerSerializer(many=True, required=False)
     answer_sets = AnswerSetSerializer(many=True)
     class Meta:
@@ -104,6 +116,7 @@ class QuestionStatisticsSerializer(serializers.ModelSerializer):
             'question_type',
             'question_text',
             'responses',
+            'open_responses',
             'answers',
             'answer_sets',
         )

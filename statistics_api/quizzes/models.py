@@ -37,6 +37,7 @@ class OpenAnswerResponse(models.Model):
     answer = models.CharField(max_length=1024)
     group_name = models.CharField(max_length=255, blank=True, null=True)
     group_id = models.CharField(max_length=80, blank=True, null=True)
+    submission_time = models.DateTimeField(null=True, blank=True)
     question_statistics = models.ForeignKey(QuestionStatistics, on_delete=models.CASCADE, related_name="open_responses", blank=True, null=True)
 
 class SubmissionStatistics(models.Model):

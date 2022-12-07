@@ -131,10 +131,11 @@ class Command(BaseCommand):
     def get_open_answers(self, api_client, course_id, course_user_groups, assignment_id, essay_questions):
         print(course_id)
         submissions = api_client.get_submissions_in_quiz(course_id, assignment_id)
-        yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
+        yesterday = datetime.datetime.now() - datetime.timedelta(days=3)
         latest_submissions = [submission for submission in submissions if self.get_submitted_date(submission.get("submitted_at")) > yesterday]
         for submission in latest_submissions:
             user_id = submission.get("user_id")
+            submitted_time = self.get_submitted_date(submission.get("submitted_at"))
             groups = course_user_groups.filter(canvas_user_id = user_id)
             for history in submission.get("submission_history"):
                 questions = history.get("submission_data")
@@ -146,6 +147,7 @@ class Command(BaseCommand):
                             question_statistics = db_question,
                             answer = question.get("text"),
                             defaults = {
+                                "submission_time" : submitted_time,
                                 "group_id" : "0000",
                                 "group_name" : "no_group"
                             }
@@ -158,6 +160,7 @@ class Command(BaseCommand):
                                 question_statistics = db_question,
                                 answer = question.get("text"),
                                 defaults = {
+                                    "submission_time" : submitted_time,
                                     "group_id" : getattr(group, "group_id"),
                                     "group_name" : getattr(group, "group_name")
                                 }

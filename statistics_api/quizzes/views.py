@@ -100,6 +100,7 @@ class OpenAnswerResponseSerializer(serializers.ModelSerializer):
         fields = (
             'group_id',
             'group_name',
+            'submission_time',
             'answer'
         )
         depth = 1

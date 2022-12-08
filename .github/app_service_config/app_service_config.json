@@ -51,7 +51,7 @@
   },
   {
     "name": "KPAS_DOMAIN",
-    "value": "kpas-lti.azurewebsites.net",
+    "value": "kpas.kompetanse.udir.no",
     "slotSetting": true
   },
   {

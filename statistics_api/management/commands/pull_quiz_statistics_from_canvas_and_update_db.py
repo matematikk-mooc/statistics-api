@@ -152,8 +152,7 @@ class Command(BaseCommand):
                                 "group_name" : "no_group"
                             }
                         )
-                        print(created)
-                        print(oao)
+
                     else:
                         for group in groups:
                             oao, created = OpenAnswerResponse.objects.get_or_create(
@@ -165,8 +164,7 @@ class Command(BaseCommand):
                                     "group_name" : getattr(group, "group_name")
                                 }
                             )
-                            print(created)
-                            print(oao)
+
 
     def get_submitted_date(self, submitted_at):
         if submitted_at is None:

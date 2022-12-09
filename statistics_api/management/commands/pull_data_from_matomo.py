@@ -5,7 +5,7 @@ from datetime import date, timedelta
 
 from django.core.management import BaseCommand
 from django.db import transaction
-import re 
+import re
 from statistics_api.clients.matomo_api_client import MatomoApiClient
 from statistics_api.matomo.models import Visits, PageStatistics
 
@@ -27,27 +27,27 @@ class Command(BaseCommand):
         unique_visitors = matomo_api_client.get_matomo_unique_visitors()
         frequency = matomo_api_client.get_matomo_visit_frequency()
         Visits.objects.update_or_create(date=date, defaults={
-            'visits' : visits.get('value'),
-            'unique_visitors' : unique_visitors.get('value'),
-            'unique_visitors_new' : frequency.get('nb_uniq_visitors_new'),
-            'unique_visitors_returning' : frequency.get('nb_uniq_visitors_returning'),
-            'visits_new' : frequency.get('nb_visits_new'),
-            'visits_returning' : frequency.get('nb_visits_returning'),
-            'bounce_count_new' : frequency.get('bounce_count_new'),
-            'bounce_count_returning' : frequency.get('bounce_count_returning'),
-            'sum_visit_length_new' : frequency.get('sum_visit_length_new'),
-            'sum_visit_length_returning' : frequency.get('sum_visit_length_returning'),
-            'actions_new' : frequency.get('nb_actions_new'),
-            'actions_returning' : frequency.get('nb_actions_returning'),
-            'max_actions_new' : frequency.get('max_actions_new'),
-            'max_actions_returning' : frequency.get('max_actions_returning'),
-            'bounce_rate_new' : frequency.get('bounce_rate_new'),
-            'bounce_rate_returning' : frequency.get('bounce_rate_returning'),
-            'avg_time_on_site_new' : frequency.get('avg_time_on_site_new'),
-            'avg_time_on_site_returning' : frequency.get('avg_time_on_site_returning'),
-            'actions_per_visit_new' : frequency.get('nb_actions_per_visit_new'),
-            'actions_per_visit_returning' : frequency.get('nb_actions_per_visit_returning'),
-            })
+            'visits': visits.get('value'),
+            'unique_visitors': unique_visitors.get('value'),
+            'unique_visitors_new': frequency.get('nb_uniq_visitors_new'),
+            'unique_visitors_returning': frequency.get('nb_uniq_visitors_returning'),
+            'visits_new': frequency.get('nb_visits_new'),
+            'visits_returning': frequency.get('nb_visits_returning'),
+            'bounce_count_new': frequency.get('bounce_count_new'),
+            'bounce_count_returning': frequency.get('bounce_count_returning'),
+            'sum_visit_length_new': frequency.get('sum_visit_length_new'),
+            'sum_visit_length_returning': frequency.get('sum_visit_length_returning'),
+            'actions_new': frequency.get('nb_actions_new'),
+            'actions_returning': frequency.get('nb_actions_returning'),
+            'max_actions_new': frequency.get('max_actions_new'),
+            'max_actions_returning': frequency.get('max_actions_returning'),
+            'bounce_rate_new': frequency.get('bounce_rate_new'),
+            'bounce_rate_returning': frequency.get('bounce_rate_returning'),
+            'avg_time_on_site_new': frequency.get('avg_time_on_site_new'),
+            'avg_time_on_site_returning': frequency.get('avg_time_on_site_returning'),
+            'actions_per_visit_new': frequency.get('nb_actions_per_visit_new'),
+            'actions_per_visit_returning': frequency.get('nb_actions_per_visit_returning'),
+        })
 
     @transaction.atomic
     def fetch_page_statistics(self, matomo_api_client, date):
@@ -79,17 +79,17 @@ class Command(BaseCommand):
 
     def update_db(self, date, page, canvas_course_id):
         PageStatistics.objects.create(
-            date = date,
-            label = page.get('label'),
-            url = page.get('url'),
-            segment = page.get('segment'),
-            visits = page.get('nb_visits'),
-            sum_time_spent = page.get('sum_time_spent'), 
-            average_time_spent = page.get('avg_time_on_page'),
-            unique_visitors = page.get('nb_uniq_visitors'),
-            bounce_rate = page.get('bounce_rate'),
-            exit_rate = page.get('exit_rate'),
-            exit_visits = page.get('exit_nb_visits'),
-            entry_visits = page.get('entry_nb_visits'),
-            canvas_course_id = canvas_course_id
+            date=date,
+            label=page.get('label'),
+            url=page.get('url'),
+            segment=page.get('segment'),
+            visits=page.get('nb_visits'),
+            sum_time_spent=page.get('sum_time_spent'),
+            average_time_spent=page.get('avg_time_on_page'),
+            unique_visitors=page.get('nb_uniq_visitors'),
+            bounce_rate=page.get('bounce_rate'),
+            exit_rate=page.get('exit_rate'),
+            exit_visits=page.get('exit_nb_visits'),
+            entry_visits=page.get('entry_nb_visits'),
+            canvas_course_id=canvas_course_id
         )

@@ -9,6 +9,7 @@ from statistics_api.clients.canvas_api_client import CanvasApiClient
 from statistics_api.definitions import CANVAS_ACCOUNT_ID
 from statistics_api.canvas_users.models import CanvasUser
 
+
 class Command(BaseCommand):
 
     @transaction.atomic
@@ -26,21 +27,19 @@ class Command(BaseCommand):
             filtered_groups = list(
                 filter(
                     lambda x:
-                        x["members_count"] > 0,
-                        groups
+                    x["members_count"] > 0,
+                    groups
                 )
             )
-            midle_index = len(filtered_groups)//2 
+            midle_index = len(filtered_groups) // 2
             first_half = filtered_groups[:midle_index]
             second_half = filtered_groups[midle_index:]
-            threads = []
-            threads.append(Thread(target=self.parse_groups, args=(api_client, first_half, course_id)))
-            threads.append(Thread(target=self.parse_groups, args=(api_client, second_half, course_id)))
+            threads = [Thread(target=self.parse_groups, args=(api_client, first_half, course_id)),
+                       Thread(target=self.parse_groups, args=(api_client, second_half, course_id))]
             for thread in threads:
                 thread.start()
             for thread in threads:
                 thread.join()
-    
 
     def parse_groups(self, api_client, groups, course_id):
         for group in groups:
@@ -55,20 +54,20 @@ class Command(BaseCommand):
         if users is None:
             return
         objects_to_add = []
-        self.parse_users(users, objects_to_add, course_id, group_id,group_name, group_description)
+        self.parse_users(users, objects_to_add, course_id, group_id, group_name, group_description)
         CanvasUser.objects.bulk_create(objects_to_add)
 
-    
     def parse_users(self, queue_users, objects_to_add, course_id, group_id, group_name, group_description):
         for user in queue_users:
             canvas_user_id = user.get('id')
-            exists = CanvasUser.objects.filter(canvas_user_id = canvas_user_id, course_id = course_id, group_id = group_id).exists()
+            exists = CanvasUser.objects.filter(canvas_user_id=canvas_user_id, course_id=course_id,
+                                               group_id=group_id).exists()
             if not exists:
                 new_user = CanvasUser(
-                    canvas_user_id = canvas_user_id,
-                    course_id = course_id,
-                    group_id = group_id,
-                    group_name = group_name,
-                    group_description =group_description
+                    canvas_user_id=canvas_user_id,
+                    course_id=course_id,
+                    group_id=group_id,
+                    group_name=group_name,
+                    group_description=group_description
                 )
                 objects_to_add.append(new_user)

@@ -7,8 +7,10 @@ from django.db import transaction
 
 from statistics_api.clients.canvas_api_client import CanvasApiClient
 from statistics_api.definitions import CANVAS_ACCOUNT_ID
-from statistics_api.quizzes.models import QuestionStatistics, QuizStatistics, Answer, AnswerSet, SubmissionStatistics, AnswerUserGroup, OpenAnswerResponse
+from statistics_api.quizzes.models import QuestionStatistics, QuizStatistics, Answer, AnswerSet, SubmissionStatistics, \
+    AnswerUserGroup, OpenAnswerResponse
 from statistics_api.canvas_users.models import CanvasUser
+
 
 class Command(BaseCommand):
 
@@ -22,7 +24,7 @@ class Command(BaseCommand):
             course_id = course.get('id')
             if course_id == 360:
                 continue
-            course_user_groups = CanvasUser.objects.all().filter(course_id = course_id)
+            course_user_groups = CanvasUser.objects.all().filter(course_id=course_id)
             quizzes = api_client.get_quizzes_in_course(course_id)
             for quiz in quizzes:
                 quiz_id = quiz.get('id')
@@ -39,8 +41,8 @@ class Command(BaseCommand):
             canvas_course_id=course_id,
             canvas_quiz_id=quiz_id,
             defaults={
-                'canvas_id' : quiz_data.get('id'),
-                'title' : quiz_metadata.get('title')})
+                'canvas_id': quiz_data.get('id'),
+                'title': quiz_metadata.get('title')})
 
         question_data = quiz_data['question_statistics']
         open_answers = []
@@ -48,10 +50,10 @@ class Command(BaseCommand):
             question_object, created = QuestionStatistics.objects.update_or_create(
                 canvas_id=question.get('id'),
                 defaults={
-                    'question_type' : question.get('question_type'),
-                    'question_text' : question.get('question_text'),
-                    'responses' : question.get('responses'),
-                    'quiz_statistics' : statistics_object})
+                    'question_type': question.get('question_type'),
+                    'question_text': question.get('question_text'),
+                    'responses': question.get('responses'),
+                    'quiz_statistics': statistics_object})
 
             if 'answer_sets' in question:
                 answer_sets = question['answer_sets']
@@ -69,19 +71,19 @@ class Command(BaseCommand):
         SubmissionStatistics.objects.update_or_create(
             quiz_statistics=statistics_object,
             defaults={
-                'unique_count' : submission_object.get('unique_count')})
+                'unique_count': submission_object.get('unique_count')})
 
         if quiz_metadata.get("assignment_id") and len(open_answers) > 0:
-            self.get_open_answers(api_client, course_id, course_user_groups, quiz_metadata.get("assignment_id"), open_answers)
-
+            self.get_open_answers(api_client, course_id, course_user_groups, quiz_metadata.get("assignment_id"),
+                                  open_answers)
 
     def parse_answer_sets(self, answer_sets, question_object, course_user_groups):
         for answer_set in answer_sets:
-            answer_set_object, created =  AnswerSet.objects.update_or_create(
-                canvas_id = answer_set.get('id'),
+            answer_set_object, created = AnswerSet.objects.update_or_create(
+                canvas_id=answer_set.get('id'),
                 defaults={
                     'text': answer_set.get('text'),
-                    'question_statistics' : question_object})
+                    'question_statistics': question_object})
             answers = answer_set['answers']
             self.parse_answers(answers, answer_set_object, course_user_groups)
 
@@ -92,8 +94,8 @@ class Command(BaseCommand):
                     canvas_id=answer.get('id'),
                     answer_sets=parent_object,
                     defaults={
-                        'text' : answer.get('text'),
-                        'responses' : answer.get('responses')})
+                        'text': answer.get('text'),
+                        'responses': answer.get('responses')})
                 self.map_responses_to_groups(answer.get('user_ids'), answer_obj, course_user_groups)
 
         if isinstance(parent_object, QuestionStatistics):
@@ -102,14 +104,14 @@ class Command(BaseCommand):
                     canvas_id=answer.get('id'),
                     question_statistics=parent_object,
                     defaults={
-                        'text' : answer.get('text'),
-                        'responses' : answer.get('responses')})
+                        'text': answer.get('text'),
+                        'responses': answer.get('responses')})
                 self.map_responses_to_groups(answer['user_ids'], answer_obj, course_user_groups)
 
     def map_responses_to_groups(self, users, answer_obj, course_user_groups):
         groups_count = []
         for user in users:
-            groups = course_user_groups.filter(canvas_user_id = user)
+            groups = course_user_groups.filter(canvas_user_id=user)
             if groups is None or len(groups) == 0:
                 continue
             for group in groups:
@@ -117,54 +119,56 @@ class Command(BaseCommand):
                 if len(count) > 0:
                     count[0]["count"] += 1
                 else:
-                    groups_count.append({"group_id" : getattr(group, "group_id"), "group_name" : getattr(group, "group_name"), "count" : 1})
+                    groups_count.append(
+                        {"group_id": getattr(group, "group_id"), "group_name": getattr(group, "group_name"),
+                         "count": 1})
 
         for user_group in groups_count:
             AnswerUserGroup.objects.update_or_create(
-                group_id = user_group["group_id"],
-                answer = answer_obj,
+                group_id=user_group["group_id"],
+                answer=answer_obj,
                 defaults={
-                    "group_name" : user_group["group_name"],
-                    "count" : user_group["count"]
+                    "group_name": user_group["group_name"],
+                    "count": user_group["count"]
                 })
 
     def get_open_answers(self, api_client, course_id, course_user_groups, assignment_id, essay_questions):
         print(course_id)
         submissions = api_client.get_submissions_in_quiz(course_id, assignment_id)
-        yesterday = datetime.datetime.now() - datetime.timedelta(days=3)
-        latest_submissions = [submission for submission in submissions if self.get_submitted_date(submission.get("submitted_at")) > yesterday]
+        yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
+        latest_submissions = [submission for submission in submissions if
+                              self.get_submitted_date(submission.get("submitted_at")) > yesterday]
         for submission in latest_submissions:
             user_id = submission.get("user_id")
             submitted_time = self.get_submitted_date(submission.get("submitted_at"))
-            groups = course_user_groups.filter(canvas_user_id = user_id)
+            groups = course_user_groups.filter(canvas_user_id=user_id)
             for history in submission.get("submission_history"):
                 questions = history.get("submission_data")
                 oa_questions = [question for question in questions if question["question_id"] in essay_questions]
                 for question in oa_questions:
-                    db_question = QuestionStatistics.objects.get(canvas_id = question.get("question_id"))
+                    db_question = QuestionStatistics.objects.get(canvas_id=question.get("question_id"))
                     if not groups:
-                        oao, created = OpenAnswerResponse.objects.get_or_create(
-                            question_statistics = db_question,
-                            answer = question.get("text"),
-                            defaults = {
-                                "submission_time" : submitted_time,
-                                "group_id" : "0000",
-                                "group_name" : "no_group"
+                        OpenAnswerResponse.objects.create(
+                            question_statistics=db_question,
+                            answer=question.get("text"),
+                            defaults={
+                                "submission_time": submitted_time,
+                                "group_id": "0000",
+                                "group_name": "no_group"
                             }
                         )
 
                     else:
                         for group in groups:
-                            oao, created = OpenAnswerResponse.objects.get_or_create(
-                                question_statistics = db_question,
-                                answer = question.get("text"),
-                                defaults = {
-                                    "submission_time" : submitted_time,
-                                    "group_id" : getattr(group, "group_id"),
-                                    "group_name" : getattr(group, "group_name")
+                            OpenAnswerResponse.objects.create(
+                                question_statistics=db_question,
+                                answer=question.get("text"),
+                                defaults={
+                                    "submission_time": submitted_time,
+                                    "group_id": getattr(group, "group_id"),
+                                    "group_name": getattr(group, "group_name")
                                 }
                             )
-
 
     def get_submitted_date(self, submitted_at):
         if submitted_at is None:

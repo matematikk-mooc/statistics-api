@@ -6,7 +6,7 @@ from django.core.management import BaseCommand
 from django.db import transaction
 
 from statistics_api.clients.canvas_api_client import CanvasApiClient
-from statistics_api.definitions import CANVAS_ACCOUNT_ID, CANVAS_DOMAIN
+from statistics_api.definitions import CANVAS_ACCOUNT_ID
 from statistics_api.quizzes.models import QuestionStatistics, QuizStatistics, Answer, AnswerSet, SubmissionStatistics, \
     AnswerUserGroup, OpenAnswerResponse
 from statistics_api.canvas_users.models import CanvasUser

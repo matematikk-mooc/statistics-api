@@ -6,7 +6,7 @@ from django.core.management import BaseCommand
 from django.db import transaction
 
 from statistics_api.clients.canvas_api_client import CanvasApiClient
-from statistics_api.definitions import CANVAS_ACCOUNT_ID
+from statistics_api.definitions import CANVAS_ACCOUNT_ID, CANVAS_DOMAIN
 from statistics_api.quizzes.models import QuestionStatistics, QuizStatistics, Answer, AnswerSet, SubmissionStatistics, \
     AnswerUserGroup, OpenAnswerResponse
 from statistics_api.canvas_users.models import CanvasUser
@@ -133,7 +133,6 @@ class Command(BaseCommand):
                 })
 
     def get_open_answers(self, api_client, course_id, course_user_groups, assignment_id, essay_questions):
-        print(course_id)
         submissions = api_client.get_submissions_in_quiz(course_id, assignment_id)
         yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
         latest_submissions = [submission for submission in submissions if
@@ -151,23 +150,18 @@ class Command(BaseCommand):
                         OpenAnswerResponse.objects.create(
                             question_statistics=db_question,
                             answer=question.get("text"),
-                            defaults={
-                                "submission_time": submitted_time,
-                                "group_id": "0000",
-                                "group_name": "no_group"
-                            }
+                            submission_time=submitted_time,
+                            group_id="0000",
+                            group_name="no_group"
                         )
-
                     else:
                         for group in groups:
                             OpenAnswerResponse.objects.create(
                                 question_statistics=db_question,
                                 answer=question.get("text"),
-                                defaults={
-                                    "submission_time": submitted_time,
-                                    "group_id": getattr(group, "group_id"),
-                                    "group_name": getattr(group, "group_name")
-                                }
+                                submission_time=submitted_time,
+                                group_id=getattr(group, "group_id"),
+                                group_name=getattr(group, "group_name")
                             )
 
     def get_submitted_date(self, submitted_at):

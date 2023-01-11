@@ -132,20 +132,20 @@ class CanvasApiClient:
         url = f"{CANVAS_API_URL}/users/{canvas_userid}/history"
         return self.get_single_element_from_url(url)
 
-    def get_quizzes_in_course(self, course_id):
-        '''Get all quizzes in a given course'''
-        url = f"{CANVAS_API_URL}/courses/{course_id}/quizzes?per_page=100"
-        return self.paginate_through_url(url)
+    # def get_quizzes_in_course(self, course_id):
+    #     '''Get all quizzes in a given course'''
+    #     url = f"{CANVAS_API_URL}/courses/{course_id}/quizzes?per_page=100"
+    #     return self.paginate_through_url(url)
 
-    def get_quiz_statistics(self, course_id: int, quiz_id: int) -> Dict:
-        '''Get statistics for a given quiz'''
-        url = f"{CANVAS_API_URL}/courses/{course_id}/quizzes/{quiz_id}/statistics"
-        return self.get_single_element_from_url(url)
+    # def get_quiz_statistics(self, course_id: int, quiz_id: int) -> Dict:
+    #     '''Get statistics for a given quiz'''
+    #     url = f"{CANVAS_API_URL}/courses/{course_id}/quizzes/{quiz_id}/statistics"
+    #     return self.get_single_element_from_url(url)
 
-    def get_quiz_metadata(self, course_id: int, quiz_id: int) -> Dict:
-        '''Get metadata for a given quiz'''
-        url = f"{CANVAS_API_URL}/courses/{course_id}/quizzes/{quiz_id}"
-        return self.get_single_element_from_url(url)
+    # def get_quiz_metadata(self, course_id: int, quiz_id: int) -> Dict:
+    #     '''Get metadata for a given quiz'''
+    #     url = f"{CANVAS_API_URL}/courses/{course_id}/quizzes/{quiz_id}"
+    #     return self.get_single_element_from_url(url)
 
     def get_course_groups(self, course_id: int) -> Tuple[Dict]:
         url = f"{CANVAS_API_URL}/courses/{course_id}/groups?per_page=100"

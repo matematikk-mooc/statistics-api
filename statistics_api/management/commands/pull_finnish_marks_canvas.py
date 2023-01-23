@@ -60,7 +60,6 @@ class Command(BaseCommand):
                 student_id = student.get("id")
                 finnish_marks = api_client.get_finnish_mark_per_student(course_id, module_id, student_id)
                 if finnish_marks is None:
-                    print("student completed?")
                     self.student_completed_course(api_client, course_id, student_id, module_id, module_object)
                 else:
                     self.parse_module_items(module_object, finnish_marks, student_id, course_id, False)

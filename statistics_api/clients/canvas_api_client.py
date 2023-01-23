@@ -72,7 +72,7 @@ class CanvasApiClient:
             current_items = []
         web_response = self.web_session.get(target_url)
         if web_response.status_code in (401, 403):
-            print("Completed course? ", web_response.status_code)
+            print("Response code not 200 ", web_response.status_code)
             print(target_url)
             return None
         if web_response.status_code != 200:

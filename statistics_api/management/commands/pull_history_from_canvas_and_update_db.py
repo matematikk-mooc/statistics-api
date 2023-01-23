@@ -16,7 +16,6 @@ class Command(BaseCommand):
         for account in accounts:
             users = api_client.get_account_users(account.get("id"))
             for user in users:
-                print("user: ", user.get("id"))
                 self.fetch_user_history(api_client, user.get("id"), yesterday)
 
     def fetch_user_history(self, api_client, canvas_userid, date):
@@ -29,7 +28,6 @@ class Command(BaseCommand):
                 history_response
             )
         )
-        print(history)
         for event in history:
             History.objects.get_or_create(
                 canvas_userid=canvas_userid,

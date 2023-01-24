@@ -53,6 +53,7 @@ urlpatterns = [
     url(r'^api/statistics/pages/$', page_statistics),
     url(r'^api/statistics/course/(\d+)/pages/$', course_pages_statistics),
     #url(r'^api/statistics/course/(\d+)/quizzes/$', course_quizzes_statistics),
+
     url(r'^api/statistics/course/(\d+)/modules$', module_statistics),
 
     url(r'^version/?$', get_software_version),

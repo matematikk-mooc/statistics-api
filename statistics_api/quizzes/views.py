@@ -1,3 +1,4 @@
+
 # from rest_framework import serializers
 # from rest_framework.response import Response
 # from rest_framework.decorators import api_view
@@ -6,7 +7,6 @@
 # from statistics_api.quizzes.models import AnswerUserGroup, Answer, AnswerSet, QuestionStatistics, QuizStatistics, SubmissionStatistics, OpenAnswerResponse
 
 # # Create your views here.
-
 # @api_view(('GET',))
 # def quiz_statistics(request, course_id: int, quiz_id: int):
 #     groups = request.GET.get('groups')
@@ -82,6 +82,7 @@
 #         )
 #         depth = 1
 
+
 # class AnswerSetSerializer(serializers.ModelSerializer):
 #     answers = AnswerSerializer(many=True)
 #     class Meta:
@@ -104,6 +105,7 @@
 #             'answer'
 #         )
 #         depth = 1
+
 
 # class QuestionStatisticsSerializer(serializers.ModelSerializer):
 #     open_responses = OpenAnswerResponseSerializer(many=True, required=False)
@@ -131,6 +133,7 @@
 #             'unique_count'
 #         )
 #         depth = 1
+
 
 # class QuizStatisticsSerializer(serializers.ModelSerializer):
 #     question_statistics = QuestionStatisticsSerializer(many=True)

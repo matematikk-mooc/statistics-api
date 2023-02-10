@@ -28,3 +28,8 @@ Any merge to `staging` or `master` branch will automatically deploy the applicat
 # Documentation
 
 Swagger UI documentation is available at https://matematikk-mooc.github.io/statistics-api-documentation/, using GitHub pages. The source for the documentation is available at https://github.com/matematikk-mooc/statistics-api-documentation.
+
+# Run application locally with local KPAS
+- Add canvas and matomo keys to `.env.dev` 
+- Run `run_development.sh` in venv. 
+- Access api at `http://localhost:8000/api`

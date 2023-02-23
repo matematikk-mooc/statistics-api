@@ -2,12 +2,22 @@ from rest_framework import serializers
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from statistics_api.canvas_modules.models import FinnishMarkCount, Module, ModuleItem
+from django.db.models import Prefetch
 
 # Create your views here.
 
 @api_view(('GET',))
-def module_statistics(self, course_id: int):
-    query = Module.objects.all().filter(course_id = course_id)
+def module_statistics(request, course_id: int):
+    group = request.GET.get('group')
+    if group:
+        query = Module.objects.filter(course_id=course_id).prefetch_related(
+            Prefetch(
+                'module_items__user_groups',
+                queryset=FinnishMarkCount.objects.filter(group_id=group)
+            )
+        )
+    else:
+        query = Module.objects.all().filter(course_id = course_id)
     result = ModuleSerializer(query, many=True)
     return Response(result.data)
 

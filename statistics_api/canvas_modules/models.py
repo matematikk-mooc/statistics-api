@@ -33,3 +33,4 @@ class FinnishedStudent(models.Model):
     module_item = models.ForeignKey(ModuleItem, on_delete=models.CASCADE, related_name="students")
     user_id = models.CharField(max_length=80, blank=True, null=True)
     completed = models.BooleanField()
+    completedDate = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=True)

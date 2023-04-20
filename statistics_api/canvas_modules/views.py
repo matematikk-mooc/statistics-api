@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from statistics_api.canvas_modules.models import FinnishMarkCount, Module, ModuleItem, FinnishedStudent
-from django.db.models import Prefetch, Count, Q, Sum
+from django.db.models import Prefetch
 
 
 # Create your views here.
@@ -36,6 +36,20 @@ def module_item_total_count(self, course_id: int):
     return Response(result.data)
 
 
+@api_view(('GET',))
+def module_item_per_date_count(self, course_id: int):
+    query = Module.objects.all().filter(course_id=course_id).prefetch_related(
+        Prefetch(
+            'module_items__students',
+            queryset=FinnishedStudent.objects.only("completedDate").filter(completed=True)
+        )
+    )
+
+    result = ModulePerDateCountSerializer(query, many=True)
+    print(result)
+    return Response(result.data)
+
+
 class FinnishMarkCountSerializer(serializers.ModelSerializer):
     class Meta:
         model = FinnishMarkCount
@@ -66,6 +80,56 @@ class ModuleItemSerializer(serializers.ModelSerializer):
 
 class ModuleSerializer(serializers.ModelSerializer):
     module_items = ModuleItemSerializer(many=True)
+
+    class Meta:
+        model = Module
+        fields = (
+            'canvas_id',
+            'course_id',
+            'name',
+            'position',
+            'module_items'
+        )
+        depth = 1
+
+
+class StudentsCountSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = FinnishedStudent
+        fields = (
+            'completedDate',
+        )
+        depth = 1
+
+
+class ModuleItemPerDateCountSerializer(serializers.ModelSerializer):
+
+    counts = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_counts(obj):
+        stud = obj.students.all()
+        count_numbers = dict.fromkeys(set([str(getattr(e, 'completedDate'))for e in stud]), 0)
+        [count_numbers.update({str(getattr(element, 'completedDate')): count_numbers[str(getattr(element, 'completedDate'))] + 1}) for element in stud]
+        return count_numbers
+
+    class Meta:
+        model = ModuleItem
+        fields = (
+            'canvas_id',
+            'title',
+            'position',
+            'url',
+            'type',
+            'completion_type',
+            'counts',
+        )
+        depth = 1
+
+
+class ModulePerDateCountSerializer(serializers.ModelSerializer):
+    module_items = ModuleItemPerDateCountSerializer(many=True)
 
     class Meta:
         model = Module

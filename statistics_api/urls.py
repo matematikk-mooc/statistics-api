@@ -15,7 +15,6 @@ Including another URLconf
 """
 
 from django.urls import re_path as url
-#from django.conf.urls import url
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
@@ -28,9 +27,7 @@ from statistics_api.controllers.course_controller import course, course_count
 from statistics_api.controllers.group_category_controller import group_category, group_category_count
 from statistics_api.history.views import user_history, user_history_on_context, context_history, user_aggregated_history
 from statistics_api.matomo.views import visits_statistics, page_statistics, course_pages_statistics
-# from statistics_api.quizzes.views import quiz_statistics
-# from statistics_api.quizzes.views import quiz_statistics, course_quizzes_statistics
-from statistics_api.canvas_modules.views import module_statistics, module_item_total_count
+from statistics_api.canvas_modules.views import module_statistics, module_item_total_count, module_item_per_date_count
 
 router = DefaultRouter()
 router.register(r"user_activity", EnrollmentActivityViewSet, basename="enrollment_activity")
@@ -48,14 +45,13 @@ urlpatterns = [
     url(r'^api/statistics/user/(\d+)/context/(\d+)/history$', user_history_on_context),
     url(r'^api/statistics/context/(\d+)/history$', context_history),
     url(r'^api/statistics/user/(\d+)/history/aggregated$', user_aggregated_history),
-    #url(r'^api/statistics/course/(\d+)/quiz/(\d+)/$', quiz_statistics),
     url(r'^api/statistics/visits/$', visits_statistics),
     url(r'^api/statistics/pages/$', page_statistics),
     url(r'^api/statistics/course/(\d+)/pages/$', course_pages_statistics),
-    #url(r'^api/statistics/course/(\d+)/quizzes/$', course_quizzes_statistics),
 
     url(r'^api/statistics/course/(\d+)/modules$', module_statistics),
     url(r'^api/statistics/course/(\d+)/modules/count$', module_item_total_count),
+    url(r'^api/statistics/course/(\d+)/modules/per_date$', module_item_per_date_count),
 
     url(r'^version/?$', get_software_version),
 

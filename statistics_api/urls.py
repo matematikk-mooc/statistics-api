@@ -29,6 +29,7 @@ from statistics_api.history.views import user_history, user_history_on_context, 
 from statistics_api.matomo.views import visits_statistics, page_statistics, course_pages_statistics
 from statistics_api.canvas_modules.views import module_statistics, module_item_total_count, module_item_per_date_count
 
+
 router = DefaultRouter()
 router.register(r"user_activity", EnrollmentActivityViewSet, basename="enrollment_activity")
 
@@ -48,6 +49,7 @@ urlpatterns = [
     url(r'^api/statistics/visits/$', visits_statistics),
     url(r'^api/statistics/pages/$', page_statistics),
     url(r'^api/statistics/course/(\d+)/pages/$', course_pages_statistics),
+
 
     url(r'^api/statistics/course/(\d+)/modules$', module_statistics),
     url(r'^api/statistics/course/(\d+)/modules/count$', module_item_total_count),

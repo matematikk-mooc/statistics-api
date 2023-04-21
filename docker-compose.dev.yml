@@ -36,8 +36,10 @@ services:
         - MYSQL_PASSWORD=${MYSQL_PASSWORD}
         - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
         - TZ=${WORKSPACE_TIMEZONE}
+        - MYSQL_TCP_PORT=${DB_PORT}
+        - MYSQL_UNIX_PORT=${DB_PORT}
       ports:
-        - "${MYSQL_PORT}:3306"
+        - "${MYSQL_PORT}:3302"
       networks:
         statistics_api-net:
           aliases:

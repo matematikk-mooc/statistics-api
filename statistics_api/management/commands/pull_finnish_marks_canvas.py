@@ -60,18 +60,20 @@ class Command(BaseCommand):
                 student_id = student.get("id")
                 finnish_marks = api_client.get_finnish_mark_per_student(course_id, module_id, student_id)
                 if finnish_marks is None:
-                    self.student_completed_course(api_client, course_id, student_id, module_id, module_object)
-                else:
-                    self.parse_module_items(module_object, finnish_marks, student_id, course_id, False)
 
-    def student_completed_course(self, api_client, course_id, user_id, module_id, module_object):
+                    self.student_completed_course(api_client, course_id, student_id, module_id, module_object, yesterday)
+
+                else:
+                    self.parse_module_items(module_object, finnish_marks, student_id, course_id, False, yesterday)
+
+    def student_completed_course(self, api_client, course_id, user_id, module_id, module_object, yesterday):
         completed = api_client.get_student_completed(course_id, user_id)
         if completed is []:
             return
         module_items = api_client.get_course_module_items(course_id, module_id)
-        self.parse_module_items(module_object, module_items, user_id, course_id, True)
+        self.parse_module_items(module_object, module_items, user_id, course_id, True, yesterday)
 
-    def parse_module_items(self, module_object, module_items, user_id, course_id, completed_course):
+    def parse_module_items(self, module_object, module_items, user_id, course_id, completed_course, yesterday):
         for item in module_items:
             if item.get("completion_requirement"):
                 if not completed_course and not item["completion_requirement"].get("completed"):
@@ -90,7 +92,8 @@ class Command(BaseCommand):
                 )
                 student, createdStudent = FinnishedStudent.objects.get_or_create(user_id=user_id,
                                                                                  module_item=module_item,
-                                                                                 defaults={"completed": True})
+                                                                                 defaults={"completed": True,
+                                                                                           "completedDate": yesterday})
                 if createdStudent:
                     self.count_groups(user_id, course_id, module_item)
 

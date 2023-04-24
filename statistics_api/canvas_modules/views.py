@@ -41,12 +41,11 @@ def module_item_per_date_count(self, course_id: int):
     query = Module.objects.all().filter(course_id=course_id).prefetch_related(
         Prefetch(
             'module_items__students',
-            queryset=FinnishedStudent.objects.only("completedDate").filter(completed=True)
+            queryset=FinnishedStudent.objects.all().filter(completed=True)
         )
     )
 
     result = ModulePerDateCountSerializer(query, many=True)
-    print(result)
     return Response(result.data)
 
 
@@ -105,15 +104,7 @@ class StudentsCountSerializer(serializers.ModelSerializer):
 
 class ModuleItemPerDateCountSerializer(serializers.ModelSerializer):
 
-    counts = serializers.SerializerMethodField()
-
-    @staticmethod
-    def get_counts(obj):
-        stud = obj.students.all()
-        count_numbers = dict.fromkeys(set([str(getattr(e, 'completedDate'))for e in stud]), 0)
-        [count_numbers.update({str(getattr(element, 'completedDate')): count_numbers[str(getattr(element, 'completedDate'))] + 1}) for element in stud]
-        return count_numbers
-
+    students = StudentsCountSerializer(many=True)
     class Meta:
         model = ModuleItem
         fields = (
@@ -123,7 +114,7 @@ class ModuleItemPerDateCountSerializer(serializers.ModelSerializer):
             'url',
             'type',
             'completion_type',
-            'counts',
+            'students'
         )
         depth = 1
 

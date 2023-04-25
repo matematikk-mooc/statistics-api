@@ -27,7 +27,7 @@ from statistics_api.controllers.course_controller import course, course_count
 from statistics_api.controllers.group_category_controller import group_category, group_category_count
 from statistics_api.history.views import user_history, user_history_on_context, context_history, user_aggregated_history
 from statistics_api.matomo.views import visits_statistics, page_statistics, course_pages_statistics
-from statistics_api.canvas_modules.views import module_statistics, module_item_total_count, module_item_per_date_count
+from statistics_api.canvas_modules.views import module_statistics, module_item_total_count, module_completed_per_date_count
 
 
 router = DefaultRouter()
@@ -53,7 +53,7 @@ urlpatterns = [
 
     url(r'^api/statistics/course/(\d+)/modules$', module_statistics),
     url(r'^api/statistics/course/(\d+)/modules/count$', module_item_total_count),
-    url(r'^api/statistics/course/(\d+)/modules/per_date$', module_item_per_date_count),
+    url(r'^api/statistics/modules/(\d+)/per_date$', module_completed_per_date_count),
 
     url(r'^version/?$', get_software_version),
 

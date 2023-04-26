@@ -44,12 +44,17 @@ def module_completed_per_date_count(self, module_id: int):
                         SELECT fs.user_id, MAX(fs.completedDate) AS completedDate
                         FROM canvas_modules_finnishedstudent fs
                         JOIN canvas_modules_moduleitem mi ON fs.module_item_id = mi.id
-                        WHERE mi.module_id = {module_id}
+                        JOIN canvas_modules_module mm ON mi.module_id = mm.id
+                        WHERE mm.canvas_id  = {module_id}
                         GROUP BY fs.user_id
-                        HAVING COUNT(DISTINCT fs.module_item_id) = (SELECT COUNT(*) FROM canvas_modules_moduleitem WHERE module_id = {module_id})
-                    ) AS subquery
-                    GROUP BY completedDate
-                    ORDER BY completedDate;""")
+                        HAVING COUNT(DISTINCT fs.module_item_id) = (
+                            SELECT COUNT(*)
+                            FROM canvas_modules_moduleitem mi
+                            JOIN canvas_modules_module mm ON mi.module_id = mm.id
+                            WHERE mm.canvas_id  = {module_id})
+                        ) AS subquery
+                        GROUP BY completedDate
+                        ORDER BY completedDate;""")
         result = c.fetchall()
         return Response(result)
 

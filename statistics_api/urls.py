@@ -55,6 +55,7 @@ urlpatterns = [
     url(r'^api/statistics/course/(\d+)/modules/count$', module_item_total_count),
     url(r'^api/statistics/modules/(\d+)/per_date$', module_completed_per_date_count),
 
+
     url(r'^version/?$', get_software_version),
 
     path("api/statistics/", include(router.urls)),

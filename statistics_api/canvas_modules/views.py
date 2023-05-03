@@ -6,6 +6,7 @@ from django.db.models import Prefetch
 from django.db import connection
 
 
+
 # Create your views here.
 
 @api_view(('GET',))

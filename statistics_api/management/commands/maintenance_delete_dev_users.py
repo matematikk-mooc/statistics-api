@@ -20,4 +20,4 @@ class Command(BaseCommand):
                 print("Deleted user: ", user.get("id"), ", ", user.get("email"))
 
     def check_email(self, email):
-        return email.startswith("kompetanse") and email.endswith("@udir.dev")
+        return email.lower().startswith("kompetanse") and email.lower().endswith("@udir.dev")

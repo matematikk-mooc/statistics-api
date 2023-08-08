@@ -132,21 +132,6 @@ class CanvasApiClient:
         url = f"{CANVAS_API_URL}/users/{canvas_userid}/history"
         return self.get_single_element_from_url(url)
 
-    # def get_quizzes_in_course(self, course_id):
-    #     '''Get all quizzes in a given course'''
-    #     url = f"{CANVAS_API_URL}/courses/{course_id}/quizzes?per_page=100"
-    #     return self.paginate_through_url(url)
-
-    # def get_quiz_statistics(self, course_id: int, quiz_id: int) -> Dict:
-    #     '''Get statistics for a given quiz'''
-    #     url = f"{CANVAS_API_URL}/courses/{course_id}/quizzes/{quiz_id}/statistics"
-    #     return self.get_single_element_from_url(url)
-
-    # def get_quiz_metadata(self, course_id: int, quiz_id: int) -> Dict:
-    #     '''Get metadata for a given quiz'''
-    #     url = f"{CANVAS_API_URL}/courses/{course_id}/quizzes/{quiz_id}"
-    #     return self.get_single_element_from_url(url)
-
     def get_course_groups(self, course_id: int) -> Tuple[Dict]:
         url = f"{CANVAS_API_URL}/courses/{course_id}/groups?per_page=100"
         return self.paginate_through_url(url)
@@ -154,7 +139,7 @@ class CanvasApiClient:
     def get_group_users(self, group_id: int) -> Tuple[Dict]:
         url = f"{CANVAS_API_URL}/groups/{group_id}/users?per_page=100"
         return self.paginate_through_url(url)
-        
+
     def get_course_students(self, course_id: int) -> Tuple[Dict]:
         url = f"{CANVAS_API_URL}/courses/{course_id}/users?enrollment_type[]=student&per_page=100"
         return self.paginate_through_url(url)
@@ -167,11 +152,11 @@ class CanvasApiClient:
     def get_course_modules(self, course_id: int) -> Tuple[Dict]:
         url = f"{CANVAS_API_URL}/courses/{course_id}/modules?per_page=100"
         return self.paginate_through_url(url)
-    
+
     def get_finnish_mark_per_student(self, course_id: int, module_id: int, student_id: int) -> Tuple[Dict]:
         url = f"{CANVAS_API_URL}/courses/{course_id}/modules/{module_id}/items?student_id={student_id}&per_page=100"
         return self.paginate_through_url_module_items(url)
-    
+
 
     def get_course_module_items(self, course_id: int, module_id: int) -> Tuple[Dict]:
         url = f"{CANVAS_API_URL}/courses/{course_id}/modules/{module_id}/items?per_page=100"
@@ -185,9 +170,17 @@ class CanvasApiClient:
         url = f"{CANVAS_API_URL}/courses/{course_id}/enrollments?state[]=completed&user_id={student_id}"
         return self.paginate_through_url(url)
 
-    
     def get_submissions_in_quiz(self, course_id, assignment_id):
         '''Get submissions in a given quiz to access open answer responses'''
         url = f"{CANVAS_API_URL}/courses/{course_id}/assignments/{assignment_id}/submissions?include[]=submission_history&per_page=100"
         return self.paginate_through_url(url)
 
+    def get_udirdev_account_users(self, account_id: int):
+        url = f"{CANVAS_API_URL}/accounts/{account_id}/users?include[]=email&search_term=%40udir%2Edev&per_page=100"
+        return self.paginate_through_url(url)
+
+    def delete_user(self, account_id, user_id):
+        url = f"{CANVAS_API_URL}/accounts/{account_id}/users/{user_id}"
+        web_response = self.web_session.delete(url)
+        if web_response.status_code != 200:
+            raise AssertionError(f"Could not delete user from Canvas LMS instance at {CANVAS_API_URL}")

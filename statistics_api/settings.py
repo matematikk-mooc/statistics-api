@@ -99,7 +99,7 @@ DATABASES = {
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },
-        'CONN_MAX_AGE': 3600
+        'CONN_MAX_AGE': 7200
     },
 }
 

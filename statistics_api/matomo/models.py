@@ -34,10 +34,9 @@ class PageStatistics(models.Model):
     sum_time_spent = models.IntegerField(null=True, blank=True)
     average_time_spent = models.IntegerField(null=True, blank=True)
     unique_visitors = models.IntegerField(null=True, blank=True)
-    url = models.CharField(max_length=512, null=True, blank=True)
+    url = models.CharField(max_length=1024, null=True, blank=True)
     bounce_rate = models.CharField(max_length=10, null=True, blank=True)
     exit_rate = models.CharField(max_length=10, null=True, blank=True)
     exit_visits = models.IntegerField(null=True, blank=True)
     entry_visits = models.IntegerField(null=True, blank=True)
     segment = models.CharField(max_length=512, null=True, blank=True)
-

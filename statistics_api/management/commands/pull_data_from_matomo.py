@@ -79,7 +79,6 @@ class Command(BaseCommand):
 
     def update_db(self, date, page, canvas_course_id):
         if(page.get('url') != None and 'login/saml' in page.get('url')):
-            print(page.get('url'))
             return
         PageStatistics.objects.create(
             date=date,

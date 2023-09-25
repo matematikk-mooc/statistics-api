@@ -49,4 +49,3 @@ class Command(BaseCommand):
             DatabaseMaintenanceClient.insert_counties(new_county_id_to_teacher_count_map, year_of_data)
             logger.info(f"Inserted {len(county_ids_and_teacher_counts)} counties from Skoleporten.")
             logger.info(f"Finished importing county teacher counts from CSV file.")
-            

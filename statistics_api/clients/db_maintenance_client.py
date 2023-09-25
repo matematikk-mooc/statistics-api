@@ -104,4 +104,3 @@ class DatabaseMaintenanceClient:
         with connection.cursor() as cursor:
             cursor.execute(sql_statement)
             cursor.close()
-            

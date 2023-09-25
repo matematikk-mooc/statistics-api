@@ -8,14 +8,15 @@ from django.db import transaction
 from statistics_api.clients.canvas_api_client import CanvasApiClient
 from statistics_api.definitions import CANVAS_ACCOUNT_ID
 from statistics_api.canvas_users.models import CanvasUser
+import time
 
 
 class Command(BaseCommand):
-
     @transaction.atomic
     def handle(self, *args, **options):
         logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
         logger = logging.getLogger()
+        logger.info("Starting pulling group members from Canvas")
         api_client = CanvasApiClient()
         canvas_account_id: int = CANVAS_ACCOUNT_ID if CANVAS_ACCOUNT_ID else api_client.get_canvas_account_id_of_current_user()
         courses = api_client.get_courses(canvas_account_id=canvas_account_id)
@@ -40,6 +41,7 @@ class Command(BaseCommand):
                 thread.start()
             for thread in threads:
                 thread.join()
+        logger.info("Finished pulling group members from Canvas")
 
     def parse_groups(self, api_client, groups, course_id):
         for group in groups:

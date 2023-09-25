@@ -1,5 +1,7 @@
 import datetime
 from threading import Thread
+import logging
+import sys
 
 from django.core.management import BaseCommand
 from statistics_api.canvas_modules.models import Module, ModuleItem, FinnishedStudent, FinnishMarkCount
@@ -13,7 +15,9 @@ from statistics_api.clients.canvas_api_client import CanvasApiClient
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        print("command pull_finnish_marks_canvas started")
+        logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
+        logger = logging.getLogger()
+        logger.info("Starting pulling finnish marks from Canvas")
         api_client = CanvasApiClient()
         canvas_account_id: int = CANVAS_ACCOUNT_ID if CANVAS_ACCOUNT_ID else api_client.get_canvas_account_id_of_current_user()
         courses = api_client.get_courses(canvas_account_id)
@@ -26,7 +30,7 @@ class Command(BaseCommand):
             thread.start()
         for thread in threads:
             thread.join()
-        print("command pull_finnish_marks_canvas completed")
+        logger.info("Finished pulling finnish marks from Canvas")
 
     def parse_courses(self, api_client, courses):
         for course in courses:

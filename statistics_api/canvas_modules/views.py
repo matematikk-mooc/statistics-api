@@ -57,6 +57,7 @@ def module_completed_per_date_count(self, module_id: int):
                         GROUP BY completedDate
                         ORDER BY completedDate;""")
         result = c.fetchall()
+        c.close()
         return Response(result)
 
 

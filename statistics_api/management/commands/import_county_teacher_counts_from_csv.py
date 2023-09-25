@@ -18,7 +18,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
         logger = logging.getLogger()
-
+        logger.info("Starting importing county teacher counts from CSV file...")
         county_data_file_paths = get_county_data_file_paths(f"{ROOT_DIR}/data")
 
         for csv_file_path in county_data_file_paths:
@@ -48,3 +48,4 @@ class Command(BaseCommand):
             year_of_data = parse_year_from_data_file_name(csv_file_path)
             DatabaseMaintenanceClient.insert_counties(new_county_id_to_teacher_count_map, year_of_data)
             logger.info(f"Inserted {len(county_ids_and_teacher_counts)} counties from Skoleporten.")
+            logger.info(f"Finished importing county teacher counts from CSV file.")

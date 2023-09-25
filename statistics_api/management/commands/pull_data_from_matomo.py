@@ -15,10 +15,12 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
         logger = logging.getLogger()
+        logger.info("Starting pulling data from Matomo")
         matomo_api_client = MatomoApiClient()
         yesterday = date.today() - timedelta(1)
         self.fetch_visits_and_visitors(matomo_api_client, yesterday)
         self.fetch_page_statistics(matomo_api_client, yesterday)
+        logger.info("Finished pulling data from Matomo")
 
     @transaction.atomic
     def fetch_visits_and_visitors(self, matomo_api_client, date):

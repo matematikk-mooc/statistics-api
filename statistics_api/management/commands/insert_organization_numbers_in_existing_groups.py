@@ -17,7 +17,7 @@ class Command(BaseCommand):
 
         logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
         logger = logging.getLogger()
-
+        logger.info("Starting inserting organization numbers to existing `Group` rows in the database...")
         all_db_groups = Group.objects.all()
 
         group_ids_and_org_nrs_for_update: List[Tuple[int, str]] = []
@@ -32,3 +32,4 @@ class Command(BaseCommand):
 
         logger.info(f"Updating organization numbers on {len(group_ids_and_org_nrs_for_update)} groups in {DB_DATABASE}...")
         DatabaseMaintenanceClient.update_group_org_nrs(tuple(group_ids_and_org_nrs_for_update))
+        logger.info(f"Finished inserting organization numbers to existing `Group` rows in the database.")

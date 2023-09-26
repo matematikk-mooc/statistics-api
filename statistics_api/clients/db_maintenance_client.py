@@ -23,7 +23,8 @@ class DatabaseMaintenanceClient:
 
         with connection.cursor() as cursor:
             cursor.execute(update_group_organization_numbers_query)
-    
+            cursor.close()
+
     @staticmethod
     def insert_courses(courses: Tuple[Dict]) -> Tuple[Dict]:
         for course in courses:
@@ -31,7 +32,7 @@ class DatabaseMaintenanceClient:
             db_course.save()
             course['db_id'] = db_course.pk
         return tuple(courses)
-    
+
     @staticmethod
     def insert_group_categories(group_categories: List[Dict]) -> Tuple[Dict]:
         for group_category in group_categories:
@@ -40,7 +41,7 @@ class DatabaseMaintenanceClient:
             db_group_category.save()
             group_category['db_id'] = db_group_category.pk
         return tuple(group_categories)
-    
+
     @staticmethod
     def insert_groups(groups: Tuple[Dict]) -> Tuple[Group]:
         db_groups: List[Group] = []
@@ -61,7 +62,7 @@ class DatabaseMaintenanceClient:
             db_group.save()
             db_groups.append(db_group)
         return tuple(db_groups)
-    
+
     @staticmethod
     def insert_schools(organization_numbers_and_teacher_counts: List[Tuple[str, int]], year_of_data: int) -> int:
         sql_lines = []
@@ -70,18 +71,19 @@ class DatabaseMaintenanceClient:
             sql_lines.append(
                 f"({organizational_number},{teacher_count},'{str(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))}',{year_of_data})")
 
-        sql_statement = f"""INSERT INTO {School._meta.db_table}({School.organization_number.field.name}, 
+        sql_statement = f"""INSERT INTO {School._meta.db_table}({School.organization_number.field.name},
                                 {School.number_of_teachers.field.name}, {School.updated_date.field.name}, {School.year.field.name}) VALUES""" \
                         + ", \n".join(sql_lines) + \
                         f"""\n ON DUPLICATE KEY UPDATE
-                                {School.number_of_teachers.field.name} = VALUES({School.number_of_teachers.field.name}), 
+                                {School.number_of_teachers.field.name} = VALUES({School.number_of_teachers.field.name}),
                                 {School.updated_date.field.name} = VALUES({School.updated_date.field.name})"""
 
         with connection.cursor() as cursor:
             cursor.execute(sql_statement)
+            cursor.close()
 
         return len(sql_lines)
-    
+
     @staticmethod
     def insert_counties(county_id_to_teacher_count_map: Dict[int, int], year_of_data: int):
         sql_lines = []
@@ -92,12 +94,13 @@ class DatabaseMaintenanceClient:
             sql_lines.append(
                 f"({county_id},{teacher_count},'{str(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))}', {year_of_data})")
 
-        sql_statement = f"""INSERT INTO {County._meta.db_table}({County.county_id.field.name}, 
+        sql_statement = f"""INSERT INTO {County._meta.db_table}({County.county_id.field.name},
                                 {County.number_of_teachers.field.name}, {County.updated_date.field.name}, {County.year.field.name}) VALUES""" \
                         + ", \n".join(sql_lines) + \
                         f"""\n ON DUPLICATE KEY UPDATE
-                                {County.number_of_teachers.field.name} = VALUES({County.number_of_teachers.field.name}), 
+                                {County.number_of_teachers.field.name} = VALUES({County.number_of_teachers.field.name}),
                                 {County.updated_date.field.name} = VALUES({County.updated_date.field.name})"""
 
         with connection.cursor() as cursor:
             cursor.execute(sql_statement)
+            cursor.close()

@@ -17,7 +17,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
         logger = logging.getLogger()
-
+        logger.info("Starting importing primary school teacher counts from CSV file...")
         primary_school_data_file_paths = get_primary_school_data_file_paths(f"{ROOT_DIR}data/")
 
         for csv_file_path in primary_school_data_file_paths:
@@ -36,3 +36,4 @@ class Command(BaseCommand):
             year_of_data = parse_year_from_data_file_name(csv_file_path)
             nr_of_inserts = DatabaseMaintenanceClient.insert_schools(organization_numbers_and_teacher_counts, year_of_data)
             logger.info(f"Inserted {nr_of_inserts} schools from Skoleporten.")
+            logger.info(f"Finished importing primary school teacher counts from CSV file.")

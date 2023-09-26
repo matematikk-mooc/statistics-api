@@ -8,8 +8,6 @@ from django.db import transaction
 from statistics_api.clients.canvas_api_client import CanvasApiClient
 from statistics_api.definitions import CANVAS_ACCOUNT_ID
 from statistics_api.canvas_users.models import CanvasUser
-import time
-
 
 class Command(BaseCommand):
     @transaction.atomic

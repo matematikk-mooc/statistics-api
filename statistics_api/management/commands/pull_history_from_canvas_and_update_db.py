@@ -3,13 +3,17 @@ from datetime import date, timedelta, datetime
 from django.core.management import BaseCommand
 from statistics_api.clients.canvas_api_client import CanvasApiClient
 from statistics_api.history.models import History
-
+import logging
+import sys
 
 class Command(BaseCommand):
     help = """Retrieves per-course enrollment activity for all courses administrated by the Canvas account ID
             set in environment settings."""
 
     def handle(self, *args, **options):
+        logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
+        logger = logging.getLogger()
+        logger.info("Starting fetching course enrollment activity from Canvas")
         api_client = CanvasApiClient()
         yesterday = date.today() - timedelta(1)
         accounts = api_client.get_canvas_accounts()
@@ -17,6 +21,7 @@ class Command(BaseCommand):
             users = api_client.get_account_users(account.get("id"))
             for user in users:
                 self.fetch_user_history(api_client, user.get("id"), yesterday)
+        logger.info("Finished fetching course enrollment activity from Canvas")
 
     def fetch_user_history(self, api_client, canvas_userid, date):
         history_response = api_client.get_user_history(canvas_userid)

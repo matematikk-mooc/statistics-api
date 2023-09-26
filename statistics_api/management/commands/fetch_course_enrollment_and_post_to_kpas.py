@@ -22,6 +22,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
         logger = logging.getLogger()
+        logger.info("Starting fetching course enrollment activity from Canvas")
         api_client = CanvasApiClient()
         canvas_account_id: int = CANVAS_ACCOUNT_ID if CANVAS_ACCOUNT_ID else api_client.get_canvas_account_id_of_current_user()
         courses = api_client.get_courses(canvas_account_id=canvas_account_id)
@@ -30,6 +31,7 @@ class Command(BaseCommand):
                                                    course_id=int(course['id']),
                                                    access_token=CANVAS_ACCESS_KEY, logger=logger)
             course_enrollment.fetch_enrollment_activity()
+        logger.info("Finished fetching course enrollment activity from Canvas")
 
 
 class EnrollmentActivity(object):
@@ -111,23 +113,34 @@ class EnrollmentActivity(object):
         # loop while pagination has next page
         checked_nodes: int = 0
 
+        # while result['data']['course']['enrollmentsConnection']['pageInfo']['hasNextPage']:
+        #     checked_nodes += len(result['data']['course']['enrollmentsConnection']['edges'])
+        #     # self.logger.info(f"Checked activity for {checked_nodes} out of {self.total_nr_of_students_for_course}")
+        #     after_cursor = result['data']['course']['enrollmentsConnection']['pageInfo']['endCursor']
+        #     self.variables["after"] = after_cursor
+        #     try:
+        #         loop = asyncio.new_event_loop()
+        #         asyncio.set_event_loop(loop)
+        #         result = loop.run_until_complete(
+        #             self.client.execute_async(query=second_query, variables=self.variables))
+        #         active_users_count += filter_enrollment_activity_by_date(result)
+        #     except Exception as err:
+        #         print("EnrollmentActivity error : {0}".format(err))
+        #         raise
+
         while result['data']['course']['enrollmentsConnection']['pageInfo']['hasNextPage']:
-            checked_nodes += len(result['data']['course']['enrollmentsConnection']['edges'])
-            # self.logger.info(f"Checked activity for {checked_nodes} out of {self.total_nr_of_students_for_course}")
-            after_cursor = result['data']['course']['enrollmentsConnection']['pageInfo']['endCursor']
-            self.variables["after"] = after_cursor
-            try:
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-                result = loop.run_until_complete(
-                    self.client.execute_async(query=second_query, variables=self.variables))
-                active_users_count += filter_enrollment_activity_by_date(result)
-            except Exception as err:
-                print("EnrollmentActivity error : {0}".format(err))
-                raise
+          checked_nodes += len(result['data']['course']['enrollmentsConnection']['edges'])
+          # self.logger.info(f"Checked activity for {checked_nodes} out of {self.total_nr_of_students_for_course}")
+          after_cursor = result['data']['course']['enrollmentsConnection']['pageInfo']['endCursor']
+          self.variables["after"] = after_cursor
+          try:
+            result = self.client.execute(query=second_query, variables=self.variables)
+            active_users_count += filter_enrollment_activity_by_date(result)
+          except Exception as err:
+            print("EnrollmentActivity error: {0}".format(err))
+            raise
 
-        yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
-
+        yesterday = datetime.datetime.now().replace(tzinfo=datetime.timezone.utc) - datetime.timedelta(days=1)
         enrollment_activity['activity_date'] = yesterday
         enrollment_activity['active_users_count'] = active_users_count
         enrollment_activity['course_id'] = self.course_id

@@ -11,13 +11,14 @@ from statistics_api.definitions import CANVAS_ACCOUNT_ID
 
 
 class Command(BaseCommand):
-    help = """Accesses API of environment configured Canvas LMS instance and pulls member counts from all groups 
+    help = """Accesses API of environment configured Canvas LMS instance and pulls member counts from all groups
     associated with all courses associated with the root account ID in environment configuration."""
 
     @transaction.atomic
     def handle(self, *args, **options):
         logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
         logger = logging.getLogger()
+        logger.info("Starting pulling course member counts from Canvas")
 
         api_client = CanvasApiClient()
 
@@ -50,3 +51,4 @@ class Command(BaseCommand):
         all_db_groups = DatabaseMaintenanceClient.insert_groups(tuple(all_groups))
 
         logger.info(f"Inserted {len(all_db_groups)} groups")
+        logger.info("Finished pulling course member counts from Canvas")

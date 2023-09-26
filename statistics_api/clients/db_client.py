@@ -33,7 +33,7 @@ class DatabaseClient:
             org_nrs_enrollment_counts_and_teacher_counts_for_unregistered_schools = cursor.fetchall()
             org_nrs_enrollment_counts_and_teacher_counts: Tuple[Tuple[str, int, int]] = \
                 org_nrs_enrollment_counts_and_teacher_counts_for_registered_schools + org_nrs_enrollment_counts_and_teacher_counts_for_unregistered_schools
-
+            cursor.close()
             return org_nrs_enrollment_counts_and_teacher_counts
 
     @staticmethod
@@ -44,4 +44,5 @@ class DatabaseClient:
                 county_schools_org_nrs)
             cursor.execute(org_nrs_and_enrollment_counts_query, [course_observation_id])
             org_nrs_and_enrollment_counts = cursor.fetchall()
+            cursor.close()
             return org_nrs_and_enrollment_counts

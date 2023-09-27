@@ -17,6 +17,7 @@ Including another URLconf
 from django.urls import re_path as url
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from django.shortcuts import redirect
 
 from statistics_api.controllers.high_schools_county_controller import county_high_school_statistics_by_county_id
 from statistics_api.controllers.primary_schools_controller import municipality_primary_school_statistics, \
@@ -59,4 +60,6 @@ urlpatterns = [
     url(r'^version/?$', get_software_version),
 
     path("api/statistics/", include(router.urls)),
+    path("", lambda req: redirect('api/statistics', permanent=False)),
+
 ]

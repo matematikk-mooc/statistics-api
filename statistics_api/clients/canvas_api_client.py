@@ -74,6 +74,7 @@ class CanvasApiClient:
         if web_response.status_code in (401, 403):
             print("Response code not 200 ", web_response.status_code)
             print(target_url)
+            print(web_response.text)
             return None
         if web_response.status_code != 200:
             print(web_response)

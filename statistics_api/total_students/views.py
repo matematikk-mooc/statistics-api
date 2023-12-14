@@ -47,4 +47,3 @@ class TotalStudentsSerializer(serializers.ModelSerializer):
     class Meta:
         model = TotalStudents
         fields = '__all__'
-        

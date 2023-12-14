@@ -13,6 +13,7 @@ class Command(BaseCommand):
         logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
         logger = logging.getLogger()
         commands = (
+            "pull_total_students_counts_from_courses",
             "trigger_scheduling_of_kpas_job",
             "pull_group_members_from_canvas",
             "pull_course_member_counts_from_canvas",

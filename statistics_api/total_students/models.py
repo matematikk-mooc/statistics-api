@@ -7,5 +7,5 @@ class TotalStudents(models.Model):
     course_id = models.CharField(max_length=10)
     total_students = models.IntegerField()
 
-    class Meta:
-        db_table = "total_students"
+    # class Meta:
+    #     db_table = "total_students"

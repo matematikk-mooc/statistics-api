@@ -141,6 +141,10 @@ class CanvasApiClient:
         url = f"{CANVAS_API_URL}/groups/{group_id}/users?per_page=100"
         return self.paginate_through_url(url)
 
+    def get_groups_of_user(self, user_id: int) -> Tuple[Dict]:
+        url = f"{CANVAS_API_URL}/users/self/groups?as_user_id={user_id}&per_page=100"
+        return self.paginate_through_url(url)
+
     def get_course_students(self, course_id: int) -> Tuple[Dict]:
         url = f"{CANVAS_API_URL}/courses/{course_id}/users?enrollment_type[]=student&per_page=100"
         return self.paginate_through_url(url)

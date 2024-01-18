@@ -15,7 +15,6 @@ class Command(BaseCommand):
         commands = (
             "pull_total_students_counts_from_courses",
             "trigger_scheduling_of_kpas_job",
-            "pull_group_members_from_canvas",
             "pull_course_member_counts_from_canvas",
             "fetch_course_enrollment_and_post_to_kpas",
             "pull_data_from_matomo",

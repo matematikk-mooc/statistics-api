@@ -5,7 +5,6 @@ import sys
 
 from django.core.management import BaseCommand
 from statistics_api.canvas_modules.models import Module, ModuleItem, FinnishedStudent, FinnishMarkCount
-from statistics_api.canvas_users.models import CanvasUser
 from statistics_api.definitions import CANVAS_ACCOUNT_ID
 from django.db.models import F
 
@@ -68,16 +67,16 @@ class Command(BaseCommand):
                     self.student_completed_course(api_client, course_id, student_id, module_id, module_object, yesterday)
 
                 else:
-                    self.parse_module_items(module_object, finnish_marks, student_id, course_id, False, yesterday)
+                    self.parse_module_items(api_client, module_object, finnish_marks, student_id, course_id, False, yesterday)
 
     def student_completed_course(self, api_client, course_id, user_id, module_id, module_object, yesterday):
         completed = api_client.get_student_completed(course_id, user_id)
         if completed is []:
             return
         module_items = api_client.get_course_module_items(course_id, module_id)
-        self.parse_module_items(module_object, module_items, user_id, course_id, True, yesterday)
+        self.parse_module_items(api_client, module_object, module_items, user_id, course_id, True, yesterday)
 
-    def parse_module_items(self, module_object, module_items, user_id, course_id, completed_course, yesterday):
+    def parse_module_items(self, api_client, module_object, module_items, user_id, course_id, completed_course, yesterday):
         for item in module_items:
             if item.get("completion_requirement"):
                 if not completed_course and not item["completion_requirement"].get("completed"):
@@ -99,11 +98,12 @@ class Command(BaseCommand):
                                                                                  defaults={"completed": True,
                                                                                            "completedDate": yesterday})
                 if createdStudent:
-                    self.count_groups(user_id, course_id, module_item)
+                    self.count_groups(api_client, user_id, course_id, module_item)
 
-    def count_groups(self, student_id, course_id, module_item):
-        groups = CanvasUser.objects.filter(canvas_user_id=student_id, course_id=course_id)
-        if not groups:
+    def count_groups(self, api_client, student_id, course_id, module_item):
+        groups = api_client.get_groups_of_user(student_id)
+        filtered_groups = self.filter_groups(groups, course_id)
+        if not filtered_groups:
             FinnishMarkCount.objects.get_or_create(
                 module_item=module_item,
                 group_id="0000",
@@ -113,18 +113,29 @@ class Command(BaseCommand):
             )
             FinnishMarkCount.objects.filter(module_item=module_item, group_id="0000").update(count=F("count") + 1)
         else:
-            for group in groups:
+            for group in filtered_groups:
                 FinnishMarkCount.objects.get_or_create(
                     module_item=module_item,
-                    group_id=getattr(group, "group_id"),
+                    group_id= group["id"],
                     defaults={
-                        "group_name": getattr(group, "group_name")
+                        "group_name": group["name"]
                     }
                 )
-                FinnishMarkCount.objects.filter(module_item=module_item, group_id=getattr(group, "group_id")).update(
+                FinnishMarkCount.objects.filter(module_item=module_item, group_id=group["id"]).update(
                     count=F("count") + 1)
 
     def get_last_active_date(self, last_login):
         if last_login is None:
             return datetime.datetime.strptime("2000-01-01T00:00:00Z", '%Y-%m-%d' + 'T' + '%H:%M:%S' + 'Z')
         return datetime.datetime.strptime(last_login, '%Y-%m-%d' + 'T' + '%H:%M:%S' + 'Z')
+
+    # Get enrolled groups in the given course
+    def filter_groups(self, groups, course_id):
+        filtered_groups = list(
+            filter(
+                lambda x:
+                x["course_id"] == course_id,
+                groups
+            )
+        )
+        return filtered_groups

@@ -171,7 +171,7 @@ LOGGING = {
     'disable_existing_loggers': False,
 
     'root': {
-        'level': 'INFO',
+        'level': 'ERROR',
         'handlers': ['bugsnag', 'console'],
     },
 

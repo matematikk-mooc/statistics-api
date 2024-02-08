@@ -171,13 +171,13 @@ LOGGING = {
     'disable_existing_loggers': False,
 
     'root': {
-        'level': 'ERROR',
+        'level': 'INFO',
         'handlers': ['bugsnag', 'console'],
     },
 
     'handlers': {
         'bugsnag': {
-            'level': 'INFO',
+            'level': 'ERROR',
             'class': 'bugsnag.handlers.BugsnagHandler',
         },
         'console' : {

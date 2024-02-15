@@ -37,6 +37,12 @@ class Command(BaseCommand):
 class EnrollmentActivity(object):
     def __init__(self, access_token: str, graphql_api_url: str, course_id: int, logger: Logger) -> None:
         self.logger = logger
+        # most_recent_course_observations = get_n_most_recent_course_observations(course_canvas_id=course_id, n=1)
+        # if not most_recent_course_observations:
+        #     raise AssertionError(f"Could not find observation of course with Canvas LMS ID {course_id}.")
+        # most_recent_course_observation = most_recent_course_observations[0]
+        # self.total_nr_of_students_for_course = compute_total_nr_of_students_for_course_observation(
+        #     most_recent_course_observation.pk)
         self.access_token = access_token
         self.kpas_client = KpasClient()
         self.course_id = course_id
@@ -106,6 +112,21 @@ class EnrollmentActivity(object):
         """
         # loop while pagination has next page
         checked_nodes: int = 0
+
+        # while result['data']['course']['enrollmentsConnection']['pageInfo']['hasNextPage']:
+        #     checked_nodes += len(result['data']['course']['enrollmentsConnection']['edges'])
+        #     # self.logger.info(f"Checked activity for {checked_nodes} out of {self.total_nr_of_students_for_course}")
+        #     after_cursor = result['data']['course']['enrollmentsConnection']['pageInfo']['endCursor']
+        #     self.variables["after"] = after_cursor
+        #     try:
+        #         loop = asyncio.new_event_loop()
+        #         asyncio.set_event_loop(loop)
+        #         result = loop.run_until_complete(
+        #             self.client.execute_async(query=second_query, variables=self.variables))
+        #         active_users_count += filter_enrollment_activity_by_date(result)
+        #     except Exception as err:
+        #         print("EnrollmentActivity error : {0}".format(err))
+        #         raise
 
         while result['data']['course']['enrollmentsConnection']['pageInfo']['hasNextPage']:
           checked_nodes += len(result['data']['course']['enrollmentsConnection']['edges'])

@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'statistics_api.apps.StatisticsApiConfig',
     'statistics_api.enrollment_activity',
     'statistics_api.history',
-    #'statistics_api.quizzes',
+    'statistics_api.quizzes',
     'statistics_api.matomo',
     'statistics_api.canvas_users',
     'statistics_api.canvas_modules',

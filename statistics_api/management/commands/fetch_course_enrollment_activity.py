@@ -1,4 +1,3 @@
-import asyncio
 import datetime
 import logging
 import sys
@@ -10,7 +9,6 @@ from django.core.management import BaseCommand
 from python_graphql_client import GraphqlClient
 
 from statistics_api.clients.canvas_api_client import CanvasApiClient
-from statistics_api.clients.kpas_client import KpasClient
 from statistics_api.definitions import CANVAS_DOMAIN, CANVAS_ACCESS_KEY, CA_FILE_PATH, CANVAS_ACCOUNT_ID
 from statistics_api.enrollment_activity.models import EnrollmentActivity as EnrollmentActivityModel
 
@@ -23,22 +21,24 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         logger.info("Starting fetching course enrollment activity from Canvas")
-        api_client = CanvasApiClient()
-        canvas_account_id: int = CANVAS_ACCOUNT_ID if CANVAS_ACCOUNT_ID else api_client.get_canvas_account_id_of_current_user()
-        courses = api_client.get_courses(canvas_account_id=canvas_account_id)
-        for course in courses:
-            course_enrollment = EnrollmentActivity(graphql_api_url="https://{}/api/graphql".format(CANVAS_DOMAIN),
-                                                   course_id=int(course['id']),
-                                                   access_token=CANVAS_ACCESS_KEY, logger=logger)
-            course_enrollment.fetch_enrollment_activity()
-        logger.info("Finished fetching course enrollment activity from Canvas")
-
+        try:
+            api_client = CanvasApiClient()
+            canvas_account_id: int = CANVAS_ACCOUNT_ID if CANVAS_ACCOUNT_ID else api_client.get_canvas_account_id_of_current_user()
+            courses = api_client.get_courses(canvas_account_id=canvas_account_id)
+            for course in courses:
+                try:
+                    course_enrollment = EnrollmentActivity(graphql_api_url="https://{}/api/graphql".format(CANVAS_DOMAIN),
+						course_id=int(course['id']), access_token=CANVAS_ACCESS_KEY)
+                    course_enrollment.fetch_enrollment_activity()
+                except Exception as e:
+                    logger.error("Error processing course ID %s: %s", course['id'], str(e))
+            logger.info("Finished fetching course enrollment activity from Canvas")
+        except Exception as e:
+            logger.error("Error fetching courses from Canvas: %s", str(e))
 
 class EnrollmentActivity(object):
-    def __init__(self, access_token: str, graphql_api_url: str, course_id: int, logger: Logger) -> None:
-        self.logger = logger
+    def __init__(self, access_token: str, graphql_api_url: str, course_id: int) -> None:
         self.access_token = access_token
-        self.kpas_client = KpasClient()
         self.course_id = course_id
         self.headers = {'Authorization': 'Bearer ' + self.access_token,
                         "Content-Type": "application/json"}
@@ -81,7 +81,7 @@ class EnrollmentActivity(object):
         try:
             result = self.client.execute(query=self.query, variables=self.variables)
         except Exception as err:
-            logger("EnrollmentActivity error : {0}".format(err))
+            logger.error("EnrollmentActivity error : {0}".format(err))
             raise
         active_users_count += filter_enrollment_activity_by_date(result)
         second_query = """
@@ -115,7 +115,7 @@ class EnrollmentActivity(object):
             result = self.client.execute(query=second_query, variables=self.variables)
             active_users_count += filter_enrollment_activity_by_date(result)
           except Exception as err:
-            logger("EnrollmentActivity error: {0}".format(err))
+            logger.error("EnrollmentActivity error: {0}".format(err))
             raise
 
         yesterday = datetime.datetime.now().replace(tzinfo=datetime.timezone.utc) - datetime.timedelta(days=1)
@@ -139,8 +139,8 @@ def filter_enrollment_activity_by_date(data):
     :param data: Dict
     :return:
     """
-    edges = data["data"]["course"]["enrollmentsConnection"]["edges"]
-    active_users_yesterday = list(filter(compare_date, edges))
+    edges = data.get("data", {}).get("course", {}).get("enrollmentsConnection", {}).get("edges", [])
+    active_users_yesterday = [edge for edge in edges if compare_date(edge.get("node", {}))]
     return len(active_users_yesterday)
 
 
@@ -150,8 +150,9 @@ def compare_date(node):
     :param node: Enrollment object
     :return: boolean
     """
-    if not node["node"]['lastActivityAt']:
+    last_activity_at = node.get('lastActivityAt')
+    if not last_activity_at:
         return False
     yesterday = arrow.utcnow().shift(days=-1)
-    last_activity_at = arrow.get(node["node"]['lastActivityAt'])
+    last_activity_at = arrow.get(last_activity_at)
     return last_activity_at >= yesterday

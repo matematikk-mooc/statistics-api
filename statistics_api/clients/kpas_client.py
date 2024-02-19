@@ -32,7 +32,7 @@ class KpasClient:
             print("Received invalid json")
             return None
         return tuple(response_json.get("result"))
-            
+
 
     def get_municipalities_by_county_id(self, county_id):
         web_response = self.web_session.get(f"{KPAS_NSR_API_URL}/counties/{county_id}/communities/")
@@ -43,9 +43,6 @@ class KpasClient:
             print("Received invalid json")
             return None
 
-    def post_trigger_to_activate_schedule_of_job(self) -> None:
-        web_response = self.web_session.post(f"{KPAS_API_URL}/run_scheduler")
-        assert web_response.status_code == 200
 
     def get_county(self, county_id: int) -> Union[Dict, None]:
         web_response = self.web_session.get(f"{KPAS_NSR_API_URL}/counties/{county_id}")

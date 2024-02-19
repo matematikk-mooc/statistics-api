@@ -9,9 +9,3 @@ class Migration(migrations.Migration):
         ('total_students', '0001_initial'),
     ]
 
-    # operations = [
-    #     migrations.AlterModelTable(
-    #         name='totalstudents',
-    #         table='total_students',
-    #     ),
-    # ]

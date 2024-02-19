@@ -14,11 +14,12 @@ class Command(BaseCommand):
         logger = logging.getLogger()
         commands = (
             "pull_total_students_counts_from_courses",
-            "trigger_scheduling_of_kpas_job",
             "pull_course_member_counts_from_canvas",
             "fetch_course_enrollment_and_post_to_kpas",
             "pull_data_from_matomo",
-            "pull_finnish_marks_canvas")
+            "pull_finnish_marks_canvas"
+            "pull_history_from_canvas_and_update_db",
+            )
 
         for command in commands:
             try:
@@ -27,4 +28,4 @@ class Command(BaseCommand):
                 management.call_command(command)
                 logger.info(f"Command {command} finished")
             except (JSONDecodeError, AssertionError) as e:
-                logger.critical(e)
+                logger.error(e)

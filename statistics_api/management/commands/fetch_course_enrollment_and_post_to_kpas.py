@@ -14,14 +14,14 @@ from statistics_api.clients.kpas_client import KpasClient
 from statistics_api.definitions import CANVAS_DOMAIN, CANVAS_ACCESS_KEY, CA_FILE_PATH, CANVAS_ACCOUNT_ID
 from statistics_api.enrollment_activity.models import EnrollmentActivity as EnrollmentActivityModel
 
+logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
+logger = logging.getLogger()
 
 class Command(BaseCommand):
     help = """Retrieves per-course enrollment activity for all courses administrated by the Canvas account ID
             set in environment settings."""
 
     def handle(self, *args, **options):
-        logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
-        logger = logging.getLogger()
         logger.info("Starting fetching course enrollment activity from Canvas")
         api_client = CanvasApiClient()
         canvas_account_id: int = CANVAS_ACCOUNT_ID if CANVAS_ACCOUNT_ID else api_client.get_canvas_account_id_of_current_user()
@@ -81,7 +81,7 @@ class EnrollmentActivity(object):
         try:
             result = self.client.execute(query=self.query, variables=self.variables)
         except Exception as err:
-            print("EnrollmentActivity error : {0}".format(err))
+            logger("EnrollmentActivity error : {0}".format(err))
             raise
         active_users_count += filter_enrollment_activity_by_date(result)
         second_query = """
@@ -109,14 +109,13 @@ class EnrollmentActivity(object):
 
         while result['data']['course']['enrollmentsConnection']['pageInfo']['hasNextPage']:
           checked_nodes += len(result['data']['course']['enrollmentsConnection']['edges'])
-          # self.logger.info(f"Checked activity for {checked_nodes} out of {self.total_nr_of_students_for_course}")
           after_cursor = result['data']['course']['enrollmentsConnection']['pageInfo']['endCursor']
           self.variables["after"] = after_cursor
           try:
             result = self.client.execute(query=second_query, variables=self.variables)
             active_users_count += filter_enrollment_activity_by_date(result)
           except Exception as err:
-            print("EnrollmentActivity error: {0}".format(err))
+            logger("EnrollmentActivity error: {0}".format(err))
             raise
 
         yesterday = datetime.datetime.now().replace(tzinfo=datetime.timezone.utc) - datetime.timedelta(days=1)
@@ -124,16 +123,14 @@ class EnrollmentActivity(object):
         enrollment_activity['active_users_count'] = active_users_count
         enrollment_activity['course_id'] = self.course_id
         enrollment_activity['course_name'] = result['data']['course']['name'].strip()
-        self.logger.info(f"saving {enrollment_activity} to DB")
 
         created_enrollment_object = EnrollmentActivityModel(
-            course_id=enrollment_activity['course_id'],
-            course_name=enrollment_activity['course_name'],
-            active_users_count=enrollment_activity['active_users_count'],
-            activity_date=enrollment_activity['activity_date']
+          course_id=enrollment_activity['course_id'],
+          course_name=enrollment_activity['course_name'],
+          active_users_count=enrollment_activity['active_users_count'],
+          activity_date=enrollment_activity['activity_date']
         )
         created_enrollment_object.save()
-        self.logger.info(f"{created_enrollment_object} created in DB")
 
 
 def filter_enrollment_activity_by_date(data):

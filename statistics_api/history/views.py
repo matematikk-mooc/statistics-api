@@ -7,28 +7,39 @@ from statistics_api.history.models import History
 
 @api_view(('GET',))
 def user_history(self, user_id: int):
-    query = History.objects.all().filter(canvas_userid = user_id)
-    result = HistorySerializer(query, many=True)
-    return Response(result.data)
+    try:
+        query = History.objects.all().filter(canvas_userid = user_id)
+        result = HistorySerializer(query, many=True)
+        return Response(result.data)
+    except Exception as e:
+        return Response({"Error": str(e)}, status=500)
 
 @api_view(('GET',))
 def user_history_on_context(self, user_id: int, context_id: int):
-    history_events = History.objects.all().filter(canvas_userid = user_id, context_id = context_id)
-    statistics = activity_history(history_events)
-    return Response({"Result": statistics})
+    try:
+        history_events = History.objects.all().filter(canvas_userid = user_id, context_id = context_id)
+        statistics = activity_history(history_events)
+        return Response({"Result": statistics})
+    except Exception as e:
+        return Response({"Error": str(e)}, status=500)
 
 @api_view(('GET',))
 def context_history(self, context_id: int):
-    history_events = History.objects.all().filter(context_id = context_id)
-    statistics = activity_history(history_events)
-    return Response({"Result": statistics})
+    try:
+        history_events = History.objects.all().filter(context_id = context_id)
+        statistics = activity_history(history_events)
+        return Response({"Result": statistics})
+    except Exception as e:
+        return Response({"Error": str(e)}, status=500)
 
 @api_view(('GET',))
 def user_aggregated_history(self, user_id: int):
-    history_events = History.objects.all().filter(canvas_userid = user_id)
-    statistics = activity_history(history_events)
-    return Response({"Result": statistics})
-
+    try:
+        history_events = History.objects.all().filter(canvas_userid = user_id)
+        statistics = activity_history(history_events)
+        return Response({"Result": statistics})
+    except Exception as e:
+        return Response({"Error": str(e)}, status=500)
 
 def activity_history(history_events) -> list:
     all_visited_pages = history_events.values('asset_code', 'asset_name', 'context_name').distinct()

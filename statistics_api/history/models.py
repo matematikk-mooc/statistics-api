@@ -9,7 +9,7 @@ class History(models.Model):
     context_id = models.IntegerField(null=True, blank=True)
     context_type = models.CharField(max_length=255, null=True, blank=True)
     visited_at = models.DateTimeField(auto_now_add= False, auto_now=False)
-    visited_url = models.URLField(null=True, blank=True)
+    visited_url = models.URLField(max_length=1024, null=True, blank=True)
     interaction_seconds = models.IntegerField(blank=True, null=True)
     asset_icon = models.CharField(max_length=255, null=True, blank=True)
     asset_readable_category = models.CharField(max_length=255, null=True, blank=True)

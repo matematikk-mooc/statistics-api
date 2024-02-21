@@ -47,9 +47,7 @@ INSTALLED_APPS = [
     'statistics_api.apps.StatisticsApiConfig',
     'statistics_api.enrollment_activity',
     'statistics_api.history',
-    'statistics_api.quizzes',
     'statistics_api.matomo',
-    'statistics_api.canvas_users',
     'statistics_api.canvas_modules',
     'statistics_api.total_students',
 ]
@@ -96,7 +94,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'statistics_api.wsgi.application'
 TEST_RUNNER = 'statistics_api.tests.override_test_runner.MyTestRunner'
 
-# Database 
+# Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 DATABASES = {
     'default': {

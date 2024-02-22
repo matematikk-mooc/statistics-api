@@ -13,5 +13,5 @@ class History(models.Model):
     interaction_seconds = models.IntegerField(blank=True, null=True)
     asset_icon = models.CharField(max_length=255, null=True, blank=True)
     asset_readable_category = models.CharField(max_length=255, null=True, blank=True)
-    asset_name = models.CharField(max_length=255, null=True, blank=True)
+    asset_name = models.CharField(max_length=512, null=True, blank=True)
     context_name = models.CharField(max_length=255, null=True, blank=True)

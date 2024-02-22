@@ -50,6 +50,5 @@ class Command(BaseCommand):
                     )
                 except Exception as e:
                     logger.error("Error while saving history: " + event.get('context_name') + ", " + str(e))
-                    logger.info("Asset name: " + event.get('asset_name'))
         except Exception as e:
             logger.error("Error while fetching history for user " + canvas_userid + ": " + str(e))

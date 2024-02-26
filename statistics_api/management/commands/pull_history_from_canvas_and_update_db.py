@@ -6,46 +6,49 @@ from statistics_api.history.models import History
 import logging
 import sys
 
+logging.basicConfig(stream=sys.stderr, level=logging.INFO)
+logger = logging.getLogger()
 class Command(BaseCommand):
-    help = """Retrieves per-course enrollment activity for all courses administrated by the Canvas account ID
-            set in environment settings."""
 
     def handle(self, *args, **options):
-        logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
-        logger = logging.getLogger()
-        logger.info("Starting fetching course enrollment activity from Canvas")
+        logger.info("Starting fetching recent activity history from Canvas")
         api_client = CanvasApiClient()
         yesterday = date.today() - timedelta(1)
-        accounts = api_client.get_canvas_accounts()
-        for account in accounts:
-            users = api_client.get_account_users(account.get("id"))
-            for user in users:
-                self.fetch_user_history(api_client, user.get("id"), yesterday)
-        logger.info("Finished fetching course enrollment activity from Canvas")
+        try:
+            accounts = api_client.get_canvas_accounts()
+            for account in accounts:
+                users = api_client.get_account_users(account.get("id"))
+                for user in users:
+                    self.fetch_user_history(api_client, user.get("id"), yesterday)
+            logger.info("Finished fetching recent activity history from Canvas")
+        except Exception as e:
+            logger.error("Error while fetching recent activity history from Canvas: " + str(e))
 
     def fetch_user_history(self, api_client, canvas_userid, date):
-        history_response = api_client.get_user_history(canvas_userid)
-        history = list(
-            filter(
-                lambda x:
-                datetime.strptime(x['visited_at'], '%Y-%m-%d' + 'T' + '%H:%M:%S' + 'Z') >= datetime.combine(date,
-                                                                                                            datetime.min.time()),
-                history_response
-            )
-        )
-        for event in history:
-            History.objects.get_or_create(
-                canvas_userid=canvas_userid,
-                visited_at=event.get('visited_at'),
-                defaults={
-                    'asset_code': event.get('asset_code'),
-                    'context_id': event.get('context_id'),
-                    'context_type': event.get('context_type'),
-                    'visited_url': event.get('visited_url'),
-                    'interaction_seconds': event.get('interaction_seconds'),
-                    'asset_icon': event.get('asset_icon'),
-                    'asset_readable_category': event.get('asset_readable_category'),
-                    'asset_name': event.get('asset_name'),
-                    'context_name': event.get('context_name')
-                }
-            )
+        try:
+            history_response = api_client.get_user_history(canvas_userid)
+            history = [
+                event for event in history_response
+                if datetime.strptime(event['visited_at'], '%Y-%m-%dT%H:%M:%SZ') >= datetime.combine(date, datetime.min.time())
+            ]
+            for event in history:
+                try:
+                    History.objects.get_or_create(
+                        canvas_userid=canvas_userid,
+                        visited_at=event.get('visited_at'),
+                        defaults={
+                            'asset_code': event.get('asset_code'),
+                            'context_id': event.get('context_id'),
+                            'context_type': event.get('context_type'),
+                            'visited_url': event.get('visited_url'),
+                            'interaction_seconds': event.get('interaction_seconds'),
+                            'asset_icon': event.get('asset_icon'),
+                            'asset_readable_category': event.get('asset_readable_category'),
+                            'asset_name': event.get('asset_name'),
+                            'context_name': event.get('context_name')
+                        }
+                    )
+                except Exception as e:
+                    logger.error("Error while saving history: " + event.get('context_name') + ", " + str(e))
+        except Exception as e:
+            logger.error("Error while fetching history for user " + canvas_userid + ": " + str(e))

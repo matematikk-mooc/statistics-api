@@ -10,12 +10,12 @@ from django.db.models import F
 
 from statistics_api.clients.canvas_api_client import CanvasApiClient
 
+logging.basicConfig(stream=sys.stderr, level=logging.INFO)
+logger = logging.getLogger()
 
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
-        logger = logging.getLogger()
         logger.info("Starting pulling finnish marks from Canvas")
         api_client = CanvasApiClient()
         canvas_account_id: int = CANVAS_ACCOUNT_ID if CANVAS_ACCOUNT_ID else api_client.get_canvas_account_id_of_current_user()
@@ -34,6 +34,7 @@ class Command(BaseCommand):
     def parse_courses(self, api_client, courses):
         for course in courses:
             course_id = course.get('id')
+            # Skip the course with id 360, because of the size of the course
             if course_id == 360:
                 continue
             self.course_modules(api_client, course)

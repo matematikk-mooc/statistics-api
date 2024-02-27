@@ -158,7 +158,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 STATIC_URL = '/static/'
 
 
-# Bugsnag
+# Bugsnag 
 BUGSNAG = {
     'api_key': BUGSNAG_API_KEY,
     'project_root': '/app/statistics_api/',

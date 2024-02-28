@@ -3,7 +3,6 @@
 set -e
 source venv/bin/activate
 python manage.py migrate
-python manage.py remove_stale_contenttypes --include-stale-apps --noinput
 python manage.py import_school_teacher_counts_from_csv
 python manage.py import_county_teacher_counts_from_csv
 if [ "$PULL_MEMBER_COUNTS_FROM_CANVAS_ON_STARTUP" = "True" ]

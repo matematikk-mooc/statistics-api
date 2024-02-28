@@ -22,7 +22,10 @@ def user_history_on_context(self, user_id: int, context_id: int):
     try:
         history_events = History.objects.all().filter(canvas_userid = user_id, context_id = context_id)
         statistics = activity_history(history_events)
-        return Response({"Result": statistics})
+        if(len(statistics) != 0):
+            return Response({"Result": statistics})
+        else:
+            raise ObjectDoesNotExist
     except ObjectDoesNotExist:
         return Response({"Error": f"No history found for user {user_id} in context {context_id}"}, status=404)
     except Exception as e:
@@ -33,7 +36,10 @@ def context_history(self, context_id: int):
     try:
         history_events = History.objects.all().filter(context_id = context_id)
         statistics = activity_history(history_events)
-        return Response({"Result": statistics})
+        if(len(statistics) != 0):
+            return Response({"Result": statistics})
+        else:
+            raise ObjectDoesNotExist
     except ObjectDoesNotExist:
         return Response({"Error": f"No history found for context {context_id}"}, status=404)
     except Exception as e:
@@ -44,7 +50,10 @@ def user_aggregated_history(self, user_id: int):
     try:
         history_events = History.objects.all().filter(canvas_userid = user_id)
         statistics = activity_history(history_events)
-        return Response({"Result": statistics})
+        if(len(statistics) != 0):
+            return Response({"Result": statistics})
+        else:
+            raise ObjectDoesNotExist
     except ObjectDoesNotExist:
         return Response({"Error": f"No history found for user {user_id}"}, status=404)
     except Exception as e:

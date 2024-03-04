@@ -17,7 +17,8 @@ RUN apt-get update &&  \
                         gosu \
                         python3-dev \
                         default-libmysqlclient-dev \
-                        build-essential
+                        build-essential \
+                        pkg-config
 
 # Set virtual environment
 RUN /usr/bin/python3 -m venv /app/venv

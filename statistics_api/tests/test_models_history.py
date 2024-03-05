@@ -78,9 +78,13 @@ class TestHistoryModels(TestCase):
             context_name="Example Course"
         )
 
+    def tearDown(self):
+        pass
+
+
     # Tests for the history model
 
-    def test_history_object(self):
+    def test_history_object_created(self):
         history = History.objects.get(id=1)
         self.assertEqual(history.canvas_userid, '1')
         self.assertEqual(history.context_id, 123)
@@ -109,7 +113,7 @@ class TestHistoryModels(TestCase):
         self.assertEqual(history_timeframeToday.count(), 2)
         self.assertEqual(history_timeframeToday[0].canvas_userid, '1')
         self.assertEqual(history_timeframeToday[1].canvas_userid, '2')
-        
+
         historybetween190224_today = History.objects.filter(visited_at__range=["2024-02-19 00:00:00", timezone.now()])
         self.assertEqual(historybetween190224_today.count(), 3)
         self.assertEqual(historybetween190224_today[0].canvas_userid, '1')

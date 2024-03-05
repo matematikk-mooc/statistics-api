@@ -56,9 +56,9 @@ urlpatterns = [
     url(r'^api/statistics/course/(\d+)/modules/count$', module_item_total_count),
     url(r'^api/statistics/modules/(\d+)/per_date$', module_completed_per_date_count),
 
-    url(r'^api/total_students/(\d+)$', total_students_course),
-    url(r'^api/total_students/current$', get_total_students_all_current),
-    url(r'^api/total_students/current/(\d+)$', get_total_students_course_current),
+    url(r'^api/total_students/(\d+)$', total_students_course, name="total_students_course"),
+    url(r'^api/total_students/current$', get_total_students_all_current, name="get_total_students_all_current"),
+    url(r'^api/total_students/current/(\d+)$', get_total_students_course_current, name="get_total_students_course_current"),
 
 
     url(r'^version/?$', get_software_version),

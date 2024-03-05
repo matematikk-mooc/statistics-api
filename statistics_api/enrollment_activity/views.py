@@ -1,6 +1,7 @@
 from rest_framework import viewsets, serializers
 from rest_framework.response import Response
 from django.core.exceptions import ValidationError
+from rest_framework.decorators import action
 
 # Create your views here.
 from statistics_api.enrollment_activity.models import EnrollmentActivity
@@ -10,7 +11,6 @@ class EnrollmentActivityViewSet(viewsets.ViewSet):
     """
     A enrollment ViewSet for listing or retrieving enrollment activity.
     """
-
     def list(self, request):
         from_date = request.GET.get("from")
         to_date = request.GET.get("to")

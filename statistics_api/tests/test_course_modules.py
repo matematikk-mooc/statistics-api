@@ -1,6 +1,4 @@
 from django.test import TestCase
-from datetime import timedelta
-from django.utils import timezone
 from django.urls import reverse
 import json as JSON
 from statistics_api.canvas_modules.models import Module, ModuleItem, FinnishedStudent, FinnishMarkCount
@@ -117,11 +115,11 @@ class ModuleTestCase(TestCase):
         self.assertEqual(ModuleItem.objects.all().count(), 3)
 
     def test_finnish_mark_count_creation(self):
-        self.assertEqual(self.finnish_mark_count.module_item, self.module_item_1)
-        self.assertEqual(self.finnish_mark_count.group_id, "group_id")
-        self.assertEqual(self.finnish_mark_count.group_name, "Group Name 1")
-        self.assertEqual(self.finnish_mark_count.count, 5)
-        self.assertEqual(FinnishMarkCount.objects.all().count(), 1)
+        self.assertEqual(self.finnish_mark_count1.module_item, self.module_item_1)
+        self.assertEqual(self.finnish_mark_count1.group_id, "group1")
+        self.assertEqual(self.finnish_mark_count1.group_name, "Group Name 1")
+        self.assertEqual(self.finnish_mark_count1.count, 5)
+        self.assertEqual(FinnishMarkCount.objects.all().count(), 2)
 
     def test_finnished_student_creation(self):
         self.assertEqual(self.finnished_student123_789.module_item, self.module_item_1)
@@ -132,19 +130,21 @@ class ModuleTestCase(TestCase):
 
     def test_module_statistics_with_group(self):
         url = reverse('module_statistics', args=('456', ))
-        response = self.client.get(url, {'group': 'group_id'})
+        response = self.client.get(url, {'group': 'group1'})
         self.assertEqual(response.status_code, 200)
         result = JSON.loads(response.content)
-        self.assertEqual(len(result), 1)
+        #Expecting only the specified group, group1
+        self.assertEqual(len(result[0]['module_items'][0]['user_groups']), 1)
         self.assertEqual(result[0]['canvas_id'], '123')
-        self.assertEqual(result)
+        self.assertEqual(result[0]['module_items'][0]['user_groups'][0]['group_id'], 'group1')
 
     def test_module_statistics_without_group(self):
         url = reverse('module_statistics', args=('456', ))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         result = JSON.loads(response.content)
-        self.assertEqual(len(result), 1)
+        #Expecting all groups
+        self.assertEqual(len(result[0]['module_items'][0]['user_groups']), 2)
         self.assertEqual(result[0]['canvas_id'], '123')
 
     def test_module_item_total_count(self):

@@ -2,7 +2,6 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.utils import timezone
 import json as JSON
-from datetime import timedelta
 
 from statistics_api.total_students.models import TotalStudents
 

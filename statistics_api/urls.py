@@ -47,9 +47,9 @@ urlpatterns = [
     url(r'^api/statistics/user/(\d+)/context/(\d+)/history$', user_history_on_context, name="user_history_on_context"),
     url(r'^api/statistics/context/(\d+)/history$', context_history, name="context_history"),
     url(r'^api/statistics/user/(\d+)/history/aggregated$', user_aggregated_history, name="user_aggregated_history"),
-    url(r'^api/statistics/visits/$', visits_statistics),
-    url(r'^api/statistics/pages/$', page_statistics),
-    url(r'^api/statistics/course/(\d+)/pages/$', course_pages_statistics),
+    url(r'^api/statistics/visits/$', visits_statistics, name="visits_statistics"),
+    url(r'^api/statistics/pages/$', page_statistics, name="page_statistics"),
+    url(r'^api/statistics/course/(\d+)/pages/$', course_pages_statistics, name="course_pages_statistics"),
 
 
     url(r'^api/statistics/course/(\d+)/modules$', module_statistics, name="module_statistics"),

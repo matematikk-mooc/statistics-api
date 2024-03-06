@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.urls import reverse
 import json as JSON
 from statistics_api.canvas_modules.models import Module, ModuleItem, FinnishedStudent, FinnishMarkCount
@@ -129,8 +129,9 @@ class ModuleTestCase(TestCase):
         self.assertEqual(FinnishedStudent.objects.all().count(), 5)
 
     def test_module_statistics_with_group(self):
+        client = Client()
         url = reverse('module_statistics', args=('456', ))
-        response = self.client.get(url, {'group': 'group1'})
+        response = client.get(url, {'group': 'group1'})
         self.assertEqual(response.status_code, 200)
         result = JSON.loads(response.content)
         #Expecting only the specified group, group1
@@ -139,8 +140,9 @@ class ModuleTestCase(TestCase):
         self.assertEqual(result[0]['module_items'][0]['user_groups'][0]['group_id'], 'group1')
 
     def test_module_statistics_without_group(self):
+        client = Client()
         url = reverse('module_statistics', args=('456', ))
-        response = self.client.get(url)
+        response = client.get(url)
         self.assertEqual(response.status_code, 200)
         result = JSON.loads(response.content)
         #Expecting all groups
@@ -148,8 +150,9 @@ class ModuleTestCase(TestCase):
         self.assertEqual(result[0]['canvas_id'], '123')
 
     def test_module_item_total_count(self):
+        client = Client()
         url = reverse('module_item_total_count', args=('456', ))
-        response = self.client.get(url)
+        response = client.get(url)
         self.assertEqual(response.status_code, 200)
         result = JSON.loads(response.content)
         #Expecting two users to have completed module item 789
@@ -161,8 +164,9 @@ class ModuleTestCase(TestCase):
         self.assertEqual(result[0]['module_items'][2]['total_completed'], 1)
 
     def test_module_completed_per_date_count(self):
+        client = Client()
         url = reverse('module_completed_per_date_count', args=('123',))
-        response = self.client.get(url)
+        response = client.get(url)
         self.assertEqual(response.status_code, 200)
         result = JSON.loads(response.content)
         #Expecting one user to have completed whole module 1, user123 completed last item in module on 2022-02-03

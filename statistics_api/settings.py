@@ -110,7 +110,7 @@ DATABASES = {
         },
         'CONN_MAX_AGE': 7200,
         'TEST': {
-            'NAME': 'test_statistics_api',
+            'NAME': 'test_' + DB_DATABASE,
         },
     },
 }

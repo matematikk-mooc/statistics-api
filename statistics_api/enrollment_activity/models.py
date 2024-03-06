@@ -14,3 +14,6 @@ class EnrollmentActivity(models.Model):
     created_at = models.DateTimeField(
         auto_now_add=True,
         auto_now=False, )
+
+    class Meta():
+        app_label = 'enrollment_activity'

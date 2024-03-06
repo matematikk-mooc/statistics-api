@@ -92,7 +92,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'statistics_api.wsgi.application'
-TEST_RUNNER = 'statistics_api.tests.override_test_runner.MyTestRunner'
+# TEST_RUNNER = 'statistics_api.tests.override_test_runner.MyTestRunner'
+# TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
@@ -107,7 +108,10 @@ DATABASES = {
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },
-        'CONN_MAX_AGE': 7200
+        'CONN_MAX_AGE': 7200,
+        'TEST': {
+            'NAME': 'test_' + DB_DATABASE,
+        },
     },
 }
 

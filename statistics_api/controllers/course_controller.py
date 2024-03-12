@@ -4,9 +4,9 @@ from django.views.decorators.http import require_http_methods
 from typing import List
 
 from statistics_api.clients.canvas_api_client import CanvasApiClient
-from statistics_api.models.course_observation import CourseObservation
-from statistics_api.models.group import Group
-from statistics_api.models.group_category import GroupCategory
+from statistics_api.course_info.models import CourseObservation
+from statistics_api.course_info.models import Group
+from statistics_api.course_info.models import GroupCategory
 from statistics_api.utils.url_parameter_parser import get_url_parameters_dict, START_DATE_KEY, END_DATE_KEY, \
     NR_OF_DATES_LIMIT_KEY
 

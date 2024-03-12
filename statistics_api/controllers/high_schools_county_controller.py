@@ -6,8 +6,8 @@ from django.http import HttpResponse, JsonResponse, HttpResponseNotFound, HttpRe
 from statistics_api.clients.db_client import DatabaseClient
 from statistics_api.clients.kpas_client import KpasClient
 from statistics_api.definitions import CATEGORY_CODE_INFORMATION_DICT
-from statistics_api.models.county import County
-from statistics_api.models.course_observation import CourseObservation
+from statistics_api.course_info.models import County
+from statistics_api.course_info.models import CourseObservation
 from statistics_api.utils.url_parameter_parser import get_url_parameters_dict, START_DATE_KEY, END_DATE_KEY, \
     SHOW_SCHOOLS_KEY, NR_OF_DATES_LIMIT_KEY, ENROLLMENT_PERCENTAGE_CATEGORIES_KEY
 from statistics_api.utils.utils import filter_high_schools, calculate_enrollment_percentage_category, \

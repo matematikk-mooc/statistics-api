@@ -3,10 +3,10 @@ from typing import Tuple
 
 from django.core.exceptions import ValidationError
 
-from statistics_api.models.course_observation import CourseObservation
-from statistics_api.models.group import Group
-from statistics_api.models.group_category import GroupCategory
-from statistics_api.models.school import School
+from statistics_api.course_info.models import CourseObservation
+from statistics_api.course_info.models import Group
+from statistics_api.course_info.models import GroupCategory
+from statistics_api.course_info.models import School
 
 SCHOOL_ORGANIZATION_NUMBER = School.organization_number.field.name
 GROUP_ORGANIZATION_NUMBER = Group.organization_number.field.name
@@ -47,9 +47,9 @@ def get_org_nrs_enrollment_counts_and_teacher_counts_query(organization_numbers:
     """
     Returns a prepared SQL statement to retrieve all organization numbers, Canvas enrollment counts (member counts) and
     number of teachers at all schools with specified organization numbers and course_observation ID.
-    
+
     Example statement returned by this function:
-    
+
     SELECT organization_number, SUM(members_count), number_of_teachers FROM `group`
     INNER JOIN group_to_school_relationship ON group_to_school_relationship.group_id = `group`.id
     LEFT JOIN school ON group_to_school_relationship.school_id = `school`.id

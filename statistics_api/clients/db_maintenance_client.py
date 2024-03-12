@@ -4,11 +4,11 @@ from typing import Tuple, Dict, List
 from django.db import connection
 
 from statistics_api.clients.db_client import get_is_school_and_org_nr
-from statistics_api.models.county import County
-from statistics_api.models.course_observation import CourseObservation
-from statistics_api.models.group import Group
-from statistics_api.models.group_category import GroupCategory
-from statistics_api.models.school import School
+from statistics_api.course_info.models import County
+from statistics_api.course_info.models import CourseObservation
+from statistics_api.course_info.models import Group
+from statistics_api.course_info.models import GroupCategory
+from statistics_api.course_info.models import School
 from statistics_api.utils.query_maker import get_update_group_organization_numbers_query
 
 

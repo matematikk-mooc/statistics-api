@@ -9,8 +9,8 @@ from statistics_api.clients.db_client import DatabaseClient
 from statistics_api.clients.kpas_client import KpasClient
 from statistics_api.controllers.models.KpasSchool import KpasSchool
 from statistics_api.definitions import CATEGORY_CODE_INFORMATION_DICT, TOO_FEW_TEACHERS_CODE
-from statistics_api.models.course_observation import CourseObservation
-from statistics_api.models.school import School
+from statistics_api.course_info.models import CourseObservation
+from statistics_api.course_info.models import School
 from statistics_api.utils.url_parameter_parser import get_url_parameters_dict, ENROLLMENT_PERCENTAGE_CATEGORIES_KEY, \
     NR_OF_DATES_LIMIT_KEY, SHOW_SCHOOLS_KEY, END_DATE_KEY, START_DATE_KEY
 from statistics_api.utils.utils import calculate_enrollment_percentage_category, \

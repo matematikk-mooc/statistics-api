@@ -6,11 +6,11 @@ from typing import Tuple, Dict, Union
 
 from statistics_api.definitions import CATEGORY_CODES, PERCENTAGE_INTERVALS, TOO_FEW_TEACHERS_CUTOFF, \
     TOO_FEW_TEACHERS_CODE
-from statistics_api.models.county import County
-from statistics_api.models.course_observation import CourseObservation
-from statistics_api.models.group import Group
-from statistics_api.models.group_category import GroupCategory
-from statistics_api.models.school import School
+from statistics_api.course_info.models import County
+from statistics_api.course_info.models import CourseObservation
+from statistics_api.course_info.models import Group
+from statistics_api.course_info.models import GroupCategory
+from statistics_api.course_info.models import School
 
 
 def parse_year_from_data_file_name(csv_file_name: str) -> int:

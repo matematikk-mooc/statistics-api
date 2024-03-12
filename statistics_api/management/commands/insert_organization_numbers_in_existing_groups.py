@@ -7,7 +7,7 @@ from django.core.management import BaseCommand
 from statistics_api.clients.db_client import get_is_school_and_org_nr
 from statistics_api.clients.db_maintenance_client import DatabaseMaintenanceClient
 from statistics_api.definitions import DB_DATABASE
-from statistics_api.models.group import Group
+from statistics_api.course_info.models import Group
 
 
 class Command(BaseCommand):

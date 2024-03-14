@@ -4,7 +4,7 @@ name: Test, build and deploy
 on:
   workflow_dispatch:
   push:
-    branches: 
+    branches:
     - staging
     - master
     - test
@@ -106,19 +106,19 @@ jobs:
           mysql --port=3307 --protocol=tcp --host=127.0.0.1 -uroot -proot -e 'CREATE DATABASE `canvas-api`;'
           DB_DATABASE=canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3307 PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py makemigrations
           DB_DATABASE=canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3307 PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py migrate
-          mysql --port=3307 --protocol=tcp --host=127.0.0.1 -uroot -proot -e 'CREATE DATABASE `test_canvas-api`;'
-          DB_DATABASE=test_canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3307 PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py makemigrations
-          DB_DATABASE=test_canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3307 PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py migrate
+      # mysql --port=3307 --protocol=tcp --host=127.0.0.1 -uroot -proot -e 'CREATE DATABASE `test_canvas-api`;'
+      # DB_DATABASE=test_canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3307 PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py makemigrations
+      # DB_DATABASE=test_canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3307 PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py migrate
 
-      - name: Seed statistics_api test database
-        run: |
-          git lfs fetch --all
-          git lfs pull
-          unzip $GITHUB_WORKSPACE/statistics_api/tests/data/test_canvas-api.zip -d /tmp/
-          mysql --port=3307 --protocol=tcp --host=127.0.0.1 -uroot -proot test_canvas-api < /tmp/test_canvas-api.sql 
+      # - name: Seed statistics_api test database
+      #   run: |
+      #     git lfs fetch --all
+      #     git lfs pull
+      #     unzip $GITHUB_WORKSPACE/statistics_api/tests/data/test_canvas-api.zip -d /tmp/
+      #     mysql --port=3307 --protocol=tcp --host=127.0.0.1 -uroot -proot test_canvas-api < /tmp/test_canvas-api.sql
       - name: Run Django unit tests
         run: |
-          DJANGO_DEBUG=True CANVAS_ACCESS_KEY=${{ secrets.CANVAS_ACCESS_KEY }} DJANGO_SETTINGS_MODULE=statistics_api.tests.test_settings DB_DATABASE=canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3307 PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py test --keepdb --settings statistics_api.tests.test_settings --verbosity=3
+          DJANGO_DEBUG=True CANVAS_ACCESS_KEY=${{ secrets.CANVAS_ACCESS_KEY }} DJANGO_SETTINGS_MODULE=statistics_api.tests.test_settings DB_DATABASE=canvas-api DB_USERNAME=root DB_PASSWORD=root DB_PORT=3307 PYTHONPATH="${GITHUB_WORKSPACE}" python3 manage.py test --settings statistics_api.tests.test_settings --verbosity=3
 
       # Checking that only the issue is the SECURE_HSTS_SECONDS warning
       - name: Run manage.py check --deploy

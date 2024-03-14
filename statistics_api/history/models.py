@@ -15,3 +15,6 @@ class History(models.Model):
     asset_readable_category = models.CharField(max_length=255, null=True, blank=True)
     asset_name = models.CharField(max_length=512, null=True, blank=True)
     context_name = models.CharField(max_length=255, null=True, blank=True)
+
+    class Meta:
+        app_label = 'history'

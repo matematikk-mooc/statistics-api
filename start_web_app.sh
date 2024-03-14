@@ -3,11 +3,7 @@
 set -e
 source venv/bin/activate
 python manage.py migrate
-python manage.py remove_stale_contenttypes --include-stale-apps --noinput
 python manage.py import_school_teacher_counts_from_csv
 python manage.py import_county_teacher_counts_from_csv
-if [ "$PULL_MEMBER_COUNTS_FROM_CANVAS_ON_STARTUP" = "True" ]
-then
-  python manage.py pull_course_member_counts_from_canvas
-fi
+
 gunicorn --bind 0.0.0.0:"${WEBSITES_PORT}" --timeout "${GUNICORN_TIMEOUT}" statistics_api.wsgi:application --log-level "${GUNICORN_LOG_LEVEL}" --access-logfile - --error-logfile -

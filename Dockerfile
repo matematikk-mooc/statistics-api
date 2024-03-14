@@ -1,4 +1,4 @@
-FROM python:3.10.4
+FROM python:3.12.2
 
 ########            SYSTEM          #########
 
@@ -14,7 +14,11 @@ RUN apt-get update &&  \
                         python3-venv \
                         libmariadb-dev \
                         gdal-bin \
-                        gosu
+                        gosu \
+                        python3-dev \
+                        default-libmysqlclient-dev \
+                        build-essential \
+                        pkg-config
 
 # Set virtual environment
 RUN /usr/bin/python3 -m venv /app/venv

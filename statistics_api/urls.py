@@ -19,13 +19,9 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from django.shortcuts import redirect
 
-from statistics_api.controllers.high_schools_county_controller import county_high_school_statistics_by_county_id
-from statistics_api.controllers.primary_schools_controller import municipality_primary_school_statistics, \
-    county_primary_school_statistics
 from statistics_api.controllers.version_controller import get_software_version
 from statistics_api.enrollment_activity.views import EnrollmentActivityViewSet
-from statistics_api.controllers.course_controller import course, course_count
-from statistics_api.controllers.group_category_controller import group_category, group_category_count
+from statistics_api.course_info.views import view_course, view_group_category, view_primary_school, view_high_school
 from statistics_api.history.views import user_history, user_history_on_context, context_history, user_aggregated_history
 from statistics_api.matomo.views import visits_statistics, page_statistics, course_pages_statistics
 from statistics_api.canvas_modules.views import module_statistics, module_item_total_count, module_completed_per_date_count
@@ -36,13 +32,15 @@ router.register(r"user_activity", EnrollmentActivityViewSet, basename="enrollmen
 
 
 urlpatterns = [
-    url(r'^api/statistics/(\d+)/?$', course),
-    url(r'^api/statistics/(\d+)/count$', course_count),
-    url(r'^api/statistics/groupCategory/(\d+)$', group_category),
-    url(r'^api/statistics/groupCategory/(\d+)/count$', group_category_count),
-    url(r'^api/statistics/primary_schools/municipality/(\d+)/course/(\d+)$', municipality_primary_school_statistics),
-    url(r'^api/statistics/primary_schools/county/(\d+)/course/(\d+)$', county_primary_school_statistics),
-    url(r'^api/statistics/high_schools/county/(\d+)/course/(\d+)$', county_high_school_statistics_by_county_id),
+    url(r'^api/statistics/(\d+)/$', view_course.course, name="course"),
+    url(r'^api/statistics/(\d+)/count$', view_course.course_count, name="course_count"),
+    url(r'^api/statistics/groupCategory/(\d+)$', view_group_category.group_category, name="group_category"),
+    url(r'^api/statistics/groupCategory/(\d+)/count$', view_group_category.group_category_count, name="group_category_count"),
+    url(r'^api/statistics/primary_schools/county/(\d+)/course/(\d+)$', view_primary_school.county_primary_school_statistics), #Erstattet, men må skrives om
+
+    url(r'^api/statistics/primary_schools/municipality/(\d+)/course/(\d+)$', view_primary_school.municipality_primary_school_statistics), #Erstattet, men må skrives om
+    url(r'^api/statistics/high_schools/county/(\d+)/course/(\d+)$', view_high_school.county_high_school_statistics_by_county_id), #Erstatt
+
     url(r'^api/statistics/user/(\d+)/history$', user_history, name="user_history"),
     url(r'^api/statistics/user/(\d+)/context/(\d+)/history$', user_history_on_context, name="user_history_on_context"),
     url(r'^api/statistics/context/(\d+)/history$', context_history, name="context_history"),
@@ -51,7 +49,6 @@ urlpatterns = [
     url(r'^api/statistics/pages/$', page_statistics, name="page_statistics"),
     url(r'^api/statistics/course/(\d+)/pages/$', course_pages_statistics, name="course_pages_statistics"),
 
-
     url(r'^api/statistics/course/(\d+)/modules$', module_statistics, name="module_statistics"),
     url(r'^api/statistics/course/(\d+)/modules/count$', module_item_total_count, name="module_item_total_count"),
     url(r'^api/statistics/modules/(\d+)/per_date$', module_completed_per_date_count, name="module_completed_per_date_count"),
@@ -59,7 +56,6 @@ urlpatterns = [
     url(r'^api/total_students/(\d+)$', total_students_course, name="total_students_course"),
     url(r'^api/total_students/current$', get_total_students_all_current, name="get_total_students_all_current"),
     url(r'^api/total_students/current/(\d+)$', get_total_students_course_current, name="get_total_students_course_current"),
-
 
     url(r'^version/?$', get_software_version),
 

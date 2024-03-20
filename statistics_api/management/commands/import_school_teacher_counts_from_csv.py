@@ -25,12 +25,13 @@ class Command(BaseCommand):
 
             logger.info(f"Opening file {csv_file_path}...")
             with open(csv_file_path, encoding='utf-8') as csvfile:
-                row_iterator = csv.reader(csvfile, delimiter=";")
+                row_iterator = csv.reader(csvfile, delimiter="\t")
 
                 row_iterator.__iter__().__next__()  # Moving the iterator to 2nd line
 
                 for row in row_iterator:
-                    _, organizational_number, _, _, _, _, _, _, _, _, _, _, number_of_teachers, _ = row
+                    _, _, _, _, organizational_number, _, _, _, _, number_of_teachers = row
+                    number_of_teachers = number_of_teachers.replace(" ", "")
                     organization_numbers_and_teacher_counts.append((organizational_number, int(number_of_teachers)))
 
             year_of_data = parse_year_from_data_file_name(csv_file_path)

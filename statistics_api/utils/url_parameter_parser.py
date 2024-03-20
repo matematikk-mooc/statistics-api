@@ -1,10 +1,9 @@
 from datetime import date, datetime, timedelta
 from distutils import util
 from time import time
-from typing import Tuple, Dict, Set
+from typing import Dict, Set
 
 from django.core.exceptions import ValidationError
-from django.core.handlers.wsgi import WSGIRequest
 
 from statistics_api.definitions import CATEGORY_CODES
 
@@ -16,7 +15,7 @@ ENROLLMENT_PERCENTAGE_CATEGORIES_KEY = "enrollment_percentage_categories"
 AGGREGATED = "aggregated"
 
 
-def get_url_parameters_dict(request: WSGIRequest) -> Dict:
+def get_url_parameters_dict(request) -> Dict:
     try:
         STRFTIME_FORMAT = "%Y-%m-%d"
         aggregated: bool = request.GET.get(AGGREGATED)
@@ -50,4 +49,3 @@ def get_url_parameters_dict(request: WSGIRequest) -> Dict:
                 AGGREGATED: aggregated}
     except ValueError:
         raise ValidationError("Invalid parameter value.")
- 

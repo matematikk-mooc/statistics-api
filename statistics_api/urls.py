@@ -36,15 +36,16 @@ urlpatterns = [
     url(r'^api/statistics/(\d+)/count$', view_course.course_count, name="course_count"),
     url(r'^api/statistics/groupCategory/(\d+)$', view_group_category.group_category, name="group_category"),
     url(r'^api/statistics/groupCategory/(\d+)/count$', view_group_category.group_category_count, name="group_category_count"),
-    url(r'^api/statistics/primary_schools/county/(\d+)/course/(\d+)$', view_primary_school.county_primary_school_statistics), #Erstattet, men må skrives om
 
-    url(r'^api/statistics/primary_schools/municipality/(\d+)/course/(\d+)$', view_primary_school.municipality_primary_school_statistics), #Erstattet, men må skrives om
-    url(r'^api/statistics/high_schools/county/(\d+)/course/(\d+)$', view_high_school.county_high_school_statistics_by_county_id), #Erstatt
+    url(r'^api/statistics/primary_schools/county/(\d+)/course/(\d+)$', view_primary_school.county_primary_school_statistics, name="county_primary_school_statistics"),
+    url(r'^api/statistics/primary_schools/municipality/(\d+)/course/(\d+)$', view_primary_school.municipality_primary_school_statistics, name="municipality_primary_school_statistics"),
+    url(r'^api/statistics/high_schools/county/(\d+)/course/(\d+)$', view_high_school.county_high_school_statistics_by_county_id, name="county_high_school_statistics_by_county_id"),
 
     url(r'^api/statistics/user/(\d+)/history$', user_history, name="user_history"),
     url(r'^api/statistics/user/(\d+)/context/(\d+)/history$', user_history_on_context, name="user_history_on_context"),
     url(r'^api/statistics/context/(\d+)/history$', context_history, name="context_history"),
     url(r'^api/statistics/user/(\d+)/history/aggregated$', user_aggregated_history, name="user_aggregated_history"),
+    
     url(r'^api/statistics/visits/$', visits_statistics, name="visits_statistics"),
     url(r'^api/statistics/pages/$', page_statistics, name="page_statistics"),
     url(r'^api/statistics/course/(\d+)/pages/$', course_pages_statistics, name="course_pages_statistics"),

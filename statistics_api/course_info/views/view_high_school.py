@@ -1,6 +1,3 @@
-from typing import Tuple, Dict
-
-from django.core.handlers.wsgi import WSGIRequest
 from django.http import HttpResponse, JsonResponse, HttpResponseNotFound, HttpResponseServerError
 from statistics_api.course_info.utils import Utils
 
@@ -14,8 +11,8 @@ from statistics_api.utils.utils import filter_high_schools, calculate_enrollment
     get_closest_matching_year, get_target_year
 
 
-def county_high_school_statistics_by_county_id(request: WSGIRequest, county_id: int,
-                                               canvas_course_id: int) -> HttpResponse:
+def county_high_school_statistics_by_county_id(request, county_id, canvas_course_id) -> HttpResponse:
+
     url_parameters_dict = get_url_parameters_dict(request)
 
     start_date, end_date, nr_of_dates_limit = (
@@ -26,13 +23,13 @@ def county_high_school_statistics_by_county_id(request: WSGIRequest, county_id: 
 
     kpas_client = KpasClient()
     schools_in_county = kpas_client.get_schools_by_county_id(county_id)
-    county: Tuple[Dict] = kpas_client.get_county(county_id)
+    county = kpas_client.get_county(county_id)
     if not county:
         return HttpResponseNotFound()
     county_name, county_organization_number = (county["Navn"], int(county["OrgNr"]))
 
-    high_schools_in_county: Tuple[Dict] = filter_high_schools(schools_in_county)
-    school_org_nrs: Tuple[str] = tuple([str(school["OrgNr"]) for school in high_schools_in_county])
+    high_schools_in_county = filter_high_schools(schools_in_county)
+    school_org_nrs = tuple([str(school["OrgNr"]) for school in high_schools_in_county])
 
     course_observations = CourseObservation.objects.filter(
         canvas_id=canvas_course_id,
@@ -45,9 +42,7 @@ def county_high_school_statistics_by_county_id(request: WSGIRequest, county_id: 
 
     db_counties = County.objects.filter(county_id__exact=int(county_id))
 
-    # Need a data structure to look up county teacher count by year, so that each course_observation can be mapped
-    # accordingly in O(1) time.
-    year_to_db_county_mapping: Dict[int, County] = {}
+    year_to_db_county_mapping = {}
 
     for db_county in db_counties:
         year_to_db_county_mapping[db_county.year] = db_county
@@ -66,10 +61,7 @@ def county_high_school_statistics_by_county_id(request: WSGIRequest, county_id: 
 
         course_observation: CourseObservation
 
-        # Retrieving tuples like (organization_number, members_count, teacher_count) for all matching
-        # rows.
-
-        county_enrollment_count: int = 0
+        county_enrollment_count = 0
 
         org_nrs_and_enrollment_counts = Utils.get_org_nrs_and_enrollment_counts(
             school_org_nrs, course_observation.pk)
@@ -78,7 +70,7 @@ def county_high_school_statistics_by_county_id(request: WSGIRequest, county_id: 
             county_enrollment_count += enrollment_count  # Looping through the schools, calculating total enrollment in entire county
 
         county_enrollment_percentage_category = calculate_enrollment_percentage_category(county_enrollment_count,
-                                                                                         county_teacher_count)
+            county_teacher_count)
 
         course_observation_json = {
             "date": course_observation.date_retrieved,

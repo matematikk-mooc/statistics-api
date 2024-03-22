@@ -6,8 +6,9 @@ from collections import defaultdict
 from typing import Tuple, List, Dict
 
 from django.core.management.base import BaseCommand
+from django.utils import timezone
 
-from statistics_api.clients.db_maintenance_client import DatabaseMaintenanceClient
+from statistics_api.course_info.models import County
 from statistics_api.data.county_id_mapping import COUNTY_TO_NEW_COUNTY_ID_MAPPING
 from statistics_api.definitions import ROOT_DIR
 from statistics_api.utils.utils import parse_year_from_data_file_name, get_county_data_file_paths
@@ -47,6 +48,18 @@ class Command(BaseCommand):
                 new_county_id_to_teacher_count_map[new_county_id] += teacher_count
 
             year_of_data = parse_year_from_data_file_name(csv_file_path)
-            DatabaseMaintenanceClient.insert_counties(new_county_id_to_teacher_count_map, year_of_data)
-            logger.info(f"Inserted {len(county_ids_and_teacher_counts)} counties from Skoleporten.")
+            self.insert_counties(new_county_id_to_teacher_count_map, year_of_data)
             logger.info(f"Finished importing county teacher counts from CSV file.")
+
+
+    def insert_counties(self, county_id_to_teacher_count_map: Dict[int, int], year_of_data: int):
+        for county_id, teacher_count in county_id_to_teacher_count_map.items():
+            updated_date = timezone.now()
+            obj, created = County.objects.update_or_create(
+                county_id=county_id,
+                year=year_of_data,
+                defaults={
+                    'number_of_teachers': teacher_count,
+                    'updated_date': updated_date,
+                }
+            )

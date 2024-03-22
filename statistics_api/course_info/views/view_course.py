@@ -1,5 +1,3 @@
-from django.shortcuts import render
-
 from django.http import JsonResponse, HttpResponseNotFound
 
 from statistics_api.clients.canvas_api_client import CanvasApiClient

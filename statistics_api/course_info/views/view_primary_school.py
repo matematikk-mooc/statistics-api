@@ -50,7 +50,7 @@ def municipality_primary_school_statistics(request: WSGIRequest, municipality_id
 
 
 @api_view(['GET'])
-def county_primary_school_statistics(request: WSGIRequest, county_id: int, canvas_course_id: int) -> HttpResponse:
+def county_primary_school_statistics(request, county_id: int, canvas_course_id: int) -> HttpResponse:
     kpas_client = KpasClient()
     schools_in_county = kpas_client.get_schools_by_county_id(county_id)
     county = kpas_client.get_county(county_id)
@@ -105,8 +105,6 @@ def retrieve_course_observations(canvas_course_id: int, url_parameters_dict: dic
     end_date = url_parameters_dict[END_DATE_KEY]
     nr_of_dates_limit = url_parameters_dict[NR_OF_DATES_LIMIT_KEY]
 
-    # Retrieving the {nr_of_most_recent_dates} most recent observations of Canvas LMS course with
-    # canvas ID {canvas_course_id} ordered by date descending.
     return CourseObservation.objects.filter(
         canvas_id=canvas_course_id,
         date_retrieved__gte=start_date,
@@ -256,8 +254,7 @@ def get_municipality_aggregated_school_data_for_county(
             county_enrollment_count += municipality_enrollment_count
             county_teacher_count += municipality_teacher_count
 
-            enrollment_percentage_category = calculate_enrollment_percentage_category(municipality_enrollment_count,
-                                                                                      municipality_teacher_count)
+            enrollment_percentage_category = calculate_enrollment_percentage_category(municipality_enrollment_count, municipality_teacher_count)
             if enrollment_percentage_category in enrollment_percentage_categories:
                 municipality_dict = {
                     "name": municipality_number_to_name_mapping.get(municipality_nr, ''),

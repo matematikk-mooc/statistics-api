@@ -51,3 +51,4 @@ class Command(BaseCommand):
                     'updated_date': str(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
                 }
             )
+        logger.info(f"Added/Updated all schools for year {year_of_data} with teacher counts")

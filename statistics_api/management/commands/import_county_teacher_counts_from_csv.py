@@ -6,8 +6,9 @@ from collections import defaultdict
 from typing import Tuple, List, Dict
 
 from django.core.management.base import BaseCommand
+from django.utils import timezone
 
-from statistics_api.clients.db_maintenance_client import DatabaseMaintenanceClient
+from statistics_api.course_info.models import County
 from statistics_api.data.county_id_mapping import COUNTY_TO_NEW_COUNTY_ID_MAPPING
 from statistics_api.definitions import ROOT_DIR
 from statistics_api.utils.utils import parse_year_from_data_file_name, get_county_data_file_paths
@@ -26,12 +27,13 @@ class Command(BaseCommand):
 
             logger.info(f"Opening file {csv_file_path}...")
             with open(csv_file_path, encoding='utf-8') as csvfile:
-                row_iterator = csv.reader(csvfile, delimiter=";")
+                row_iterator = csv.reader(csvfile, delimiter="\t")
 
                 row_iterator.__iter__().__next__()  # Moving the iterator to 2nd line
 
                 for row in row_iterator:
-                    _, county_id, _, _, _, _, _, _, _, _, _, _, number_of_teachers, _ = row
+                    _, _, county_id, _, _, number_of_teachers = row
+                    number_of_teachers = number_of_teachers.replace(" ", "")
                     county_ids_and_teacher_counts.append((int(county_id), int(number_of_teachers)))
 
 
@@ -46,6 +48,18 @@ class Command(BaseCommand):
                 new_county_id_to_teacher_count_map[new_county_id] += teacher_count
 
             year_of_data = parse_year_from_data_file_name(csv_file_path)
-            DatabaseMaintenanceClient.insert_counties(new_county_id_to_teacher_count_map, year_of_data)
-            logger.info(f"Inserted {len(county_ids_and_teacher_counts)} counties from Skoleporten.")
+            self.insert_counties(new_county_id_to_teacher_count_map, year_of_data)
             logger.info(f"Finished importing county teacher counts from CSV file.")
+
+
+    def insert_counties(self, county_id_to_teacher_count_map: Dict[int, int], year_of_data: int):
+        for county_id, teacher_count in county_id_to_teacher_count_map.items():
+            updated_date = timezone.now()
+            obj, created = County.objects.update_or_create(
+                county_id=county_id,
+                year=year_of_data,
+                defaults={
+                    'number_of_teachers': teacher_count,
+                    'updated_date': updated_date,
+                }
+            )

@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'statistics_api.matomo',
     'statistics_api.canvas_modules',
     'statistics_api.total_students',
+    'statistics_api.course_info',
 ]
 
 MIDDLEWARE = [

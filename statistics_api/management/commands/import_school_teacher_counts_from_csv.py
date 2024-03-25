@@ -10,6 +10,8 @@ from statistics_api.course_info.models import School
 from django.utils import timezone
 from datetime import datetime
 
+from django.db import connection
+
 from statistics_api.definitions import ROOT_DIR
 from statistics_api.utils.utils import parse_year_from_data_file_name, get_primary_school_data_file_paths
 
@@ -41,15 +43,34 @@ class Command(BaseCommand):
 
 
     def insert_schools(self, organization_numbers_and_teacher_counts: List[Tuple[str, int]], year_of_data: int) -> int:
-        logger.info(len(organization_numbers_and_teacher_counts))
+        # logger.info(len(organization_numbers_and_teacher_counts))
+        # for organizational_number, teacher_count in organization_numbers_and_teacher_counts:
+        #     obj, created = School.objects.update_or_create(
+        #         organization_number=organizational_number,
+        #         year=year_of_data,
+        #         defaults={
+        #             'number_of_teachers': teacher_count,
+        #             'updated_date': timezone.now()
+        #         }
+        #     )
+        #     logger.info(f"Added/Updated school with organization number {organizational_number} for year {year_of_data} with teacher count {teacher_count}")
+        # logger.info(f"Added/Updated all schools for year {year_of_data} with teacher counts")
+
+        sql_lines = []
+
         for organizational_number, teacher_count in organization_numbers_and_teacher_counts:
-            obj, created = School.objects.update_or_create(
-                organization_number=organizational_number,
-                year=year_of_data,
-                defaults={
-                    'number_of_teachers': teacher_count,
-                    'updated_date': timezone.now()
-                }
-            )
-            logger.info(f"Added/Updated school with organization number {organizational_number} for year {year_of_data} with teacher count {teacher_count}")
-        logger.info(f"Added/Updated all schools for year {year_of_data} with teacher counts")
+            sql_lines.append(
+                f"({organizational_number},{teacher_count},'{str(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))}',{year_of_data})")
+
+        sql_statement = f"""INSERT INTO {School._meta.db_table}({School.organization_number.field.name},
+                                {School.number_of_teachers.field.name}, {School.updated_date.field.name}, {School.year.field.name}) VALUES""" \
+                        + ", \n".join(sql_lines) + \
+                        f"""\n ON DUPLICATE KEY UPDATE
+                                {School.number_of_teachers.field.name} = VALUES({School.number_of_teachers.field.name}),
+                                {School.updated_date.field.name} = VALUES({School.updated_date.field.name})"""
+
+        with connection.cursor() as cursor:
+            cursor.execute(sql_statement)
+            cursor.close()
+
+        return len(sql_lines)

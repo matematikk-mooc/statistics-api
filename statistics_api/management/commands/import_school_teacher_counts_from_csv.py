@@ -48,7 +48,8 @@ class Command(BaseCommand):
                 year=year_of_data,
                 defaults={
                     'number_of_teachers': teacher_count,
-                    'updated_date': str(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+                    'updated_date': timezone.now()
                 }
             )
+            logger.info(f"Added/Updated school with organization number {organizational_number} for year {year_of_data} with teacher count {teacher_count}")
         logger.info(f"Added/Updated all schools for year {year_of_data} with teacher counts")

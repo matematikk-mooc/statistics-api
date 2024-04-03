@@ -26,6 +26,7 @@ from statistics_api.history.views import user_history, user_history_on_context, 
 from statistics_api.matomo.views import visits_statistics, page_statistics, course_pages_statistics
 from statistics_api.canvas_modules.views import module_statistics, module_item_total_count, module_completed_per_date_count
 from statistics_api.total_students.views import total_students_course, get_total_students_course_current, get_total_students_all_current
+from statistics_api.course_registrations.views import course_groups, course_groups_leaders
 
 router = DefaultRouter()
 router.register(r"user_activity", EnrollmentActivityViewSet, basename="enrollment_activity")
@@ -45,7 +46,7 @@ urlpatterns = [
     url(r'^api/statistics/user/(\d+)/context/(\d+)/history$', user_history_on_context, name="user_history_on_context"),
     url(r'^api/statistics/context/(\d+)/history$', context_history, name="context_history"),
     url(r'^api/statistics/user/(\d+)/history/aggregated$', user_aggregated_history, name="user_aggregated_history"),
-    
+
     url(r'^api/statistics/visits/$', visits_statistics, name="visits_statistics"),
     url(r'^api/statistics/pages/$', page_statistics, name="page_statistics"),
     url(r'^api/statistics/course/(\d+)/pages/$', course_pages_statistics, name="course_pages_statistics"),
@@ -57,6 +58,10 @@ urlpatterns = [
     url(r'^api/total_students/(\d+)$', total_students_course, name="total_students_course"),
     url(r'^api/total_students/current$', get_total_students_all_current, name="get_total_students_all_current"),
     url(r'^api/total_students/current/(\d+)$', get_total_students_course_current, name="get_total_students_course_current"),
+
+    url(r'^api/statistics/registrations/(\d+)/$', course_groups, name="course_registrations"),
+    url(r'^api/statistics/registrations/(\d+)/leaders$', course_groups_leaders, name="course_registrations_leaders"),
+
 
     url(r'^version/?$', get_software_version),
 

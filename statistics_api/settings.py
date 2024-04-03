@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'statistics_api.canvas_modules',
     'statistics_api.total_students',
     'statistics_api.course_info',
+    'statistics_api.course_registrations',
 ]
 
 MIDDLEWARE = [

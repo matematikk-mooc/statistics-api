@@ -19,6 +19,7 @@ class Command(BaseCommand):
             "pull_data_from_matomo",
             "pull_finnish_marks_canvas",
             "pull_history_from_canvas_and_update_db",
+            "pull_course_group_registrations",
             )
 
         for command in commands:

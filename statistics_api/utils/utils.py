@@ -6,11 +6,11 @@ from typing import Tuple, Dict, Union
 
 from statistics_api.definitions import CATEGORY_CODES, PERCENTAGE_INTERVALS, TOO_FEW_TEACHERS_CUTOFF, \
     TOO_FEW_TEACHERS_CODE
-from statistics_api.models.county import County
-from statistics_api.models.course_observation import CourseObservation
-from statistics_api.models.group import Group
-from statistics_api.models.group_category import GroupCategory
-from statistics_api.models.school import School
+from statistics_api.course_info.models import County
+from statistics_api.course_info.models import CourseObservation
+from statistics_api.course_info.models import Group
+from statistics_api.course_info.models import GroupCategory
+from statistics_api.course_info.models import School
 
 
 def parse_year_from_data_file_name(csv_file_name: str) -> int:
@@ -26,11 +26,11 @@ def parse_year_from_data_file_name(csv_file_name: str) -> int:
     return year
 
 
-def get_closest_matching_prior_year_to_target_year(eligible_years: Tuple[int], target_year: int) -> int:
+def get_closest_matching_year(eligible_years: Tuple[int], target_year: int) -> int:
     return max([year for year in eligible_years if year <= target_year])
 
 
-def get_target_year_for_course_observation_teacher_count(target_date: datetime) -> int:
+def get_target_year(target_date: datetime) -> int:
     # if the course_observation is from a date after 30th of June in any year, then the observation should be matched
     # with teacher counts from that year. If it's from before 30th of June, it should be matched with the year prior.
     # E.g., a course_observation from 12th of May 2019 should be matched with teacher counts from the year 2018-2019,

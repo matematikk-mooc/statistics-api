@@ -94,7 +94,8 @@ jobs:
               "DOCKER_REGISTRY_SERVER_URL=https://$AZURE_CONTAINER_REGISTRY" \
               "GIT_COMMIT=${GITHUB_SHA}" \
               @"${GITHUB_WORKSPACE}/.github/app_service_config/staging_app_service_config.json"
-            docker push $AZURE_CONTAINER_REGISTRY/statistics-api-staging
+            docker push $AZURE_CONTAINER_REGISTRY/statistics-api-staging:$GITHUB_SHA
+            docker push $AZURE_CONTAINER_REGISTRY/statistics-api-staging:latest
           elif [ "$GITHUB_REF" = "refs/heads/master" ]
           then
             docker build --build-arg WEBSITES_PORT=$WEBSITES_PORT . -f Dockerfile -t $AZURE_CONTAINER_REGISTRY/statistics-api:$GITHUB_SHA -t $AZURE_CONTAINER_REGISTRY/statistics-api:latest
@@ -109,5 +110,6 @@ jobs:
               "DOCKER_REGISTRY_SERVER_URL=https://$AZURE_CONTAINER_REGISTRY" \
               "GIT_COMMIT=${GITHUB_SHA}" \
               @"${GITHUB_WORKSPACE}/.github/app_service_config/app_service_config.json"
-            docker push $AZURE_CONTAINER_REGISTRY/statistics-api
+            docker push $AZURE_CONTAINER_REGISTRY/statistics-api:$GITHUB_SHA
+            docker push $AZURE_CONTAINER_REGISTRY/statistics-api:latest
             fi

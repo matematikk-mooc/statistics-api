@@ -24,7 +24,7 @@ To populatet the db run `python manage.py <name of command>`
 
 #### import_county_teacher_counts_from_csv
 
-This command will populate the db with high school teacher counts ror each county. This statistics is found in a csv file located in the `data` folder.
+This command will populate the db with high school teacher counts for each county. This statistics is found in a csv file located in the `data` folder.
 This file needs to be updated yearly.
 
 #### import_school_teacher_counts_from_csv

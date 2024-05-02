@@ -48,11 +48,11 @@ else
     echo "Python 3 venv module is already installed."
 fi
 
-# Check if pip is available
+# Install pip if not installed
 if ! command -v pip >/dev/null 2>&1; then
     echo "pip is not installed. Attempting to install..."
 
-    # Install pip 
+    # Install pip
     if command -v apt-get &> /dev/null; then
         sudo apt-get update
         sudo apt-get install -y python3-pip

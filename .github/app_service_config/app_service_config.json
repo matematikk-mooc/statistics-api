@@ -21,7 +21,7 @@
   },
   {
     "name": "DJANGO_ALLOWED_HOSTS",
-    "value": "statistics-api.azurewebsites.net, 127.0.0.1",
+    "value": "statistics-api.azurewebsites.net,127.0.0.1,localhost",
     "slotSetting": true
   },
   {

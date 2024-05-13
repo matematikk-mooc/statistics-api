@@ -14,7 +14,7 @@ import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ... )
 from statistics_api.definitions import DB_DATABASE, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT, DJANGO_SECRET_KEY, \
-    DJANGO_DEBUG, DJANGO_ALLOWED_HOSTS, BUGSNAG_API_KEY
+    DJANGO_DEBUG, DJANGO_ALLOWED_HOSTS, BUGSNAG_API_KEY, HTTP_X_FORWARDED_HOST
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -157,6 +157,9 @@ CSRF_COOKIE_SECURE = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
 CORS_ORIGIN_ALLOW_ALL = True
+
+USE_X_FORWARDED_HOST = True
+HTTP_X_FORWARDED_HOST = HTTP_X_FORWARDED_HOST
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/

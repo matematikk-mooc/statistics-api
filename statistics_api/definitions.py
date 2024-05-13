@@ -1,6 +1,6 @@
 import os
 from distutils import util
-
+import netifaces as ni
 from sqlalchemy.ext.declarative import declarative_base
 
 ####    START OF ENVIRONMENT VARIABLES  ####
@@ -30,8 +30,6 @@ DB_USERNAME = os.getenv("DB_USERNAME")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 MYSQL_ROOT_PASSWORD = os.getenv("MYSQL_ROOT_PASSWORD")
 
-HTTP_X_FORWARDED_HOST = os.getenv("HTTP_X_FORWARDED_HOST")
-
 # NB! Hour and minute of the day are in UTC
 DATABASE_REFRESH_HOUR = str(os.getenv("DATABASE_REFRESH_HOUR")).zfill(2) if os.getenv("DATABASE_REFRESH_HOUR") else "03"
 DATABASE_REFRESH_MINUTE = str(os.getenv("DATABASE_REFRESH_MINUTE")).zfill(2) if os.getenv(
@@ -39,8 +37,13 @@ DATABASE_REFRESH_MINUTE = str(os.getenv("DATABASE_REFRESH_MINUTE")).zfill(2) if 
 
 DJANGO_SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 DJANGO_DEBUG = bool(util.strtobool(os.getenv("DJANGO_DEBUG"))) if os.getenv("DJANGO_DEBUG") is not None else False
-DJANGO_ALLOWED_HOSTS = [s.strip() for s in os.getenv("DJANGO_ALLOWED_HOSTS").split(',')] if os.getenv(
+allowed_hosts = [s.strip() for s in os.getenv("DJANGO_ALLOWED_HOSTS").split(',')] if os.getenv(
     "DJANGO_ALLOWED_HOSTS") else ["*"]
+
+ni.ifaddresses('eth0')
+ip = ni.ifaddresses('eth0')[ni.AF_INET][0]['addr']
+
+DJANGO_ALLOWED_HOSTS = allowed_hosts.append(ip)
 
 BUGSNAG_API_KEY = os.getenv("BUGSNAG_API_KEY")
 

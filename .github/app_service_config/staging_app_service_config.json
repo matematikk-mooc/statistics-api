@@ -16,12 +16,12 @@
   },
   {
     "name": "DB_HOST",
-    "value": "mysql-kpas-staging.mysql.database.azure.com",
+    "value": "kpas-staging.mysql.database.azure.com",
     "slotSetting": true
   },
   {
     "name": "DJANGO_ALLOWED_HOSTS",
-    "value": "statistics-api-staging.azurewebsites.net, 127.0.0.1",
+    "value": "statistics-api-staging.azurewebsites.net,127.0.0.1,localhost",
     "slotSetting": true
   },
   {

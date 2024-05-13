@@ -37,13 +37,16 @@ DATABASE_REFRESH_MINUTE = str(os.getenv("DATABASE_REFRESH_MINUTE")).zfill(2) if 
 
 DJANGO_SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 DJANGO_DEBUG = bool(util.strtobool(os.getenv("DJANGO_DEBUG"))) if os.getenv("DJANGO_DEBUG") is not None else False
-allowed_hosts = [s.strip() for s in os.getenv("DJANGO_ALLOWED_HOSTS").split(',')] if os.getenv(
-    "DJANGO_ALLOWED_HOSTS") else ["*"]
+allowed_hosts = [s.strip() for s in os.getenv("DJANGO_ALLOWED_HOSTS", "").split(',')]
+if not allowed_hosts:
+    allowed_hosts = ["*"]
 
 ni.ifaddresses('eth0')
 ip = ni.ifaddresses('eth0')[ni.AF_INET][0]['addr']
 
-DJANGO_ALLOWED_HOSTS = allowed_hosts.append(ip)
+allowed_hosts.append(ip)
+
+DJANGO_ALLOWED_HOSTS = allowed_hosts
 
 BUGSNAG_API_KEY = os.getenv("BUGSNAG_API_KEY")
 

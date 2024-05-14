@@ -19,6 +19,7 @@ jobs:
     name: Runs unit tests, builds docker image and deploys image
     runs-on: ubuntu-latest
     env:
+      DB_HOST: 127.0.0.1
       AZURE_CONTAINER_REGISTRY: udirkpas.azurecr.io
       AZURE_RESOURCE_GROUP: laravel
       AZURE_APP_NAME: statistics-api

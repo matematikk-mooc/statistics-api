@@ -20,6 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DB_HOST: 127.0.0.1
+      DJANGO_SECRET_KEY: not_secret_key
       AZURE_CONTAINER_REGISTRY: udirkpas.azurecr.io
       AZURE_RESOURCE_GROUP: laravel
       AZURE_APP_NAME: statistics-api

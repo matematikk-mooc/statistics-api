@@ -3,33 +3,73 @@ Python Django application which serves HTTP endpoints that provide statistical a
 
 # Setup
 
-This app requires a local or remote instance of Canvas LMS and an instance of KPAS LTI (https://github.com/matematikk-mooc/kpas-api), from which this service retrieves data about schools, counties, municipalities and associations thereof. You will need an API key to Canvas LMS which is valid for some Canvas account ID. Copy `.env.example` to new file `.env`, and fill in the domain of your Canvas LMS instance and the API key of your root account, and alter other attributes, if necessary. Adjust settings in `docker-compose.dev.yml` for your environment, if necessary. Run 
+This app requires an instance of Canvas LMS, from which this service retrieves data about schools, counties, municipalities and associations thereof. You will need an API key to Canvas LMS which is valid for some Canvas account ID. Use file `.env.dev` to update enviroment variables when running locally, and fill in the domain of your Canvas LMS instance and the API key of your root account, and alter other attributes, if necessary. When running locally the Canvas LMS instance needs to be set to the Canvas test environment.
 
-`docker-compose -f docker-compose.dev.yml up`
+Adjust settings in `docker-compose.dev.yml` for your environment, if necessary.
+To start the application locally do the following steps:
 
-The application is hosted at `statistics-api-dev.local:8000` by default. Import the CA certificate `ca.crt` to your web browser to enable HTTPS. Add new line to `/etc/hosts`: `127.0.0.1 statistics-api-dev.local`, routing the domain `statistics-api-dev.local` to your host IP. If you're not running a Linux OS, the procedure to add new domain route will be somewhat different.
+- Activate venv: `source ./venv/bin/activate`
+- Run `run_development.sh` in venv.
+- Migrate the db: `python manage.py migrate`
+- Populate the db by running the commands below
+- Access api at `http://localhost:8000/api`
+- Available endpoints is specified in urls.py
 
-You may also create your own CA certificate and replace `ca.crt` and create new site certificate and private key in `nginx/nginx-selfsigned.crt` and `nginx/nginx-selfsigned.key` respectively. Creating your own CA would mitigate the small risk of an attacker impersonating the `statistics-api-dev.local` domain.
+Access application on e.g. `http://127.0.0.1:8000/api/statistics/:courseId`
 
-Access application on e.g. `https://statistics-api-dev.local:8000/api/statistics/:courseId`
+
+### Commands to populate db with statistics
+
+To populatet the db run `python manage.py <name of command>`
+
+#### import_county_teacher_counts_from_csv
+
+This command will populate the db with high school teacher counts for each county. This statistics is found in a csv file located in the `data` folder.
+This file needs to be updated yearly.
+
+#### import_school_teacher_counts_from_csv
+
+This command will populate the db with primary school teacher counts for each school. This statistics is found in a csv file located in the `data` folder.
+This file needs to be updated yearly.
+
+#### fetch_course_enrollment_activity
+
+This command will populate the db with number of enrolled users who has been active the last 24 hours
+
+#### pull_course_group_registrations
+
+This command will populate the db with number of new group and course registrations the last day
+
+
+#### pull_data_from_matomo
+
+This populates the db with visit and page statistics from matomo. To run this command you will need to set the MATOMO_ACCESS_KEY in the `.env.dev` file.
+
+#### pull_finnish_marks_canvas
+
+This populates the db with statistics on finnsih marks for each module item.
+
+#### pull_history_from_canvas_and_update_db
+
+Populates the db with history statisics from canvas
+
+
+#### pull_total_students_counts_from_canvas
+
+Populates the db with number of studens in groups from canvas.
+
+
 
 
 # Testing
 
-There are a number of tests in this repository, but nearly all of them are integration tests dependent on 3rd party service KPAS LTI. You will need to configure environment variables to a running instance of KPAS LTI. statistics-api does not mutate the state in KPAST LTI, so using a remote instance should be safe.
-
-A working test environment is automatically built in GitHub Actions pipelines. Any time you push to the `test` branch, all unit tests will be run. The pipeline in GitHub actions builds an instance of KPAS LTI using Docker and docker-compose.
+There are some unit tests located in the folder 'tests'. These will run when merging changes into the branches `staging` and `master`, as a part of the depoloyment. If any of the tests fails the deployment will stop.
 
 
 # Deployment
 
-Any merge to `staging` or `master` branch will automatically deploy the application to the staging and production environments respectively. Unit tests will also be run, and deployment will stop if any test fails.
+Any merge to `staging` or `master` branch will automatically deploy the application to the staging and production environments respectively.
 
 # Documentation
 
 Swagger UI documentation is available at https://matematikk-mooc.github.io/statistics-api-documentation/, using GitHub pages. The source for the documentation is available at https://github.com/matematikk-mooc/statistics-api-documentation.
-
-# Run application locally with local KPAS
-- Add canvas and matomo keys to `.env.dev` 
-- Run `run_development.sh` in venv. 
-- Access api at `http://localhost:8000/api`

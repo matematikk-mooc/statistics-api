@@ -13,7 +13,7 @@ jobs:
       MASTER_API_BASE_URL: https://statistics-api.azurewebsites.net
       COURSE_ID: 360
       MUNICIPALITY_ID: "0301"
-      DATA_MAX_AGE: 18000   # 5 hours
+      DATA_MAX_AGE: 25200   # 7 hours
 
       # This job runs on Linux
     runs-on: ubuntu-latest

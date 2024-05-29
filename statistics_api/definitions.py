@@ -1,7 +1,21 @@
 import os
+import socket
 from distutils import util
 import netifaces as ni
 from sqlalchemy.ext.declarative import declarative_base
+    
+def get_ip_address():
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        try:
+            s.connect(("8.8.8.8", 80))
+            ip_address = s.getsockname()[0]
+        finally:
+            s.close()
+        return ip_address
+    except Exception as e:
+        print(f"Error obtaining IP address: {e}")
+        return None
 
 ####    START OF ENVIRONMENT VARIABLES  ####
 
@@ -37,14 +51,16 @@ DATABASE_REFRESH_MINUTE = str(os.getenv("DATABASE_REFRESH_MINUTE")).zfill(2) if 
 
 DJANGO_SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 DJANGO_DEBUG = bool(util.strtobool(os.getenv("DJANGO_DEBUG"))) if os.getenv("DJANGO_DEBUG") is not None else False
+
 allowed_hosts = [s.strip() for s in os.getenv("DJANGO_ALLOWED_HOSTS", "").split(',')]
 if not allowed_hosts:
     allowed_hosts = ["*"]
 
-ni.ifaddresses('eth0')
-ip = ni.ifaddresses('eth0')[ni.AF_INET][0]['addr']
+ip = get_ip_address()
+if ip:
+    allowed_hosts.append(ip)
 
-allowed_hosts.append(ip)
+allowed_hosts.append("127.0.0.1")
 
 DJANGO_ALLOWED_HOSTS = allowed_hosts
 

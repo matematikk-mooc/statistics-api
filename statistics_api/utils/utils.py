@@ -2,15 +2,11 @@ import re
 from datetime import datetime
 from os import listdir
 from os.path import isfile, join
-from typing import Tuple, Dict, Union
+from typing import Tuple, Dict
 
-from statistics_api.definitions import CATEGORY_CODES, PERCENTAGE_INTERVALS, TOO_FEW_TEACHERS_CUTOFF, \
-    TOO_FEW_TEACHERS_CODE
-from statistics_api.course_info.models import County
 from statistics_api.course_info.models import CourseObservation
 from statistics_api.course_info.models import Group
 from statistics_api.course_info.models import GroupCategory
-from statistics_api.course_info.models import School
 
 
 def parse_year_from_data_file_name(csv_file_name: str) -> int:
@@ -56,20 +52,6 @@ def get_county_data_file_paths(county_data_dir_path: str) -> Tuple[str]:
     all_file_paths = [join(county_data_dir_path, f) for f in listdir(county_data_dir_path) if isfile(join(county_data_dir_path, f))]
     county_data_file_paths = [f for f in all_file_paths if re.match(r".+\/county_data_[0-9]{4}\.csv", f)]
     return tuple(county_data_file_paths)
-
-
-def calculate_enrollment_percentage_category(enrollment_count: int, teacher_count: int) -> int:
-    if teacher_count <= TOO_FEW_TEACHERS_CUTOFF:
-        return TOO_FEW_TEACHERS_CODE
-
-    percentage_enrollment = enrollment_count / teacher_count if teacher_count > 0 else 0
-
-    for category_code in CATEGORY_CODES:
-        lower_bound = (PERCENTAGE_INTERVALS[category_code]) / 100
-        if percentage_enrollment <= lower_bound:
-            return category_code
-
-    return CATEGORY_CODES[-1]
 
 
 def filter_high_schools(schools: Tuple[Dict]) -> Tuple[Dict]:

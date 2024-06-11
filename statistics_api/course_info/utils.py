@@ -1,6 +1,6 @@
 from typing import Tuple
 from statistics_api.course_info.models import Group, School
-from django.db.models import Sum, F, Value, IntegerField, QuerySet
+from django.db.models import Sum, F, Value, IntegerField
 
 
 class Utils:
@@ -41,46 +41,36 @@ class Utils:
             )
         )
 
-    def _combine_counts(unregistered_counts: list, registered_counts: list, schools: QuerySet) -> list:
+    def _combine_course_member_counts(unregistered_counts: list, registered_counts: list) -> list:
 
-        teacher_counts = schools.values('organization_number').annotate(
-            teacher_count=F('number_of_teachers')
-        )
+        schools = []
+        for unregistered_count in unregistered_counts:
+            schools.append({
+                "organization_number": unregistered_count["organization_number"],
+                "school_teacher_count": unregistered_count["teacher_count"],
+                "course_member_count": 0
+            })
 
-        org_nrs_enrollment_and_teacher_counts = [
-            (
-                unregistered_count['organization_number'],
-                unregistered_count['enrollment_count'],
-                unregistered_count['teacher_count']
-            )
-            for unregistered_count in unregistered_counts
-        ]
+        for registered_count in registered_counts:
+            for schoolItem in schools:
+                if schoolItem["organization_number"] == registered_count["organization_number"]:
+                    schoolItem["course_member_count"] = registered_count["enrollment_count"]
+                    break
 
-
-        org_nrs_enrollment_and_teacher_counts += [
-            (
-                registered_count['organization_number'],
-                registered_count['enrollment_count'],
-                next((teacher_count['teacher_count'] for teacher_count in teacher_counts if teacher_count['organization_number'] == registered_count['organization_number']), 0)
-            )
-            for registered_count in registered_counts
-        ]
-
-        return org_nrs_enrollment_and_teacher_counts
+        return schools
 
     @staticmethod
-    def get_org_nrs_enrollment_and_teacher_counts(
+    def get_course_member_counts(
         county_schools_org_nrs: Tuple[str],
         course_observation_id: int,
         teacher_count_year: int
-    ) -> Tuple[Tuple[str, int, int]]:
+    ) -> Tuple[Tuple[str, int, int, int]]:
 
         school_org_numbers = Utils._get_school_org_numbers(county_schools_org_nrs, teacher_count_year)
         unregistered_counts = Utils._get_unregistered_school_counts(county_schools_org_nrs, teacher_count_year)
         registered_counts = Utils._get_registered_school_counts(school_org_numbers, course_observation_id)
-        schools = School.objects.filter(organization_number__in=county_schools_org_nrs, year=teacher_count_year)
 
-        return Utils._combine_counts(unregistered_counts, registered_counts, schools)
+        return Utils._combine_course_member_counts(unregistered_counts, registered_counts)
 
     @staticmethod
     def get_org_nrs_and_enrollment_counts(

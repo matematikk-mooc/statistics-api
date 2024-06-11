@@ -3,7 +3,7 @@ import socket
 from distutils import util
 import netifaces as ni
 from sqlalchemy.ext.declarative import declarative_base
-    
+
 def get_ip_address():
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

@@ -43,19 +43,19 @@ class Utils:
 
     def _combine_course_member_counts(unregistered_counts: list, registered_counts: list) -> list:
 
+        registered_dict = {registered_count["organization_number"]: registered_count["enrollment_count"] for registered_count in registered_counts}
+
         schools = []
         for unregistered_count in unregistered_counts:
-            schools.append({
-                "organization_number": unregistered_count["organization_number"],
-                "school_teacher_count": unregistered_count["teacher_count"],
-                "course_member_count": 0
-            })
+            organization_number = unregistered_count["organization_number"]
+            school_teacher_count = unregistered_count["teacher_count"]
+            course_member_count = registered_dict.get(organization_number, 0)
 
-        for registered_count in registered_counts:
-            for schoolItem in schools:
-                if schoolItem["organization_number"] == registered_count["organization_number"]:
-                    schoolItem["course_member_count"] = registered_count["enrollment_count"]
-                    break
+            schools.append({
+                "organization_number": organization_number,
+                "school_teacher_count": school_teacher_count,
+                "course_member_count": course_member_count
+            })
 
         return schools
 

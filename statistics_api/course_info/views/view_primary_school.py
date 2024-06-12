@@ -7,14 +7,11 @@ from django.http import JsonResponse, HttpResponse, HttpResponseNotFound
 from statistics_api.course_info.utils import Utils
 from statistics_api.clients.kpas_client import KpasClient
 from statistics_api.controllers.models.KpasSchool import KpasSchool
-from statistics_api.definitions import CATEGORY_CODE_INFORMATION_DICT, TOO_FEW_TEACHERS_CODE
 from statistics_api.course_info.models import CourseObservation
 from statistics_api.course_info.models import School
-from statistics_api.utils.url_parameter_parser import get_url_parameters_dict, ENROLLMENT_PERCENTAGE_CATEGORIES_KEY, \
+from statistics_api.utils.url_parameter_parser import get_url_parameters_dict, \
     NR_OF_DATES_LIMIT_KEY, SHOW_SCHOOLS_KEY, END_DATE_KEY, START_DATE_KEY
-from statistics_api.utils.utils import calculate_enrollment_percentage_category, \
-    get_target_year, get_closest_matching_year
-
+from statistics_api.utils.utils import get_target_year, get_closest_matching_year
 
 @api_view(['GET'])
 def municipality_primary_school_statistics(request: WSGIRequest, municipality_id: int, canvas_course_id: int):
@@ -26,7 +23,6 @@ def municipality_primary_school_statistics(request: WSGIRequest, municipality_id
     municipality_name, municipality_organization_number = (municipality["Navn"], int(municipality["OrgNr"]))
 
     url_parameters_dict = get_url_parameters_dict(request)
-
     response = get_individual_school_data(
         canvas_course_id, municipality_id,
         municipality_name,
@@ -41,12 +37,13 @@ def municipality_primary_school_statistics(request: WSGIRequest, municipality_id
             "municipality_name": municipality['unit_name'],
             "municipality_id": municipality['unit_id'],
             "municipality_organization_number": municipality['organization_number'],
-            "enrollment_percentage_category": municipality['enrollment_percentage_category'],
+            "total_course_member_count": municipality['total_course_member_count'],
+            "total_school_teacher_count": municipality['total_school_teacher_count'],
             "schools": municipality['schools']
         }
 
     json_response = list(map(map_municipality_keywords, response))
-    return JsonResponse({**CATEGORY_CODE_INFORMATION_DICT, **{"Result": json_response}})
+    return JsonResponse({"Result": json_response})
 
 
 @api_view(['GET'])
@@ -61,8 +58,11 @@ def county_primary_school_statistics(request, county_id: int, canvas_course_id: 
     url_parameters_dict = get_url_parameters_dict(request)
     show_schools = url_parameters_dict[SHOW_SCHOOLS_KEY]
     if show_schools:
-        response = get_individual_school_data(canvas_course_id, county_id, county_name,
-            county_organization_number, schools_in_county, url_parameters_dict)
+        response = get_individual_school_data(
+            canvas_course_id, county_id, county_name,
+            county_organization_number, schools_in_county,
+            url_parameters_dict
+        )
 
         def map_county_keywords(county: dict):
             return {
@@ -70,12 +70,13 @@ def county_primary_school_statistics(request, county_id: int, canvas_course_id: 
                 "county_name": county['unit_name'],
                 "county_id": county['unit_id'],
                 "county_organization_number": county['organization_number'],
-                "enrollment_percentage_category": county['enrollment_percentage_category'],
+                "total_course_member_count": county['total_course_member_count'],
+                "total_school_teacher_count": county['total_school_teacher_count'],
                 "schools": county['schools']
             }
 
         json_response = list(map(map_county_keywords, response))
-        return JsonResponse({**CATEGORY_CODE_INFORMATION_DICT, **{"Result": json_response}})
+        return JsonResponse({"Result": json_response})
 
     else:
         return get_municipality_aggregated_school_data_for_county(
@@ -130,68 +131,53 @@ def get_individual_school_data(
     course_enrollment_stats: List = []
     schools_org_nrs = tuple([str(key) for key in organization_number_to_school_name_mapping.keys()])
 
-    enrollment_percentage_categories = url_parameters_dict[ENROLLMENT_PERCENTAGE_CATEGORIES_KEY]
     for course_observation in retrieve_course_observations(canvas_course_id, url_parameters_dict):
         course_observation: CourseObservation
 
-        calculations = calculate_enrollment_percentage_for_course(
+        course_member_counts = get_course_member_counts(
             course_observation,
-            enrollment_percentage_categories,
-            organization_number_to_school_name_mapping,
+            teacher_count_available_years,
             schools_org_nrs,
-            teacher_count_available_years
+            organization_number_to_school_name_mapping
         )
+        total_course_member_count, total_school_teacher_count, schools = course_member_counts
 
-        enrollment_percentage_category, schools = calculations
         course_enrollment_stats.append({
             "date": course_observation.date_retrieved,
             "unit_name": administration_unit_name,
             "unit_id": administration_unit_id,
             "organization_number": administration_unit_organization_number,
-            "enrollment_percentage_category": enrollment_percentage_category,
-            "schools": schools
+            "total_course_member_count": total_course_member_count,
+            "total_school_teacher_count": total_school_teacher_count,
+            "schools": schools,
         })
 
     return course_enrollment_stats
 
-
-def calculate_enrollment_percentage_for_course(
+def get_course_member_counts(
     course_observation,
-    enrollment_percentage_categories,
-    organization_number_to_school_name_mapping,
+    teacher_count_available_years,
     schools_org_nrs,
-    teacher_count_available_years
+    organization_number_to_school_name_mapping
 ):
-
     target_year = get_target_year(course_observation.date_retrieved)
     closest_matching_year = get_closest_matching_year(teacher_count_available_years, target_year)
+    course_member_counts = Utils.get_course_member_counts(schools_org_nrs, course_observation.pk, closest_matching_year)
 
-    org_nrs_enrollment_counts_and_teacher_counts = Utils.get_org_nrs_enrollment_and_teacher_counts(
-        schools_org_nrs, course_observation.pk, closest_matching_year)
+    total_course_member_count = 0
+    total_school_teacher_count = 0
+    schools = []
 
-    school_enrollment_percentage_categories = []
-    adm_unit_enrollment_count = 0
-    adm_unit_teacher_count = 0
+    for course_member_count_item in course_member_counts:
+        total_course_member_count += course_member_count_item["course_member_count"]
+        total_school_teacher_count += course_member_count_item["school_teacher_count"]
 
-    for org_nr, enrollment_count, teacher_count in org_nrs_enrollment_counts_and_teacher_counts:
-        adm_unit_enrollment_count += enrollment_count
-        adm_unit_teacher_count += teacher_count
+        school_dict = vars(organization_number_to_school_name_mapping[course_member_count_item["organization_number"]])
+        school_dict["course_member_count"] = course_member_count_item["course_member_count"]
+        school_dict["school_teacher_count"] = course_member_count_item["school_teacher_count"]
+        schools.append(school_dict)
 
-        enrollment_percentage_category = calculate_enrollment_percentage_category(enrollment_count, teacher_count)
-
-        if (enrollment_percentage_category in enrollment_percentage_categories
-                or enrollment_percentage_category == TOO_FEW_TEACHERS_CODE):
-
-            school_dict = vars(organization_number_to_school_name_mapping[org_nr])
-            school_dict['enrollment_percentage_category'] = enrollment_percentage_category
-            school_enrollment_percentage_categories.append(school_dict)
-
-    school_enrollment_percentage_categories.sort(key=lambda d: d["name"])
-    enrollment_percentage_category = calculate_enrollment_percentage_category(
-        adm_unit_enrollment_count, adm_unit_teacher_count
-    )
-    return enrollment_percentage_category, school_enrollment_percentage_categories
-
+    return total_course_member_count, total_school_teacher_count, schools
 
 def get_municipality_aggregated_school_data_for_county(
     canvas_course_id: int,
@@ -201,6 +187,7 @@ def get_municipality_aggregated_school_data_for_county(
     url_parameters_dict: Dict
 ) -> JsonResponse:
 
+    json_response = []
     municipality_number_mapping = defaultdict(list)
     municipality_number_to_name_mapping = {}
     all_schools_in_county_org_nrs = []
@@ -218,68 +205,49 @@ def get_municipality_aggregated_school_data_for_county(
     for municipality in municipalities_in_county:
         municipality_number_to_name_mapping[municipality['Kommunenr']] = municipality['Navn']
 
-    json_response = []
-
-    enrollment_percentage_categories = url_parameters_dict[ENROLLMENT_PERCENTAGE_CATEGORIES_KEY]
-
     for course_observation in retrieve_course_observations(canvas_course_id, url_parameters_dict):
+        school_mapping = {}
+        municipality_dicts = []
         course_observation: CourseObservation
+        total_course_member_count = 0
+        total_school_teacher_count = 0
 
         target_year = get_target_year(course_observation.date_retrieved)
         closest_matching_year = get_closest_matching_year(teacher_count_available_years, target_year)
+        course_member_counts = Utils.get_course_member_counts(
+            tuple(all_schools_in_county_org_nrs),
+            course_observation.pk,
+            closest_matching_year
+        )
 
-        org_nrs_counts = Utils.get_org_nrs_enrollment_and_teacher_counts(
-            tuple(all_schools_in_county_org_nrs), course_observation.pk, closest_matching_year)
-
-        school_mapping = {}
-        municipality_dicts = []
-
-        county_enrollment_count = 0
-        county_teacher_count = 0
-
-        for org_nr, enrollment_count, teacher_count in org_nrs_counts:
-            school_mapping[org_nr] = (enrollment_count, teacher_count)
+        for course_member_count_item in course_member_counts:
+            school_mapping[course_member_count_item["organization_number"]] = (course_member_count_item["course_member_count"], course_member_count_item["school_teacher_count"])
 
         for municipality_nr in municipality_number_mapping.keys():
             municipality_school_org_nrs = municipality_number_mapping[municipality_nr]
 
-            municipality_enrollment_count = sum(
-                school_mapping.get(org_nr, (0, 0))[0] for org_nr in municipality_school_org_nrs
-            )
+            municipality_enrollment_count = sum(school_mapping.get(org_nr, (0, 0))[0] for org_nr in municipality_school_org_nrs)
+            total_course_member_count += municipality_enrollment_count
 
-            municipality_teacher_count = sum(
-                school_mapping.get(org_nr, (0, 0))[1] for org_nr in municipality_school_org_nrs
-            )
+            municipality_teacher_count = sum(school_mapping.get(org_nr, (0, 0))[1] for org_nr in municipality_school_org_nrs)
+            total_school_teacher_count += municipality_teacher_count
 
-            county_enrollment_count += municipality_enrollment_count
-            county_teacher_count += municipality_teacher_count
-
-            enrollment_percentage_category = calculate_enrollment_percentage_category(municipality_enrollment_count, municipality_teacher_count)
-            if enrollment_percentage_category in enrollment_percentage_categories:
-                municipality_dict = {
-                    "name": municipality_number_to_name_mapping.get(municipality_nr, ''),
-                    "municipality_nr": municipality_nr,
-                    "enrollment_percentage_category": enrollment_percentage_category
-                }
-
-                municipality_dicts.append(municipality_dict)
+            municipality_dicts.append({
+                "name": municipality_number_to_name_mapping.get(municipality_nr, ''),
+                "municipality_nr": municipality_nr,
+                "course_member_count": municipality_enrollment_count,
+                "school_teacher_count": municipality_teacher_count
+            })
 
         municipality_dicts.sort(key=lambda d: d["name"])
-
-        county_enrollment_percentage_category = calculate_enrollment_percentage_category(
-            county_enrollment_count,
-            county_teacher_count
-        )
-
-        course_observation_for_municipality_json = {
+        json_response.append({
             "date": course_observation.date_retrieved,
             "county_name": county_name,
             "county_id": county_id,
             "county_organization_number": county_organization_number,
-            "enrollment_percentage_category": county_enrollment_percentage_category,
+            "total_course_member_count": total_course_member_count,
+            "total_school_teacher_count": total_school_teacher_count,
             "municipalities": municipality_dicts
-        }
+        })
 
-        json_response.append(course_observation_for_municipality_json)
-
-    return JsonResponse({**CATEGORY_CODE_INFORMATION_DICT, **{"Result": json_response}})
+    return JsonResponse({"Result": json_response})

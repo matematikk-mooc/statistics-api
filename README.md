@@ -63,12 +63,12 @@ Populates the db with number of studens in groups from canvas.
 
 # Testing
 
-There are some unit tests located in the folder 'tests'. These will run when merging changes into the branches `staging` and `master`, as a part of the depoloyment. If any of the tests fails the deployment will stop.
+There are some unit tests located in the folder 'tests'. These will run when merging changes into the branches `stage` and `master`, as a part of the depoloyment. If any of the tests fails the deployment will stop.
 
 
 # Deployment
 
-Any merge to `staging` or `master` branch will automatically deploy the application to the staging and production environments respectively.
+Any merge to `stage` or `master` branch will automatically deploy the application to the stage and production environments respectively.
 
 # Documentation
 

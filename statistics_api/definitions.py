@@ -73,6 +73,7 @@ ip = get_ip_address()
 if ip:
     allowed_hosts.append(ip)
 
+allowed_hosts.append("0.0.0.0")
 allowed_hosts.append("127.0.0.1")
 
 DJANGO_ALLOWED_HOSTS = allowed_hosts

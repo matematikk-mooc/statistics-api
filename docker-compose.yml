@@ -13,32 +13,32 @@ services:
     ports:
       - "3310:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
-      - kpas-api_kpas_network
+      - kpas_stats_network
 
   kpas_stats_app:
-      build: .docker
-      container_name: kpas_stats_app
-      depends_on:
-        kpas_stats_db:
-          condition: service_healthy
-      environment:
-        CANVAS_ACCESS_KEY: "" # Generate a new access key here: https://bibsys.test.instructure.com/profile/settings
-      volumes:
-        - ./:/app
-        - kpas_stats_pip_data:/var/www/.cache/pip
-      ports:
-        - "8000:8000"
-      networks:
-        - kpas-api_kpas_network
+    build: .docker
+    container_name: kpas_stats_app
+    depends_on:
+      kpas_stats_db:
+        condition: service_healthy
+    environment:
+      CANVAS_ACCESS_KEY: "" # Generate a new access key here: https://bibsys.test.instructure.com/profile/settings
+    volumes:
+      - ./:/app
+      - kpas_stats_pip_data:/root/.cache/pip
+    ports:
+      - "8000:8000"
+    networks:
+      - kpas_stats_network
 
 networks:
-  kpas-api_kpas_network: # The KPAS API needs to be running
-    external: true
+  kpas_stats_network:
+    driver: bridge
 
 volumes:
   kpas_stats_db_data:

@@ -1,10 +1,9 @@
+import os
 import json
 from typing import Dict, Tuple, Union
-
 import requests
 
-from statistics_api.definitions import CA_FILE_PATH, KPAS_NSR_API_URL, KPAS_API_URL, KPAS_API_ACCESS_TOKEN
-
+from statistics_api.definitions import CA_FILE_PATH, KPAS_NSR_API_URL, KPAS_API_ACCESS_TOKEN
 
 class KpasClient:
 
@@ -14,6 +13,9 @@ class KpasClient:
 
         if CA_FILE_PATH:
             self.web_session.verify = CA_FILE_PATH
+
+        if os.getenv("ENVIRONMENT") == "dev":
+            self.web_session.verify = False
 
     def get_schools_by_municipality_id(self, municipality_id: int) -> Tuple[Dict]:
         web_response = self.web_session.get(f"{KPAS_NSR_API_URL}/communities/{municipality_id}/schools/")

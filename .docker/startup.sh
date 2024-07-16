@@ -12,7 +12,7 @@ while IFS='=' read -r key value; do
   if [[ ! "$key" =~ ^# ]] && [[ -n "$key" ]]; then
     value=$(echo "$value" | sed -e 's/^"//' -e 's/"$//')
     value=$(echo "$value" | sed -e "s/^'//" -e "s/'$//")
-    
+
     if [[ -z "${!key}" ]]; then
       export "$key=$value"
       echo "- IMPORTED: $key"
@@ -25,7 +25,7 @@ set +o allexport
 
 echo -e "\n\n\n[2/3] Install PIP packages"
 echo -e "##############################################################\n"
-pip3 install --no-cache-dir -r requirements.txt
+pip3 install -r requirements.txt
 
 echo -e "\n\n\n[3/3] Start Django server"
 echo -e "##############################################################\n"

@@ -19,21 +19,15 @@ RUN apt-get update && apt-get install -y \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir /app
-RUN chown -R www-data:www-data /app && \
-    find /app -type d -exec chmod 750 {} \; && \
-    find /app -type f -exec chmod 640 {} \;
 
 ##############################################################
 # Startup
 ##############################################################
 
 WORKDIR /app
-USER www-data
+USER root
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONDONTWRITEBYTECODE 1
-ENV PIP_CACHE_DIR /app/.cache/pip
-ENV PYTHONUSERBASE /app/.cache/.local
-ENV PATH="${PYTHONUSERBASE}/bin:${PATH}"
 
 EXPOSE 8000
 ENTRYPOINT ["/app/.docker/startup.sh"]

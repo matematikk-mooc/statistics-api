@@ -17,19 +17,6 @@ def get_ip_address():
         print(f"Error obtaining IP address: {e}")
         return None
 
-def get_ip_address():
-    try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        try:
-            s.connect(("8.8.8.8", 80))
-            ip_address = s.getsockname()[0]
-        finally:
-            s.close()
-        return ip_address
-    except Exception as e:
-        print(f"Error obtaining IP address: {e}")
-        return None
-
 ####    START OF ENVIRONMENT VARIABLES  ####
 
 ROOT_DIR = os.path.dirname(os.path.realpath(__file__)) + "/"

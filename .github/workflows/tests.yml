@@ -46,11 +46,24 @@ jobs:
           sudo bash -c 'echo "bind-address = 0.0.0.0" >> /etc/mysql/my.cnf'
           sudo systemctl start mysql.service
 
-      - name: Install python depedencies
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.4'
+
+      - name: Cache Python packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install Python dependencies
         run: |
           sudo apt-get install python3-setuptools
-          python3 -m pip install -r requirements.txt
-
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
       - name: Run Django migrations
         run: |
           mysql --port=3307 --protocol=tcp --host=127.0.0.1 -uroot -proot -e 'CREATE DATABASE `canvas-api`;'

@@ -217,3 +217,4 @@ test.bash
 statistics-api/venv
 get-pip.py
 statistics_api/tests/data/test_canvas-api.zip
+.DS_STORE

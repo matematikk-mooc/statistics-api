@@ -61,8 +61,9 @@ jobs:
 
       - name: Install Python dependencies
         run: |
-          sudo apt-get install python3-setuptools python3.8-distutils
+          sudo apt-get install python3-setuptools
           python -m pip install --upgrade pip
+          python -m pip install setuptools
           python -m pip install -r requirements.txt
       - name: Run Django migrations
         run: |

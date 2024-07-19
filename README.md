@@ -35,7 +35,7 @@ A Python Django application that provides HTTP endpoints for statistical aggrega
 - [Git](https://git-scm.com/): A free and open source distributed version control system designed to handle everything from small to very large projects with speed and efficiency.
 - [Visual Studio Code](https://code.visualstudio.com/): A lightweight but powerful source code editor which runs on your desktop and is available for Windows, macOS and Linux.
 - [Docker](https://docs.docker.com/get-docker/): A tool for developing, shipping, and running applications inside lightweight, portable containers.
-- [Docker Compose](https://docs.docker.com/get-docker/): A tool for defining and running multi-container Docker applications.
+- [Docker Compose](https://docs.docker.com/compose/install/): A tool for defining and running multi-container Docker applications.
 
 ## Configuration
 
@@ -77,7 +77,7 @@ Alternatively, you can directly utilize the stage database by updating all varia
 ## Development
 
 - Start: `docker compose up`
-    - Visit http://127.0.0.1:8000/api/statistics/360
+    - Visit http://127.0.0.1:8000/api/statistics/360/
 
 - Stop: `docker compose down`
 

@@ -83,7 +83,7 @@ Alternatively, you can directly utilize the stage database by updating all varia
 
 ## Deployment (WIP)
 
-Any merge to `staging` or `master` branch will automatically deploy the application to the staging and production environments respectively.
+Any merge to `stage` or `master` branch will automatically deploy the application to the stage and production environments respectively.
 
 ### GitHub Actions
 

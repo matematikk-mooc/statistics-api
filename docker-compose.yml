@@ -30,7 +30,6 @@ services:
       CANVAS_ACCESS_KEY: "" # Generate a new access key here: https://bibsys.test.instructure.com/profile/settings
     volumes:
       - ./:/app
-      - kpas_stats_pip_data:/root/.cache/pip
     ports:
       - "8000:8000"
     networks:

@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install -y \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir /app
+RUN mkdir -p /app/.cache && chmod -R 777 /app/.cache
 
 ##############################################################
 # Startup
@@ -28,6 +29,7 @@ WORKDIR /app
 USER root
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
+ENV PIP_CACHE_DIR=/app/.cache
 
 EXPOSE 8000
 ENTRYPOINT ["/app/.docker/startup.sh"]

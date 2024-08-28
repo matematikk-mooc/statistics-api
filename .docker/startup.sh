@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo -e "\n\n\n[1/3] Copy and import .env variables to the current shell"
+echo -e "\n\n\n[1/4] Copy and import .env variables to the current shell"
 echo -e "##############################################################\n"
 ENV_FILE=".env"
 if [ ! -f "$ENV_FILE" ]; then
@@ -23,10 +23,14 @@ while IFS='=' read -r key value; do
 done < "$ENV_FILE"
 set +o allexport
 
-echo -e "\n\n\n[2/3] Install PIP packages"
+echo -e "\n\n\n[2/4] Install PIP packages"
 echo -e "##############################################################\n"
-pip3 install -r requirements.txt
+pip3 --cache-dir=/app/.cache install -r requirements.txt
 
-echo -e "\n\n\n[3/3] Start Django server"
+echo -e "\n\n\n[3/4] Apply Django migrations"
+echo -e "##############################################################\n"
+python manage.py migrate
+
+echo -e "\n\n\n[4/4] Start Django server"
 echo -e "##############################################################\n"
 python manage.py runserver 0.0.0.0:8000

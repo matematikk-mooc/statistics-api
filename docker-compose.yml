@@ -1,0 +1,44 @@
+version: '3.8'
+services:
+  kpas_stats_db:
+    image: mysql:8.0
+    container_name: kpas_stats_db
+    environment:
+      MYSQL_DATABASE: db_stats
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: usr_app_stats
+      MYSQL_PASSWORD: Password@123
+    volumes:
+      - kpas_stats_db_data:/var/lib/mysql
+    ports:
+      - "3310:3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - kpas_stats_network
+
+  kpas_stats_app:
+    build: .docker
+    container_name: kpas_stats_app
+    depends_on:
+      kpas_stats_db:
+        condition: service_healthy
+    environment:
+      CANVAS_ACCESS_KEY: "" # Generate a new access key here: https://bibsys.test.instructure.com/profile/settings
+    volumes:
+      - ./:/app
+    ports:
+      - "8000:8000"
+    networks:
+      - kpas_stats_network
+
+networks:
+  kpas_stats_network:
+    driver: bridge
+
+volumes:
+  kpas_stats_db_data:
+  kpas_stats_pip_data:

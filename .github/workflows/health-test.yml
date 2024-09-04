@@ -27,7 +27,7 @@ jobs:
 
       - name: Check if data from API is less than DATA_MAX_AGE seconds old
         run: |
-          if [ "$GITHUB_REF" = "refs/heads/staging" ]
+          if [ "$GITHUB_REF" = "refs/heads/stage" ]
           then
               chmod 700 $GITHUB_WORKSPACE/.github/health_test_src/do_health_test.py
               API_BASE_URL=$STAGING_API_BASE_URL $GITHUB_WORKSPACE/.github/health_test_src/do_health_test.py

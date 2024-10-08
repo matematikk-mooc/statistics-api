@@ -3,7 +3,7 @@
 echo -e "\n\n\n[1/4] Copy and import .env variables to the current shell"
 echo -e "##############################################################\n"
 ENV_FILE_PATH="/app/.env"
-ENV_SCRIPT_PATH="/var/www/html/.docker/env.sh"
+ENV_SCRIPT_PATH="/app/.docker/env.sh"
 TEMPLATE_PATH="/app/.docker/.env.template"
 
 if [ ! -f "$ENV_FILE_PATH" ]; then

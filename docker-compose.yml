@@ -26,7 +26,7 @@ services:
       kpas_stats_db:
         condition: service_healthy
     environment:
-      CANVAS_ACCESS_KEY: "3727~ATXTNHNzrLN7Uy8NVQ47UeD2EcnmHBcZmCRxuwUezURn4m4rAxAyexQm4rJFnX6U" # Generate a new access key here: https://bibsys.test.instructure.com/profile/settings
+      CANVAS_ACCESS_KEY: "" # Generate a new access key here: https://bibsys.test.instructure.com/profile/settings
     volumes:
       - ./:/app
     ports:

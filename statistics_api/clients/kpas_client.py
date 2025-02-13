@@ -2,6 +2,7 @@ import os
 import json
 from typing import Dict, Tuple, Union
 import requests
+import sentry_sdk
 
 from statistics_api.definitions import CA_FILE_PATH, KPAS_NSR_API_URL, KPAS_API_ACCESS_TOKEN
 
@@ -21,7 +22,8 @@ class KpasClient:
         web_response = self.web_session.get(f"{KPAS_NSR_API_URL}/communities/{municipality_id}/schools/")
         try:
             response_json = web_response.json()
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as e:
+            sentry_sdk.capture_exception(e)
             print("Received invalid json")
             return None
         return tuple(response_json.get("result"))
@@ -30,7 +32,8 @@ class KpasClient:
         web_response = self.web_session.get(f"{KPAS_NSR_API_URL}/counties/{county_id}/schools/")
         try:
             response_json = web_response.json()
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as e:
+            sentry_sdk.capture_exception(e)
             print("Received invalid json")
             return None
         return tuple(response_json.get("result"))
@@ -41,7 +44,8 @@ class KpasClient:
         try:
             response_json = web_response.json()
             return tuple(response_json.get("result"))
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as e:
+            sentry_sdk.capture_exception(e)
             print("Received invalid json")
             return None
 
@@ -50,7 +54,8 @@ class KpasClient:
         web_response = self.web_session.get(f"{KPAS_NSR_API_URL}/counties/{county_id}")
         try:
             response_json = web_response.json()
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as e:
+            sentry_sdk.capture_exception(e)
             print("Received invalid json")
             return None
         return response_json.get("result")
@@ -60,7 +65,8 @@ class KpasClient:
         web_response = self.web_session.get(f"{KPAS_NSR_API_URL}/communities/{municipality_id}")
         try:
             response_json = web_response.json()
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as e:
+            sentry_sdk.capture_exception(e)
             print("Receievd invalid json")
             return None
         return response_json.get("result")
@@ -69,7 +75,8 @@ class KpasClient:
         web_response = self.web_session.get(f"{KPAS_NSR_API_URL}/schools", params={"only_high_schools": True})
         try:
             response_json = web_response.json()
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as e:
+            sentry_sdk.capture_exception(e)
             print("Received invaild json")
             return None
         return tuple(response_json.get("result"))

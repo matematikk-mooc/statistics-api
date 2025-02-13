@@ -5,6 +5,7 @@ from statistics_api.clients.canvas_api_client import CanvasApiClient
 from statistics_api.history.models import History
 import logging
 import sys
+import sentry_sdk
 
 logging.basicConfig(stream=sys.stderr, level=logging.INFO)
 logger = logging.getLogger()
@@ -22,6 +23,7 @@ class Command(BaseCommand):
                     self.fetch_user_history(api_client, user.get("id"), yesterday)
             logger.info("Finished fetching recent activity history from Canvas")
         except Exception as e:
+            sentry_sdk.capture_exception(e)
             logger.error("Error while fetching recent activity history from Canvas: " + str(e))
 
     def fetch_user_history(self, api_client, canvas_userid, date):
@@ -49,6 +51,8 @@ class Command(BaseCommand):
                         }
                     )
                 except Exception as e:
+                    sentry_sdk.capture_exception(e)
                     logger.error("Error while saving history: " + event.get('context_name') + ", " + str(e))
         except Exception as e:
+            sentry_sdk.capture_exception(e)
             logger.error("Error while fetching history for user " + canvas_userid + ": " + str(e))

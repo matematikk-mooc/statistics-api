@@ -2,6 +2,7 @@ from rest_framework import viewsets, serializers
 from rest_framework.response import Response
 from django.core.exceptions import ValidationError
 from rest_framework.decorators import action
+import sentry_sdk
 
 # Create your views here.
 from statistics_api.enrollment_activity.models import EnrollmentActivity
@@ -21,6 +22,7 @@ class EnrollmentActivityViewSet(viewsets.ViewSet):
         except ValidationError as e:
             return Response({"Error": str(e)}, status=400)
         except Exception as e:
+            sentry_sdk.capture_exception(e)
             return Response({"Error": str(e)}, status=500)
 
     def retrieve(self, request, pk=None):
@@ -33,6 +35,7 @@ class EnrollmentActivityViewSet(viewsets.ViewSet):
         except ValidationError as e:
             return Response({"Error": str(e)}, status=400)
         except Exception as e:
+            sentry_sdk.capture_exception(e)
             return Response({"Error": str(e)}, status=500)
 
     def filter_query(self, from_date, to_date, course_id=None):

@@ -63,8 +63,6 @@ allowed_hosts.append("localhost")
 
 DJANGO_ALLOWED_HOSTS = allowed_hosts
 
-BUGSNAG_API_KEY = os.getenv("BUGSNAG_API_KEY")
-
 MATOMO_ACCESS_KEY = os.getenv("MATOMO_ACCESS_KEY")
 MATOMO_API_URL = "https://statistik.digilaer.no/index.php"
 

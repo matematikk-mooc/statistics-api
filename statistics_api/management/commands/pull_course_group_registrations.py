@@ -1,10 +1,10 @@
-import logging
 import sys
 import logging
 from datetime import date, timedelta
 import requests
 from django.core.management import BaseCommand
 from python_graphql_client import GraphqlClient
+import sentry_sdk
 
 from statistics_api.clients.canvas_api_client import CanvasApiClient
 from statistics_api.definitions import CANVAS_DOMAIN, CANVAS_ACCESS_KEY, CA_FILE_PATH, CANVAS_ACCOUNT_ID
@@ -34,9 +34,11 @@ class Command(BaseCommand):
                     registrations.fetch_course_registrations(course_id=course_id)
 
                 except Exception as e:
+                    sentry_sdk.capture_exception(e)
                     logger.error("Error processing course ID %s: %s", course_id, str(e))
             logger.info("Finished pulling group membership registrations from Canvas")
         except Exception as e:
+            sentry_sdk.capture_exception(e)
             logger.error("Error fetching courses from Canvas: %s", str(e))
 
 class Registrations(object):
@@ -146,6 +148,7 @@ class Registrations(object):
 
 
         except Exception as err:
+            sentry_sdk.capture_exception(err)
             logger.error("GroupRegistrations error : {0}".format(err))
 
 
@@ -196,6 +199,7 @@ class Registrations(object):
                     date=yesterday
                 )
         except Exception as err:
+            sentry_sdk.capture_exception(err)
             logger.error("CourseRegistrations error : {0}".format(err))
 
 

@@ -3,6 +3,7 @@ import json
 from typing import Tuple, List, Dict
 from urllib import response
 
+import sentry_sdk
 import requests
 
 
@@ -19,9 +20,12 @@ class CanvasApiClient:
 
         try:
             self.web_session.get(CANVAS_API_URL)
-        except requests.exceptions.SSLError:
+        except requests.exceptions.SSLError as e:
+            sentry_sdk.capture_exception(e)
             # If current CA triggers SSL error, try custom CA
             self.web_session.verify = CA_FILE_PATH if CA_FILE_PATH else self.web_session.verify
+        except Exception as e:
+            sentry_sdk.capture_exception(e)
 
     def get_group_categories_by_course(self, course_id: int) -> Tuple[Dict]:
         url = f"{CANVAS_API_URL}/courses/{course_id}/group_categories?per_page=100"

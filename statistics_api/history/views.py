@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.core.exceptions import ObjectDoesNotExist
+import sentry_sdk
 
 from statistics_api.history.models import History
 # Create your views here.
@@ -15,6 +16,7 @@ def user_history(self, user_id: int):
     except ObjectDoesNotExist:
         return Response({"Error": f"User with ID {user_id} not found"}, status=404)
     except Exception as e:
+        sentry_sdk.capture_exception(e)
         return Response({"Error": str(e)}, status=500)
 
 @api_view(('GET',))
@@ -29,6 +31,7 @@ def user_history_on_context(self, user_id: int, context_id: int):
     except ObjectDoesNotExist:
         return Response({"Error": f"No history found for user {user_id} in context {context_id}"}, status=404)
     except Exception as e:
+        sentry_sdk.capture_exception(e)
         return Response({"Error": str(e)}, status=500)
 
 @api_view(('GET',))
@@ -43,6 +46,7 @@ def context_history(self, context_id: int):
     except ObjectDoesNotExist:
         return Response({"Error": f"No history found for context {context_id}"}, status=404)
     except Exception as e:
+        sentry_sdk.capture_exception(e)
         return Response({"Error": str(e)}, status=500)
 
 @api_view(('GET',))
@@ -57,6 +61,7 @@ def user_aggregated_history(self, user_id: int):
     except ObjectDoesNotExist:
         return Response({"Error": f"No history found for user {user_id}"}, status=404)
     except Exception as e:
+        sentry_sdk.capture_exception(e)
         return Response({"Error": str(e)}, status=500)
 
 def activity_history(history_events) -> list:

@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rest_framework.response import Response
 from django.core.exceptions import ValidationError
 from rest_framework.decorators import api_view
+import sentry_sdk
 
 from statistics_api.matomo.models import Visits, PageStatistics
 
@@ -25,6 +26,7 @@ def visits_statistics(request):
     except ValidationError as e:
         return Response({'error': str(e)}, status=400)
     except Exception as e:
+        sentry_sdk.capture_exception(e)
         return Response({'error': 'An unexpected error occurred'}, status=500)
 
 @api_view(('GET',))
@@ -37,6 +39,7 @@ def page_statistics(request):
     except ValidationError as e:
         return Response({'error': str(e)}, status=400)
     except Exception as e:
+        sentry_sdk.capture_exception(e)
         return Response({'error': 'An unexpected error occurred'}, status=500)
 
 @api_view(('GET',))
@@ -49,6 +52,7 @@ def course_pages_statistics(request, canvas_course_id: int):
     except ValidationError as e:
         return Response({'error': str(e)}, status=400)
     except Exception as e:
+        sentry_sdk.capture_exception(e)
         return Response({'error': 'An unexpected error occurred'}, status=500)
 
 

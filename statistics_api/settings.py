@@ -15,7 +15,43 @@ import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ... )
 from statistics_api.definitions import DB_DATABASE, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT, DJANGO_SECRET_KEY, \
-    DJANGO_DEBUG, DJANGO_ALLOWED_HOSTS, BUGSNAG_API_KEY
+    DJANGO_DEBUG, DJANGO_ALLOWED_HOSTS
+
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.logging import LoggingIntegration
+
+app_env=os.getenv("ENVIRONMENT") if os.getenv("ENVIRONMENT") else "local"
+app_version=os.getenv("GIT_COMMIT") if os.getenv("GIT_COMMIT") else "1.0.0"
+sentry_dsn=None
+
+if app_env != "local":
+    sentry_dsn="https://b247741da7815fc43bddd20a6032a1a2@o4507468577701888.ingest.de.sentry.io/4508777538519120"
+
+def before_send_transaction(event_item, event):
+    trace_status = event_item.get("contexts", {}).get("trace", {}).get("status")
+    transaction_name = event_item.get("transaction", "")
+
+    is_trace_success = trace_status == "ok"
+    is_ping_request = "/api/ping" in transaction_name
+
+    if is_trace_success and (is_ping_request):
+        return None
+
+    return event_item
+
+sentry_sdk.init(
+    dsn=sentry_dsn,
+    send_default_pii=True,
+    traces_sample_rate=1.0,
+    environment=app_env,
+    release=app_version,
+    integrations=[
+        DjangoIntegration(),
+        LoggingIntegration(level="INFO", event_level="ERROR"),
+    ],
+    before_send_transaction=before_send_transaction
+)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -56,10 +92,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'bugsnag.django.middleware.BugsnagMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     # 'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -170,27 +205,16 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 STATIC_URL = '/static/'
 
-
-# Bugsnag
-BUGSNAG = {
-    'api_key': BUGSNAG_API_KEY,
-    'project_root': '/app/statistics_api/',
-}
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
 
     'root': {
         'level': 'INFO',
-        'handlers': ['bugsnag', 'console'],
+        'handlers': ['console'],
     },
 
     'handlers': {
-        'bugsnag': {
-            'level': 'ERROR',
-            'class': 'bugsnag.handlers.BugsnagHandler',
-        },
         'console' : {
             'level' : 'INFO',
             'class' : 'logging.StreamHandler',

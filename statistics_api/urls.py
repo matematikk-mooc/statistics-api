@@ -19,6 +19,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from django.shortcuts import redirect
 
+from statistics_api.ping.views import ping_view
 from statistics_api.controllers.version_controller import get_software_version
 from statistics_api.enrollment_activity.views import EnrollmentActivityViewSet
 from statistics_api.course_info.views import view_course, view_group_category, view_primary_school, view_high_school
@@ -62,8 +63,8 @@ urlpatterns = [
     url(r'^api/statistics/registrations/(\d+)/$', course_groups, name="course_registrations"),
     url(r'^api/statistics/registrations/(\d+)/leaders$', course_groups_leaders, name="course_registrations_leaders"),
 
-
     url(r'^version/?$', get_software_version),
+    url(r'^api/ping/?$', ping_view, name='ping'),
 
     path("api/statistics/", include(router.urls)),
     path("", lambda req: redirect('api/statistics', permanent=False)),

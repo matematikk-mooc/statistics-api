@@ -1,6 +1,7 @@
 import logging
 import sys
 from json.decoder import JSONDecodeError
+import sentry_sdk
 
 import django
 from django.core import management
@@ -29,4 +30,5 @@ class Command(BaseCommand):
                 management.call_command(command)
                 logger.info(f"Command {command} finished")
             except (JSONDecodeError, AssertionError) as e:
+                sentry_sdk.capture_exception(e)
                 logger.error(e)

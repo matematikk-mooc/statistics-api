@@ -5,6 +5,7 @@ from datetime import date, timedelta
 
 from django.core.management import BaseCommand
 from django.db import transaction
+import sentry_sdk
 import re
 from statistics_api.clients.matomo_api_client import MatomoApiClient
 from statistics_api.matomo.models import Visits, PageStatistics
@@ -22,6 +23,7 @@ class Command(BaseCommand):
             self.fetch_page_statistics(matomo_api_client, yesterday)
             logger.info("Finished pulling data from Matomo")
         except Exception as e:
+            sentry_sdk.capture_exception(e)
             logger.error("Error pulling data from Matomo: " + str(e))
 
     @transaction.atomic

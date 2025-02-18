@@ -1,4 +1,4 @@
-FROM python:3.12.2
+FROM python:3.13
 
 ########            SYSTEM          #########
 
@@ -10,15 +10,15 @@ RUN echo "root:Docker!" | chpasswd
 # Install packages
 RUN apt-get update &&  \
     apt-get install -y  openssh-server \
-                        python3-pip \
-                        python3-venv \
-                        libmariadb-dev \
-                        gdal-bin \
-                        gosu \
-                        python3-dev \
-                        default-libmysqlclient-dev \
-                        build-essential \
-                        pkg-config
+    python3-pip \
+    python3-venv \
+    libmariadb-dev \
+    gdal-bin \
+    gosu \
+    python3-dev \
+    default-libmysqlclient-dev \
+    build-essential \
+    pkg-config
 
 # Set virtual environment
 RUN /usr/bin/python3 -m venv /app/venv

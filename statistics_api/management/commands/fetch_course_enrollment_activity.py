@@ -7,6 +7,7 @@ import arrow
 import requests
 from django.core.management import BaseCommand
 from python_graphql_client import GraphqlClient
+import sentry_sdk
 
 from statistics_api.clients.canvas_api_client import CanvasApiClient
 from statistics_api.definitions import CANVAS_DOMAIN, CANVAS_ACCESS_KEY, CA_FILE_PATH, CANVAS_ACCOUNT_ID
@@ -31,9 +32,11 @@ class Command(BaseCommand):
 						course_id=int(course['id']), access_token=CANVAS_ACCESS_KEY)
                     course_enrollment.fetch_enrollment_activity()
                 except Exception as e:
+                    sentry_sdk.capture_exception(e)
                     logger.error("Error processing course ID %s: %s", course['id'], str(e))
             logger.info("Finished fetching course enrollment activity from Canvas")
         except Exception as e:
+            sentry_sdk.capture_exception(e)
             logger.error("Error fetching courses from Canvas: %s", str(e))
 
 class EnrollmentActivity(object):

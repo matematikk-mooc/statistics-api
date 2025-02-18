@@ -1,5 +1,6 @@
 from django.http import HttpResponse, JsonResponse, HttpResponseNotFound, HttpResponseServerError
 from statistics_api.course_info.utils import Utils
+import sentry_sdk
 
 from statistics_api.clients.kpas_client import KpasClient
 from statistics_api.course_info.models import County
@@ -54,7 +55,8 @@ def county_high_school_statistics_by_county_id(request, county_id, canvas_course
             target_year = get_target_year(course_observation.date_retrieved)
             closest_matching_year = get_closest_matching_year(teacher_count_available_years, target_year)
             total_school_teacher_count = year_to_db_county_mapping[closest_matching_year].number_of_teachers
-        except ValueError:
+        except ValueError as e:
+            sentry_sdk.capture_exception(e)
             return HttpResponseServerError()
 
         course_member_counts = Utils.get_org_nrs_and_enrollment_counts(school_org_nrs, course_observation.pk)

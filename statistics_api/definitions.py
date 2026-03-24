@@ -1,8 +1,18 @@
 import os
 import socket
-from distutils import util
 import netifaces as ni
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
+
+
+def strtobool(val):
+    val = str(val).strip().lower()
+    if val in ('y', 'yes', 't', 'true', 'on', '1'):
+        return True
+    elif val in ('n', 'no', 'f', 'false', 'off', '0'):
+        return False
+    else:
+        raise ValueError(f'Invalid truth value {val!r}')
+
 
 def get_ip_address():
     try:
@@ -47,7 +57,7 @@ DATABASE_REFRESH_MINUTE = str(os.getenv("DATABASE_REFRESH_MINUTE")).zfill(2) if 
     "DATABASE_REFRESH_MINUTE") else "00"
 
 DJANGO_SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
-DJANGO_DEBUG = bool(util.strtobool(os.getenv("DJANGO_DEBUG"))) if os.getenv("DJANGO_DEBUG") is not None else False
+DJANGO_DEBUG = bool(strtobool(os.getenv("DJANGO_DEBUG"))) if os.getenv("DJANGO_DEBUG") is not None else False
 
 allowed_hosts = [s.strip() for s in os.getenv("DJANGO_ALLOWED_HOSTS", "").split(',')]
 if not allowed_hosts:

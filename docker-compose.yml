@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   kpas_stats_db:
     image: mysql:8.4
@@ -27,7 +26,6 @@ services:
       kpas_stats_db:
         condition: service_healthy
     environment:
-      ENVIRONMENT: "local"
       CANVAS_ACCESS_KEY: "" # Generate a new access key here: https://bibsys.test.instructure.com/profile/settings
       MATOMO_ACCESS_KEY: ""
     volumes:

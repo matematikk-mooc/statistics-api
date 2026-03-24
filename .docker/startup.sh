@@ -4,7 +4,10 @@ echo -e "\n\n\n[1/4] Copy and import .env variables to the current shell"
 echo -e "##############################################################\n"
 ENV_FILE=".env"
 if [ ! -f "$ENV_FILE" ]; then
-    cp .docker/.env.template .env
+  cp .docker/.env.template .env
+  echo "- .env file created from template. Please review and update the .env file as needed before restarting the container."
+else
+  echo "- .env file already exists, skipping copy. If you want to reset it, please delete the existing .env file and restart the container."
 fi
 
 set -o allexport
@@ -17,11 +20,15 @@ while IFS='=' read -r key value; do
       export "$key=$value"
       echo "- IMPORTED: $key"
     else
-      echo "- ERROR: $key"
+      echo "- SKIPPED (already set): $key"
     fi
   fi
 done < "$ENV_FILE"
 set +o allexport
+
+if ! grep -q "source /app/.env" /root/.bashrc 2>/dev/null; then
+  echo '[ -f /app/.env ] && set -o allexport && source /app/.env && set +o allexport' >> /root/.bashrc
+fi
 
 echo -e "\n\n\n[2/4] Install PIP packages"
 echo -e "##############################################################\n"

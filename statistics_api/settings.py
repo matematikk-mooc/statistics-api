@@ -21,11 +21,11 @@ import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
 
-app_env=os.getenv("ENVIRONMENT") if os.getenv("ENVIRONMENT") else "local"
+app_env=os.getenv("ENVIRONMENT") if os.getenv("ENVIRONMENT") else "dev"
 app_version=os.getenv("GIT_COMMIT") if os.getenv("GIT_COMMIT") else "1.0.0"
 sentry_dsn=None
 
-if app_env != "local":
+if app_env != "dev":
     sentry_dsn="https://b247741da7815fc43bddd20a6032a1a2@o4507468577701888.ingest.de.sentry.io/4508777538519120"
 
 def before_send_transaction(event_item, event):

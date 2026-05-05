@@ -1,0 +1,56 @@
+name: GoUpdate - Auto Update
+
+on:
+  schedule:
+    - cron: "0 0 * * 1" # Weekly on Monday
+  workflow_dispatch:
+    inputs:
+      update-type:
+        description: "Update type"
+        required: true
+        type: choice
+        default: "minor"
+        options:
+          - major
+          - minor
+          - patch
+      base-branch:
+        description: "Base branch to update from and open PRs against"
+        required: true
+        type: string
+        default: "stage"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      package-managers: ${{ steps.scan.outputs.package-managers }}
+      rules: ${{ steps.scan.outputs.rules }}
+      total-outdated: ${{ steps.outdated.outputs.total-outdated }}
+      major: ${{ steps.outdated.outputs.major }}
+      minor: ${{ steps.outdated.outputs.minor }}
+      patch: ${{ steps.outdated.outputs.patch }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.inputs.base-branch || 'stage' }}
+          fetch-depth: 0
+      - uses: Utdanningsdirektoratet/dit-github-actions/git/checkout@v1
+        with:
+          branch: goupdate/auto-update-${{ github.event.inputs.update-type || 'minor' }}
+          source-branch: ${{ github.event.inputs.base-branch || 'stage' }}
+          create-branch: "false"
+      - uses: Utdanningsdirektoratet/dit-github-actions/goupdate/install@v1
+      - uses: Utdanningsdirektoratet/dit-github-actions/goupdate/scan@v1
+        id: scan
+      - uses: Utdanningsdirektoratet/dit-github-actions/github/runtimes@v1
+        with:
+          python-version: "3.x"
+      - uses: Utdanningsdirektoratet/dit-github-actions/goupdate/outdated@v1
+        id: outdated

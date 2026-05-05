@@ -70,7 +70,7 @@ Alternatively, you can directly utilize the stage database by updating all varia
 | pull_data_from_matomo | This populates the db with visit and page statistics from matomo. To run this command you will need to set the MATOMO_ACCESS_KEY in the `.env` file. |
 | pull_finnish_marks_canvas | This populates the db with statistics on finnsih marks for each module item. |
 | pull_history_from_canvas_and_update_db | Populates the db with history statisics from canvas |
-| pull_total_students_counts_from_canvas | Populates the db with number of studens in groups from canvas. |
+| pull_total_students_counts_from_courses | Populates the db with number of studens in groups from canvas. |
 
 ### Setup LTI tool in Canvas LMS (TODO)
 

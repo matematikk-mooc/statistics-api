@@ -17,7 +17,7 @@ on:
 jobs:
   test-build-deploy:
     name: Runs unit tests, builds docker image and deploys image
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       DB_HOST: 127.0.0.1
       DJANGO_SECRET_KEY: not_secret_key
